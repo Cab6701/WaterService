@@ -45,6 +45,18 @@ namespace WaterService.Models
         [Display(Name = "Notes")]
         public string? Notes { get; set; }
 
+        [Display(Name = "New Index")]
+        public decimal? NewIndex { get; set; }
+
+        [Display(Name = "Old Index")]
+        public decimal? OldIndex { get; set; }
+
+        [Display(Name = "Actual Index")]
+        public decimal? ActualIndex { get; set; }
+
+        [Display(Name = "Money")]
+        public decimal? Money { get; set; }
+
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

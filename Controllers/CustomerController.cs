@@ -18,14 +18,14 @@ namespace WaterService.Controllers
         }
 
         // GET: Customer
-        public IActionResult Index(string? search, string? status, DateTime? dateFrom, DateTime? dateTo, int page = 1, int pageSize = 20)
+        public IActionResult Index(string? search, string? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
             var query = _customers.AsQueryable();
 
             // Apply search filter
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(c => 
+                query = query.Where(c =>
                     c.CustomerCode.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                     c.HouseholdHeadName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                     c.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase));
@@ -37,14 +37,23 @@ namespace WaterService.Controllers
                 query = query.Where(c => c.Status == statusEnum);
             }
 
-            // Apply date range filter
-            if (dateFrom.HasValue)
+            // Chỉ lọc theo quý nếu có chọn năm
+            if (year.HasValue)
             {
-                query = query.Where(c => c.RegistrationDate >= dateFrom.Value);
-            }
-            if (dateTo.HasValue)
-            {
-                query = query.Where(c => c.RegistrationDate <= dateTo.Value);
+                if (quarter.HasValue && quarter.Value >= 1 && quarter.Value <= 4)
+                {
+                    int startMonth = (quarter.Value - 1) * 3 + 1;
+                    int endMonth = startMonth + 2;
+                    var startDate = new DateTime(year.Value, startMonth, 1);
+                    var endDate = new DateTime(year.Value, endMonth, DateTime.DaysInMonth(year.Value, endMonth));
+                    query = query.Where(c => c.RegistrationDate >= startDate && c.RegistrationDate <= endDate);
+                }
+                else
+                {
+                    var startDate = new DateTime(year.Value, 1, 1);
+                    var endDate = new DateTime(year.Value, 12, 31);
+                    query = query.Where(c => c.RegistrationDate >= startDate && c.RegistrationDate <= endDate);
+                }
             }
 
             // Calculate pagination
@@ -61,8 +70,8 @@ namespace WaterService.Controllers
                 Customers = customers,
                 Search = search,
                 Status = status,
-                DateFrom = dateFrom,
-                DateTo = dateTo,
+                Quarter = quarter,
+                Year = year,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalCount = totalCount,
@@ -106,7 +115,7 @@ namespace WaterService.Controllers
                 customer.CustomerCode = $"C{_nextCustomerCode:D6}";
                 customer.CreatedAt = DateTime.UtcNow;
                 customer.UpdatedAt = DateTime.UtcNow;
-                
+
                 _customers.Add(customer);
                 _nextCustomerCode++;
 
@@ -310,8 +319,8 @@ namespace WaterService.Controllers
         public List<Customer> Customers { get; set; } = new List<Customer>();
         public string? Search { get; set; }
         public string? Status { get; set; }
-        public DateTime? DateFrom { get; set; }
-        public DateTime? DateTo { get; set; }
+        public int? Quarter { get; set; }
+        public int? Year { get; set; }
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
         public int TotalCount { get; set; }

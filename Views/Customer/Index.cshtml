@@ -23,23 +23,35 @@
                            id="search" 
                            name="search" 
                            placeholder="Search by Customer ID, Name, or Phone..."
-                           value="@Model.Search">
+                           value="@(Model.Search)">
                 </div>
                 <div class="col-md-3">
                     <label for="status" class="form-label">Status</label>
                     <select class="form-select" id="status" name="status">
                         <option value="">All</option>
-                        <option value="@(Model.Status == "Active" ? "selected" : "")">Active</option>
+                        <option value="@(Model.Status == "Active" ? "selected" : "")" >Active</option>
                         <option value="@(Model.Status == "Inactive" ? "selected" : "")">Inactive</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="dateFrom" class="form-label">From Date</label>
-                    <input type="date" class="form-control" id="dateFrom" name="dateFrom" value="@Model.DateFrom?.ToString("yyyy-MM-dd")">
+                    <label for="quarter" class="form-label">Quarter</label>
+                    <select class="form-select" id="quarter" name="quarter">
+                        <option value="" selected="@(Model.Quarter == null ? "selected" : null)">All</option>
+                        <option value="1" selected="@(Model.Quarter == 1 ? "selected" : null)">Q1 (Jan-Mar)</option>
+                        <option value="2" selected="@(Model.Quarter == 2 ? "selected" : null)">Q2 (Apr-Jun)</option>
+                        <option value="3" selected="@(Model.Quarter == 3 ? "selected" : null)">Q3 (Jul-Sep)</option>
+                        <option value="4" selected="@(Model.Quarter == 4 ? "selected" : null)">Q4 (Oct-Dec)</option>
+                    </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="dateTo" class="form-label">To Date</label>
-                    <input type="date" class="form-control" id="dateTo" name="dateTo" value="@Model.DateTo?.ToString("yyyy-MM-dd")">
+                    <label for="year" class="form-label">Year</label>
+                    <select class="form-select" id="year" name="year">
+                        <option value="" selected="@(Model.Year == null ? "selected" : null)">All</option>
+                        @for (int y = DateTime.Now.Year; y >= 2000; y--)
+                        {
+                            <option value="@y" selected="@(Model.Year == y ? "selected" : null)">@y</option>
+                        }
+                    </select>
                 </div>
                 <div class="col-md-1 d-flex align-items-end">
                     <button type="submit" class="btn btn-outline-primary w-100">
@@ -83,8 +95,12 @@
                                     <th>Name</th>
                                     <th>Phone</th>
                                     <th>Address</th>
+                                    <th>New Index</th>
+                                    <th>Old Index</th>
+                                    <th>Actual Index</th>
+                                    <th>Money</th>
+                                    <th>Notes</th>
                                     <th>Status</th>
-                                    <th>Registration Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -103,12 +119,18 @@
                                         <td class="text-truncate" style="max-width: 200px;" title="@customer.Address">
                                             @customer.Address
                                         </td>
+                                        <td>@(customer.NewIndex?.ToString() ?? "-")</td>
+                                        <td>@(customer.OldIndex?.ToString() ?? "-")</td>
+                                        <td>@(customer.ActualIndex?.ToString() ?? "-")</td>
+                                        <td>@(customer.Money?.ToString("C") ?? "-")</td>
+                                        <td class="text-truncate" style="max-width: 150px;" title="@customer.Notes">
+                                            @(customer.Notes ?? "-")
+                                        </td>
                                         <td>
                                             <span class="badge @(customer.Status == WaterService.Models.CustomerStatus.Active ? "bg-success" : "bg-secondary")">
                                                 @customer.Status
                                             </span>
                                         </td>
-                                        <td>@customer.RegistrationDate.ToString("MMM dd, yyyy")</td>
                                         <td>
                                             <div class="btn-group btn-group-sm">
                                                 <a href="@Url.Action("Details", new { id = customer.Id })" 
@@ -157,8 +179,8 @@
                         <a class="page-link" href="@Url.Action("Index", new { 
                             search = Model.Search, 
                             status = Model.Status, 
-                            dateFrom = Model.DateFrom, 
-                            dateTo = Model.DateTo, 
+                            quarter = Model.Quarter,
+                            year = Model.Year,
                             page = Model.CurrentPage - 1 
                         })">Previous</a>
                     </li>
@@ -170,8 +192,8 @@
                         <a class="page-link" href="@Url.Action("Index", new { 
                             search = Model.Search, 
                             status = Model.Status, 
-                            dateFrom = Model.DateFrom, 
-                            dateTo = Model.DateTo, 
+                            quarter = Model.Quarter,
+                            year = Model.Year,
                             page = i 
                         })">@i</a>
                     </li>
@@ -183,8 +205,8 @@
                         <a class="page-link" href="@Url.Action("Index", new { 
                             search = Model.Search, 
                             status = Model.Status, 
-                            dateFrom = Model.DateFrom, 
-                            dateTo = Model.DateTo, 
+                            quarter = Model.Quarter,
+                            year = Model.Year,
                             page = Model.CurrentPage + 1 
                         })">Next</a>
                     </li>
