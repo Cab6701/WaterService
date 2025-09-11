@@ -65,7 +65,7 @@ namespace WaterService.Models
 
         // Navigation properties
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
-        public virtual ICollection<MeterReading> MeterReadings { get; set; } = new List<MeterReading>();
+        public virtual List<WaterMeterReading> WaterMeterReadings { get; set; } = new List<WaterMeterReading>();
     }
 
     public enum CustomerStatus

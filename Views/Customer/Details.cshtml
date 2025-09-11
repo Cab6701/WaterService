@@ -75,7 +75,8 @@
                             <small class="text-muted">Status</small>
                         </div>
                         <div class="col-sm-8">
-                            <span class="badge @(Model.Status == WaterService.Models.CustomerStatus.Active ? "bg-success" : "bg-secondary")">
+                            <span
+                                class="badge @(Model.Status == WaterService.Models.CustomerStatus.Active ? "bg-success" : "bg-secondary")">
                                 @Model.Status
                             </span>
                         </div>
@@ -207,18 +208,105 @@
                     <h6 class="mb-0">
                         <i class="fas fa-tachometer-alt"></i> Meter Reading History
                     </h6>
-                    <a href="#" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-plus"></i> New Reading
-                    </a>
                 </div>
                 <div class="card-body">
-                    <div class="text-center py-4">
-                        <i class="fas fa-tachometer-alt fa-3x text-muted mb-3"></i>
-                        <h6 class="text-muted">No meter readings found</h6>
-                        <p class="text-muted mb-0">This customer doesn't have any meter readings yet.</p>
-                        <a href="#" class="btn btn-sm btn-primary mt-2">
-                            <i class="fas fa-plus"></i> Add First Reading
-                        </a>
+                    <!-- Form nhập/chỉnh sửa chỉ số nước -->
+                    <div class="mb-4">
+                        <form asp-action="AddOrEditMeterReading" method="post" class="row g-3 align-items-end">
+                            <input type="hidden" name="CustomerId" value="@Model.Id" />
+                            <input type="hidden" name="Id" value="@ViewBag.EditReading?.Id" />
+                            <div class="col-md-2">
+                                <label class="form-label">Quý</label>
+                                <select class="form-select" name="Quarter" required>
+                                    <option value="">Chọn quý</option>
+                                    @for (int q = 1; q <= 4; q++)
+                                    {
+                                        <option value="@q" selected="@(ViewBag.EditReading?.Quarter == q)">
+                                            Quý @q
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Năm</label>
+                                <input type="number" class="form-control" name="Year"
+                                    value="@(ViewBag.EditReading?.Year ?? DateTime.Now.Year)" required min="2000"
+                                    max="2100" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Chỉ số cũ</label>
+                                <input type="number" step="0.01" class="form-control" name="PreviousReading"
+                                    value="@ViewBag.EditReading?.PreviousReading" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Chỉ số mới</label>
+                                <input type="number" step="0.01" class="form-control" name="CurrentReading"
+                                    value="@ViewBag.EditReading?.CurrentReading" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Ghi chú</label>
+                                <input type="text" class="form-control" name="Notes"
+                                    value="@ViewBag.EditReading?.Notes" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">@((ViewBag.EditReading != null) ?
+                                                                        "Cập nhật" : "Thêm mới")</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Bảng lịch sử chỉ số nước -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Quý</th>
+                                    <th>Năm</th>
+                                    <th>Chỉ số cũ</th>
+                                    <th>Chỉ số mới</th>
+                                    <th>Tiêu thụ</th>
+                                    <th>Ghi chú</th>
+                                    <th>Ngày nhập</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.WaterMeterReadings != null && Model.WaterMeterReadings.Any())
+                                {
+                                    foreach (var reading in Model.WaterMeterReadings.OrderByDescending(r =>
+                                    r.Year).ThenByDescending(r => r.Quarter))
+                                    {
+                                        <tr>
+                                            <td>@reading.Quarter</td>
+                                            <td>@reading.Year</td>
+                                            <td>@reading.PreviousReading</td>
+                                            <td>@reading.CurrentReading</td>
+                                            <td>@(reading.CurrentReading - reading.PreviousReading)</td>
+                                            <td>@reading.Notes</td>
+                                            <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <form asp-action="EditMeterReading" method="get" style="display:inline">
+                                                    <input type="hidden" name="id" value="@reading.Id" />
+                                                    <input type="hidden" name="customerId" value="@Model.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-warning">Chỉnh sửa</button>
+                                                </form>
+                                                <form asp-action="DeleteMeterReading" method="post" style="display:inline"
+                                                    onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                                                    <input type="hidden" name="id" value="@reading.Id" />
+                                                    <input type="hidden" name="customerId" value="@Model.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Chưa có chỉ số nước nào</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -244,7 +332,7 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Add any specific JavaScript for the details page here
             console.log('Customer details page loaded for: @Model.CustomerCode');
         });
