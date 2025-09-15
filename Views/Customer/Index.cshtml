@@ -95,8 +95,8 @@
                                     <th>Name</th>
                                     <th>Phone</th>
                                     <th>Address</th>
-                                    <th>New Index</th>
                                     <th>Old Index</th>
+                                    <th>New Index</th>
                                     <th>Actual Index</th>
                                     <th>Money</th>
                                     <th>Notes</th>
@@ -119,8 +119,8 @@
                                         <td class="text-truncate" style="max-width: 200px;" title="@customer.Address">
                                             @customer.Address
                                         </td>
-                                        <td>@(customer.NewIndex?.ToString() ?? "-")</td>
                                         <td>@(customer.OldIndex?.ToString() ?? "-")</td>
+                                        <td>@(customer.NewIndex?.ToString() ?? "-")</td>
                                         <td>@(customer.ActualIndex?.ToString() ?? "-")</td>
                                         <td>@(customer.Money?.ToString("C") ?? "-")</td>
                                         <td class="text-truncate" style="max-width: 150px;" title="@customer.Notes">
