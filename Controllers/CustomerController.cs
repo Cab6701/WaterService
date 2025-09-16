@@ -10,6 +10,7 @@ namespace WaterService.Controllers
         private static List<Customer> _customers = new List<Customer>();
         private static int _nextCustomerId = 1;
         private static int _nextCustomerCode = 1001;
+        private static int _nextWaterMeterReadingId = 1;
 
         public CustomerController(ILogger<CustomerController> logger)
         {
@@ -18,14 +19,14 @@ namespace WaterService.Controllers
         }
 
         // GET: Customer
-        public IActionResult Index(string? search, string? status, DateTime? dateFrom, DateTime? dateTo, int page = 1, int pageSize = 20)
+        public IActionResult Index(string? search, string? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
             var query = _customers.AsQueryable();
 
             // Apply search filter
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(c => 
+                query = query.Where(c =>
                     c.CustomerCode.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                     c.HouseholdHeadName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                     c.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase));
@@ -37,14 +38,23 @@ namespace WaterService.Controllers
                 query = query.Where(c => c.Status == statusEnum);
             }
 
-            // Apply date range filter
-            if (dateFrom.HasValue)
+            // Chỉ lọc theo quý nếu có chọn năm
+            if (year.HasValue)
             {
-                query = query.Where(c => c.RegistrationDate >= dateFrom.Value);
-            }
-            if (dateTo.HasValue)
-            {
-                query = query.Where(c => c.RegistrationDate <= dateTo.Value);
+                if (quarter.HasValue && quarter.Value >= 1 && quarter.Value <= 4)
+                {
+                    int startMonth = (quarter.Value - 1) * 3 + 1;
+                    int endMonth = startMonth + 2;
+                    var startDate = new DateTime(year.Value, startMonth, 1);
+                    var endDate = new DateTime(year.Value, endMonth, DateTime.DaysInMonth(year.Value, endMonth));
+                    query = query.Where(c => c.RegistrationDate >= startDate && c.RegistrationDate <= endDate);
+                }
+                else
+                {
+                    var startDate = new DateTime(year.Value, 1, 1);
+                    var endDate = new DateTime(year.Value, 12, 31);
+                    query = query.Where(c => c.RegistrationDate >= startDate && c.RegistrationDate <= endDate);
+                }
             }
 
             // Calculate pagination
@@ -61,8 +71,8 @@ namespace WaterService.Controllers
                 Customers = customers,
                 Search = search,
                 Status = status,
-                DateFrom = dateFrom,
-                DateTo = dateTo,
+                Quarter = quarter,
+                Year = year,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalCount = totalCount,
@@ -80,8 +90,84 @@ namespace WaterService.Controllers
             {
                 return NotFound();
             }
-
             return View(customer);
+        }
+
+        // GET: Customer/EditMeterReading
+        [HttpGet]
+        public IActionResult EditMeterReading(int id, int customerId)
+        {
+            var customer = _customers.FirstOrDefault(c => c.Id == customerId);
+            if (customer == null)
+                return NotFound();
+            var reading = customer.WaterMeterReadings?.FirstOrDefault(r => r.Id == id);
+            if (reading == null)
+                return NotFound();
+            ViewBag.EditReading = reading;
+            return View("Details", customer);
+        }
+
+        // POST: Customer/AddOrEditMeterReading
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddOrEditMeterReading(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, string? Notes)
+        {
+            var customer = _customers.FirstOrDefault(c => c.Id == CustomerId);
+            if (customer == null)
+                return NotFound();
+
+            WaterMeterReading reading;
+            if (customer.WaterMeterReadings == null)
+                customer.WaterMeterReadings = new List<WaterMeterReading>();
+            if (Id.HasValue && Id.Value > 0)
+            {
+                // Edit
+                reading = customer.WaterMeterReadings.FirstOrDefault(r => r.Id == Id.Value);
+                if (reading == null)
+                    return NotFound();
+                reading.Quarter = Quarter;
+                reading.Year = Year;
+                reading.PreviousReading = PreviousReading;
+                reading.CurrentReading = CurrentReading;
+                reading.Notes = Notes;
+                reading.CreatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                // Add new
+                reading = new WaterMeterReading
+                {
+                    Id = _nextWaterMeterReadingId++,
+                    CustomerId = CustomerId,
+                    Quarter = Quarter,
+                    Year = Year,
+                    PreviousReading = PreviousReading,
+                    CurrentReading = CurrentReading,
+                    Notes = Notes,
+                    CreatedAt = DateTime.UtcNow
+                };
+                customer.WaterMeterReadings.Add(reading);
+            }
+            TempData["SuccessMessage"] = "Lưu chỉ số nước thành công.";
+            return RedirectToAction("Details", new { id = CustomerId });
+        }
+
+        // POST: Customer/DeleteMeterReading
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteMeterReading(int id, int customerId)
+        {
+            var customer = _customers.FirstOrDefault(c => c.Id == customerId);
+            if (customer == null)
+                return NotFound();
+            if (customer.WaterMeterReadings == null)
+                return NotFound();
+            var reading = customer.WaterMeterReadings.FirstOrDefault(r => r.Id == id);
+            if (reading == null)
+                return NotFound();
+            customer.WaterMeterReadings.Remove(reading);
+            TempData["SuccessMessage"] = "Đã xóa chỉ số nước.";
+            return RedirectToAction("Details", new { id = customerId });
         }
 
         // GET: Customer/Create
@@ -106,7 +192,7 @@ namespace WaterService.Controllers
                 customer.CustomerCode = $"C{_nextCustomerCode:D6}";
                 customer.CreatedAt = DateTime.UtcNow;
                 customer.UpdatedAt = DateTime.UtcNow;
-                
+
                 _customers.Add(customer);
                 _nextCustomerCode++;
 
@@ -310,8 +396,8 @@ namespace WaterService.Controllers
         public List<Customer> Customers { get; set; } = new List<Customer>();
         public string? Search { get; set; }
         public string? Status { get; set; }
-        public DateTime? DateFrom { get; set; }
-        public DateTime? DateTo { get; set; }
+        public int? Quarter { get; set; }
+        public int? Year { get; set; }
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
         public int TotalCount { get; set; }

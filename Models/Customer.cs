@@ -45,6 +45,18 @@ namespace WaterService.Models
         [Display(Name = "Notes")]
         public string? Notes { get; set; }
 
+        [Display(Name = "New Index")]
+        public decimal? NewIndex { get; set; }
+
+        [Display(Name = "Old Index")]
+        public decimal? OldIndex { get; set; }
+
+        [Display(Name = "Actual Index")]
+        public decimal? ActualIndex { get; set; }
+
+        [Display(Name = "Money")]
+        public decimal? Money { get; set; }
+
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -53,7 +65,7 @@ namespace WaterService.Models
 
         // Navigation properties
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
-        public virtual ICollection<MeterReading> MeterReadings { get; set; } = new List<MeterReading>();
+        public virtual List<WaterMeterReading> WaterMeterReadings { get; set; } = new List<WaterMeterReading>();
     }
 
     public enum CustomerStatus
