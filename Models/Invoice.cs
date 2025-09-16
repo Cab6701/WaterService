@@ -21,6 +21,15 @@ namespace WaterService.Models
         public DateTime BillingPeriod { get; set; }
 
         [Required]
+        [Range(1, 4)]
+        [Display(Name = "Quarter")]
+        public int Quarter { get; set; }
+
+        [Required]
+        [Display(Name = "Year")]
+        public int Year { get; set; }
+
+        [Required]
         [Display(Name = "Amount")]
         [DataType(DataType.Currency)]
         public decimal Amount { get; set; }
@@ -38,6 +47,12 @@ namespace WaterService.Models
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [Display(Name = "Updated At")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        [Display(Name = "Water Meter Reading")]
+        public int? WaterMeterReadingId { get; set; }
+        public virtual MeterReading? WaterMeterReading { get; set; }
 
         // Navigation properties
         public virtual Customer Customer { get; set; } = null!;

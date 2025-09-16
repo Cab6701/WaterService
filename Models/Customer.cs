@@ -27,19 +27,9 @@ namespace WaterService.Models
         [RegularExpression(@"^[0-9]{10,11}$", ErrorMessage = "Phone number must be 10-11 digits")]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        [StringLength(255)]
-        [EmailAddress]
-        [Display(Name = "Email Address")]
-        public string? Email { get; set; }
-
-        [Required]
-        [Display(Name = "Registration Date")]
-        [DataType(DataType.Date)]
-        public DateTime RegistrationDate { get; set; } = DateTime.Today;
-
         [Required]
         [Display(Name = "Status")]
-        public CustomerStatus Status { get; set; } = CustomerStatus.Active;
+        public CustomerStatus Status { get; set; } = CustomerStatus.Paid;
 
         [StringLength(1000)]
         [Display(Name = "Notes")]
@@ -65,12 +55,13 @@ namespace WaterService.Models
 
         // Navigation properties
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
-        public virtual List<WaterMeterReading> WaterMeterReadings { get; set; } = new List<WaterMeterReading>();
+        public virtual List<MeterReading> MeterReadings { get; set; } = new List<MeterReading>();
     }
 
     public enum CustomerStatus
     {
-        Active,
-        Inactive
+        Paid,
+        Pending,
+        Abandoned
     }
 }

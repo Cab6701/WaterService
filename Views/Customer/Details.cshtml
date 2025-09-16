@@ -1,6 +1,6 @@
 @model WaterService.Models.Customer
 @{
-    ViewData["Title"] = "Customer Details";
+ViewData["Title"] = "Customer Details";
 }
 
 <div class="customer-details">
@@ -11,10 +11,10 @@
                 <p class="text-muted mb-0">Complete information for <strong>@Model.CustomerCode</strong></p>
             </div>
             <div class="btn-group">
-                <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+                <a href="@Url.Action(" Edit", new { id=Model.Id })" class="btn btn-primary">
                     <i class="fas fa-edit"></i> Edit Customer
                 </a>
-                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <a href="@Url.Action(" Index")" class="btn btn-outline-secondary">
                     <i class="fas fa-list"></i> Back to List
                 </a>
             </div>
@@ -57,36 +57,13 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Email</small>
-                        </div>
-                        <div class="col-sm-8">
-                            @if (!string.IsNullOrEmpty(Model.Email))
-                            {
-                                <a href="mailto:@Model.Email">@Model.Email</a>
-                            }
-                            else
-                            {
-                                <span class="text-muted">Not provided</span>
-                            }
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
                             <small class="text-muted">Status</small>
                         </div>
                         <div class="col-sm-8">
-                            <span
-                                class="badge @(Model.Status == WaterService.Models.CustomerStatus.Active ? "bg-success" : "bg-secondary")">
+                            <span class="badge @(Model.Status == WaterService.Models.CustomerStatus.Paid ? " bg-success"
+                                : "bg-secondary" )">
                                 @Model.Status
                             </span>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <small class="text-muted">Registration</small>
-                        </div>
-                        <div class="col-sm-8">
-                            @Model.RegistrationDate.ToString("MMM dd, yyyy")
                         </div>
                     </div>
                 </div>
@@ -130,14 +107,14 @@
                     </div>
                     @if (!string.IsNullOrEmpty(Model.Notes))
                     {
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <small class="text-muted">Notes</small>
-                            </div>
-                            <div class="col-sm-8">
-                                <p class="mb-0">@Model.Notes</p>
-                            </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <small class="text-muted">Notes</small>
                         </div>
+                        <div class="col-sm-8">
+                            <p class="mb-0">@Model.Notes</p>
+                        </div>
+                    </div>
                     }
                 </div>
             </div>
@@ -219,12 +196,11 @@
                                 <label class="form-label">Quý</label>
                                 <select class="form-select" name="Quarter" required>
                                     <option value="">Chọn quý</option>
-                                    @for (int q = 1; q <= 4; q++)
-                                    {
-                                        <option value="@q" selected="@(ViewBag.EditReading?.Quarter == q)">
-                                            Quý @q
+                                    @for (int q = 1; q <= 4; q++) { <option value="@q"
+                                        selected="@(ViewBag.EditReading?.Quarter == q)">
+                                        Quý @q
                                         </option>
-                                    }
+                                        }
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -250,7 +226,7 @@
                             </div>
                             <div class="col-md-2">
                                 <button type="submit" class="btn btn-primary w-100">@((ViewBag.EditReading != null) ?
-                                                                        "Cập nhật" : "Thêm mới")</button>
+                                    "Cập nhật" : "Thêm mới")</button>
                             </div>
                         </form>
                     </div>
@@ -270,40 +246,40 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (Model.WaterMeterReadings != null && Model.WaterMeterReadings.Any())
+                                @if (Model.MeterReadings != null && Model.MeterReadings.Any())
                                 {
-                                    foreach (var reading in Model.WaterMeterReadings.OrderByDescending(r =>
-                                    r.Year).ThenByDescending(r => r.Quarter))
-                                    {
-                                        <tr>
-                                            <td>@reading.Quarter</td>
-                                            <td>@reading.Year</td>
-                                            <td>@reading.PreviousReading</td>
-                                            <td>@reading.CurrentReading</td>
-                                            <td>@(reading.CurrentReading - reading.PreviousReading)</td>
-                                            <td>@reading.Notes</td>
-                                            <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
-                                            <td>
-                                                <form asp-action="EditMeterReading" method="get" style="display:inline">
-                                                    <input type="hidden" name="id" value="@reading.Id" />
-                                                    <input type="hidden" name="customerId" value="@Model.Id" />
-                                                    <button type="submit" class="btn btn-sm btn-warning">Chỉnh sửa</button>
-                                                </form>
-                                                <form asp-action="DeleteMeterReading" method="post" style="display:inline"
-                                                    onsubmit="return confirm('Bạn có chắc muốn xóa?');">
-                                                    <input type="hidden" name="id" value="@reading.Id" />
-                                                    <input type="hidden" name="customerId" value="@Model.Id" />
-                                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    }
+                                foreach (var reading in Model.MeterReadings.OrderByDescending(r =>
+                                r.Year).ThenByDescending(r => r.Quarter))
+                                {
+                                <tr>
+                                    <td>@reading.Quarter</td>
+                                    <td>@reading.Year</td>
+                                    <td>@reading.PreviousReading</td>
+                                    <td>@reading.CurrentReading</td>
+                                    <td>@(reading.CurrentReading - reading.PreviousReading)</td>
+                                    <td>@reading.Notes</td>
+                                    <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <form asp-action="EditMeterReading" method="get" style="display:inline">
+                                            <input type="hidden" name="id" value="@reading.Id" />
+                                            <input type="hidden" name="customerId" value="@Model.Id" />
+                                            <button type="submit" class="btn btn-sm btn-warning">Chỉnh sửa</button>
+                                        </form>
+                                        <form asp-action="DeleteMeterReading" method="post" style="display:inline"
+                                            onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                                            <input type="hidden" name="id" value="@reading.Id" />
+                                            <input type="hidden" name="customerId" value="@Model.Id" />
+                                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                }
                                 }
                                 else
                                 {
-                                    <tr>
-                                        <td colspan="8" class="text-center text-muted">Chưa có chỉ số nước nào</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Chưa có chỉ số nước nào</td>
+                                </tr>
                                 }
                             </tbody>
                         </table>
@@ -331,10 +307,10 @@
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-            // Add any specific JavaScript for the details page here
-            console.log('Customer details page loaded for: @Model.CustomerCode');
-        });
-    </script>
+<script>
+    $(document).ready(function () {
+        // Add any specific JavaScript for the details page here
+        console.log('Customer details page loaded for: @Model.CustomerCode');
+    });
+</script>
 }

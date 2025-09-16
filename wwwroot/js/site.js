@@ -66,15 +66,11 @@ function initializeCustomerManagement() {
 function performSearch() {
     const searchTerm = $('#search').val();
     const status = $('#status').val();
-    const dateFrom = $('#dateFrom').val();
-    const dateTo = $('#dateTo').val();
 
     // Build URL with current parameters
     const url = new URL(window.location);
     url.searchParams.set('search', searchTerm || '');
     url.searchParams.set('status', status || '');
-    url.searchParams.set('dateFrom', dateFrom || '');
-    url.searchParams.set('dateTo', dateTo || '');
     url.searchParams.set('page', '1'); // Reset to first page
 
     // Navigate to the new URL
@@ -149,7 +145,6 @@ function autoSaveFormData() {
         householdHeadName: $('#HouseholdHeadName').val(),
         address: $('#Address').val(),
         phoneNumber: $('#PhoneNumber').val(),
-        email: $('#Email').val(),
         status: $('#Status').val(),
         notes: $('#Notes').val(),
         timestamp: new Date().toISOString()
@@ -173,7 +168,6 @@ function loadFormData() {
                 $('#HouseholdHeadName').val(formData.householdHeadName || '');
                 $('#Address').val(formData.address || '');
                 $('#PhoneNumber').val(formData.phoneNumber || '');
-                $('#Email').val(formData.email || '');
                 $('#Status').val(formData.status || 'Active');
                 $('#Notes').val(formData.notes || '');
                 

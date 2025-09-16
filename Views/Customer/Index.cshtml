@@ -1,13 +1,13 @@
 @model WaterService.Controllers.CustomerIndexViewModel
 @{
-    ViewData["Title"] = "Customer Management";
+ViewData["Title"] = "Customer Management";
 }
 
 <div class="customer-management">
     <!-- Header -->
     <div class="page-header d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Customer Management</h1>
-        <a href="@Url.Action("Create")" class="btn btn-primary">
+        <a href="@Url.Action(" Create")" class="btn btn-primary">
             <i class="fas fa-plus"></i> Add Customer
         </a>
     </div>
@@ -15,41 +15,37 @@
     <!-- Search and Filters -->
     <div class="search-filters card mb-4">
         <div class="card-body">
-            <form method="get" action="@Url.Action("Index")" class="row g-3">
+            <form method="get" action="@Url.Action(" Index")" class="row g-3">
                 <div class="col-md-4">
                     <label for="search" class="form-label">Search</label>
-                    <input type="text" 
-                           class="form-control" 
-                           id="search" 
-                           name="search" 
-                           placeholder="Search by Customer ID, Name, or Phone..."
-                           value="@(Model.Search)">
+                    <input type="text" class="form-control" id="search" name="search"
+                        placeholder="Search by Customer ID, Name, or Phone..." value="@(Model.Search)">
                 </div>
                 <div class="col-md-3">
                     <label for="status" class="form-label">Status</label>
                     <select class="form-select" id="status" name="status">
                         <option value="">All</option>
-                        <option value="@(Model.Status == "Active" ? "selected" : "")" >Active</option>
-                        <option value="@(Model.Status == "Inactive" ? "selected" : "")">Inactive</option>
+                        <option value="@(Model.Status == " Active" ? "selected" : "" )">Active</option>
+                        <option value="@(Model.Status == " Inactive" ? "selected" : "" )">Inactive</option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label for="quarter" class="form-label">Quarter</label>
                     <select class="form-select" id="quarter" name="quarter">
-                        <option value="" selected="@(Model.Quarter == null ? "selected" : null)">All</option>
-                        <option value="1" selected="@(Model.Quarter == 1 ? "selected" : null)">Q1 (Jan-Mar)</option>
-                        <option value="2" selected="@(Model.Quarter == 2 ? "selected" : null)">Q2 (Apr-Jun)</option>
-                        <option value="3" selected="@(Model.Quarter == 3 ? "selected" : null)">Q3 (Jul-Sep)</option>
-                        <option value="4" selected="@(Model.Quarter == 4 ? "selected" : null)">Q4 (Oct-Dec)</option>
+                        <option value="" selected="@(Model.Quarter == null ? " selected" : null)">All</option>
+                        <option value="1" selected="@(Model.Quarter == 1 ? " selected" : null)">Q1 (Jan-Mar)</option>
+                        <option value="2" selected="@(Model.Quarter == 2 ? " selected" : null)">Q2 (Apr-Jun)</option>
+                        <option value="3" selected="@(Model.Quarter == 3 ? " selected" : null)">Q3 (Jul-Sep)</option>
+                        <option value="4" selected="@(Model.Quarter == 4 ? " selected" : null)">Q4 (Oct-Dec)</option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label for="year" class="form-label">Year</label>
                     <select class="form-select" id="year" name="year">
-                        <option value="" selected="@(Model.Year == null ? "selected" : null)">All</option>
+                        <option value="" selected="@(Model.Year == null ? " selected" : null)">All</option>
                         @for (int y = DateTime.Now.Year; y >= 2000; y--)
                         {
-                            <option value="@y" selected="@(Model.Year == y ? "selected" : null)">@y</option>
+                        <option value="@y" selected="@(Model.Year == y ? " selected" : null)">@y</option>
                         }
                     </select>
                 </div>
@@ -70,7 +66,8 @@
                 <div class="bulk-actions" style="display: none;">
                     <span class="selected-count me-3">0 selected</span>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                            data-bs-toggle="dropdown">
                             Bulk Actions
                         </button>
                         <ul class="dropdown-menu">
@@ -84,85 +81,86 @@
             <div class="card-body p-0">
                 @if (Model.Customers.Any())
                 {
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>
-                                        <input type="checkbox" id="selectAll" class="form-check-input">
-                                    </th>
-                                    <th>Customer ID</th>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>Address</th>
-                                    <th>Old Index</th>
-                                    <th>New Index</th>
-                                    <th>Actual Index</th>
-                                    <th>Money</th>
-                                    <th>Notes</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var customer in Model.Customers)
-                                {
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" class="form-check-input customer-checkbox" value="@customer.Id">
-                                        </td>
-                                        <td>
-                                            <strong>@customer.CustomerCode</strong>
-                                        </td>
-                                        <td>@customer.HouseholdHeadName</td>
-                                        <td>@customer.PhoneNumber</td>
-                                        <td class="text-truncate" style="max-width: 200px;" title="@customer.Address">
-                                            @customer.Address
-                                        </td>
-                                        <td>@(customer.OldIndex?.ToString() ?? "-")</td>
-                                        <td>@(customer.NewIndex?.ToString() ?? "-")</td>
-                                        <td>@(customer.ActualIndex?.ToString() ?? "-")</td>
-                                        <td>@(customer.Money?.ToString("C") ?? "-")</td>
-                                        <td class="text-truncate" style="max-width: 150px;" title="@customer.Notes">
-                                            @(customer.Notes ?? "-")
-                                        </td>
-                                        <td>
-                                            <span class="badge @(customer.Status == WaterService.Models.CustomerStatus.Active ? "bg-success" : "bg-secondary")">
-                                                @customer.Status
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group btn-group-sm">
-                                                <a href="@Url.Action("Details", new { id = customer.Id })" 
-                                                   class="btn btn-outline-primary" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="@Url.Action("Edit", new { id = customer.Id })" 
-                                                   class="btn btn-outline-secondary" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="@Url.Action("Delete", new { id = customer.Id })" 
-                                                   class="btn btn-outline-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll" class="form-check-input">
+                                </th>
+                                <th>Customer ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Old Index</th>
+                                <th>New Index</th>
+                                <th>Actual Index</th>
+                                <th>Money</th>
+                                <th>Notes</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var customer in Model.Customers)
+                            {
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input customer-checkbox"
+                                        value="@customer.Id">
+                                </td>
+                                <td>
+                                    <strong>@customer.CustomerCode</strong>
+                                </td>
+                                <td>@customer.HouseholdHeadName</td>
+                                <td>@customer.PhoneNumber</td>
+                                <td class="text-truncate" style="max-width: 200px;" title="@customer.Address">
+                                    @customer.Address
+                                </td>
+                                <td>@(customer.OldIndex?.ToString() ?? "-")</td>
+                                <td>@(customer.NewIndex?.ToString() ?? "-")</td>
+                                <td>@(customer.ActualIndex?.ToString() ?? "-")</td>
+                                <td>@(customer.Money?.ToString("C") ?? "-")</td>
+                                <td class="text-truncate" style="max-width: 150px;" title="@customer.Notes">
+                                    @(customer.Notes ?? "-")
+                                </td>
+                                <td>
+                                    <span class="badge @(customer.Status == WaterService.Models.CustomerStatus.Paid ? "bg-success" : "bg-secondary" )">
+                                        @customer.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action(" Details", new { id=customer.Id })"
+                                            class="btn btn-outline-primary" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action(" Edit", new { id=customer.Id })"
+                                            class="btn btn-outline-secondary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action(" Delete", new { id=customer.Id })"
+                                            class="btn btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
                 }
                 else
                 {
-                    <div class="text-center py-5">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">No customers found</h5>
-                        <p class="text-muted">Try adjusting your search criteria or add a new customer.</p>
-                        <a href="@Url.Action("Create")" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add First Customer
-                        </a>
-                    </div>
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No customers found</h5>
+                    <p class="text-muted">Try adjusting your search criteria or add a new customer.</p>
+                    <a href="@Url.Action(" Create")" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add First Customer
+                    </a>
+                </div>
                 }
             </div>
         </div>
@@ -171,119 +169,101 @@
     <!-- Pagination -->
     @if (Model.TotalPages > 1)
     {
-        <nav aria-label="Customer pagination" class="mt-4">
-            <ul class="pagination justify-content-center">
-                @if (Model.CurrentPage > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { 
-                            search = Model.Search, 
-                            status = Model.Status, 
-                            quarter = Model.Quarter,
-                            year = Model.Year,
-                            page = Model.CurrentPage - 1 
-                        })">Previous</a>
-                    </li>
+    <nav aria-label="Customer pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @if (Model.CurrentPage > 1)
+            {
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
+                    quarter=Model.Quarter, year=Model.Year, page=Model.CurrentPage - 1 })">Previous</a>
+            </li>
+            }
+
+            @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+                i++) { <li class="page-item @(i == Model.CurrentPage ? " active" : "" )">
+                <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
+                    quarter=Model.Quarter, year=Model.Year, page=i })">@i</a>
+                </li>
                 }
 
-                @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
-                {
-                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { 
-                            search = Model.Search, 
-                            status = Model.Status, 
-                            quarter = Model.Quarter,
-                            year = Model.Year,
-                            page = i 
-                        })">@i</a>
+                @if (Model.CurrentPage < Model.TotalPages) { <li class="page-item">
+                    <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
+                        quarter=Model.Quarter, year=Model.Year, page=Model.CurrentPage + 1 })">Next</a>
                     </li>
-                }
-
-                @if (Model.CurrentPage < Model.TotalPages)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { 
-                            search = Model.Search, 
-                            status = Model.Status, 
-                            quarter = Model.Quarter,
-                            year = Model.Year,
-                            page = Model.CurrentPage + 1 
-                        })">Next</a>
-                    </li>
-                }
-            </ul>
-        </nav>
+                    }
+        </ul>
+    </nav>
     }
 </div>
 
 <!-- Bulk Action Form -->
-<form id="bulkActionForm" method="post" action="@Url.Action("BulkAction")" style="display: none;">
+<form id="bulkActionForm" method="post" action="@Url.Action(" BulkAction")" style="display: none;">
     @Html.AntiForgeryToken()
     <input type="hidden" name="action" id="bulkActionType">
     <input type="hidden" name="customerIds" id="bulkActionCustomerIds">
 </form>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Select all functionality
-            $('#selectAll').on('change', function() {
-                $('.customer-checkbox').prop('checked', this.checked);
-                updateBulkActions();
-            });
-
-            // Individual checkbox change
-            $('.customer-checkbox').on('change', function() {
-                updateBulkActions();
-                updateSelectAllState();
-            });
-
-            // Bulk action handlers
-            $('.dropdown-item[data-action]').on('click', function(e) {
-                e.preventDefault();
-                const action = $(this).data('action');
-                const selectedIds = $('.customer-checkbox:checked').map(function() {
-                    return $(this).val();
-                }).get();
-
-                if (selectedIds.length === 0) {
-                    alert('Please select at least one customer.');
-                    return;
-                }
-
-                if (confirm(`Are you sure you want to ${action} ${selectedIds.length} customer(s)?`)) {
-                    $('#bulkActionType').val(action);
-                    $('#bulkActionCustomerIds').val(selectedIds.join(','));
-                    $('#bulkActionForm').submit();
-                }
-            });
+<script>
+    $(document).ready(function () {
+        // Select all functionality
+        $('#selectAll').on('change', function () {
+            $('.customer-checkbox').prop('checked', this.checked);
+            updateBulkActions();
         });
 
-        function updateBulkActions() {
-            const selectedCount = $('.customer-checkbox:checked').length;
-            const bulkActions = $('.bulk-actions');
-            const selectedCountSpan = $('.selected-count');
+        // Individual checkbox change
+        $('.customer-checkbox').on('change', function () {
+            updateBulkActions();
+            updateSelectAllState();
+        });
 
-            if (selectedCount > 0) {
-                bulkActions.show();
-                selectedCountSpan.text(`${selectedCount} selected`);
-            } else {
-                bulkActions.hide();
+        // Bulk action handlers
+        $('.dropdown-item[data-action]').on('click', function (e) {
+            e.preventDefault();
+            const action = $(this).data('action');
+            const selectedIds = $('.customer-checkbox:checked').map(function () {
+                return $(this).val();
+            }).get();
+
+            if (selectedIds.length === 0) {
+                alert('Please select at least one customer.');
+                return;
             }
-        }
 
-        function updateSelectAllState() {
-            const totalCheckboxes = $('.customer-checkbox').length;
-            const checkedCheckboxes = $('.customer-checkbox:checked').length;
-            const selectAllCheckbox = $('#selectAll');
-
-            if (checkedCheckboxes === 0) {
-                selectAllCheckbox.prop('indeterminate', false).prop('checked', false);
-            } else if (checkedCheckboxes === totalCheckboxes) {
-                selectAllCheckbox.prop('indeterminate', false).prop('checked', true);
-            } else {
-                selectAllCheckbox.prop('indeterminate', true);
+            if (confirm(`Are you sure you want to ${action} ${selectedIds.length} customer(s)?`)) {
+                $('#bulkActionType').val(action);
+                $('#bulkActionCustomerIds').val(selectedIds.join(','));
+                $('#bulkActionForm').submit();
             }
+        });
+    });
+
+    function updateBulkActions() {
+        const selectedCount = $('.customer-checkbox:checked').length;
+        const bulkActions = $('.bulk-actions');
+        const selectedCountSpan = $('.selected-count');
+
+        if (selectedCount > 0) {
+            bulkActions.show();
+            selectedCountSpan.text(`${selectedCount} selected`);
+        } else {
+            bulkActions.hide();
         }
-    </script>
+    }
+
+    function updateSelectAllState() {
+        const totalCheckboxes = $('.customer-checkbox').length;
+        const checkedCheckboxes = $('.customer-checkbox:checked').length;
+        const selectAllCheckbox = $('#selectAll');
+
+        if (checkedCheckboxes === 0) {
+            selectAllCheckbox.prop('indeterminate', false).prop('checked', false);
+        } else if (checkedCheckboxes === totalCheckboxes) {
+            selectAllCheckbox.prop('indeterminate', false).prop('checked', true);
+        } else {
+            selectAllCheckbox.prop('indeterminate', true);
+        }
+    }
+</script>
 }

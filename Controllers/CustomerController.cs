@@ -10,7 +10,7 @@ namespace WaterService.Controllers
         private static List<Customer> _customers = new List<Customer>();
         private static int _nextCustomerId = 1;
         private static int _nextCustomerCode = 1001;
-        private static int _nextWaterMeterReadingId = 1;
+        private static int _nextMeterReadingId = 1;
 
         public CustomerController(ILogger<CustomerController> logger)
         {
@@ -38,22 +38,18 @@ namespace WaterService.Controllers
                 query = query.Where(c => c.Status == statusEnum);
             }
 
-            // Chỉ lọc theo quý nếu có chọn năm
+            // Lọc theo năm/quý dựa trên MeterReadings
             if (year.HasValue)
             {
                 if (quarter.HasValue && quarter.Value >= 1 && quarter.Value <= 4)
                 {
-                    int startMonth = (quarter.Value - 1) * 3 + 1;
-                    int endMonth = startMonth + 2;
-                    var startDate = new DateTime(year.Value, startMonth, 1);
-                    var endDate = new DateTime(year.Value, endMonth, DateTime.DaysInMonth(year.Value, endMonth));
-                    query = query.Where(c => c.RegistrationDate >= startDate && c.RegistrationDate <= endDate);
+                    query = query.Where(c => c.MeterReadings != null &&
+                        c.MeterReadings.Any(r => r.Year == year.Value && r.Quarter == quarter.Value));
                 }
                 else
                 {
-                    var startDate = new DateTime(year.Value, 1, 1);
-                    var endDate = new DateTime(year.Value, 12, 31);
-                    query = query.Where(c => c.RegistrationDate >= startDate && c.RegistrationDate <= endDate);
+                    query = query.Where(c => c.MeterReadings != null &&
+                        c.MeterReadings.Any(r => r.Year == year.Value));
                 }
             }
 
@@ -100,7 +96,7 @@ namespace WaterService.Controllers
             var customer = _customers.FirstOrDefault(c => c.Id == customerId);
             if (customer == null)
                 return NotFound();
-            var reading = customer.WaterMeterReadings?.FirstOrDefault(r => r.Id == id);
+            var reading = customer.MeterReadings?.FirstOrDefault(r => r.Id == id);
             if (reading == null)
                 return NotFound();
             ViewBag.EditReading = reading;
@@ -116,13 +112,13 @@ namespace WaterService.Controllers
             if (customer == null)
                 return NotFound();
 
-            WaterMeterReading reading;
-            if (customer.WaterMeterReadings == null)
-                customer.WaterMeterReadings = new List<WaterMeterReading>();
+            MeterReading reading;
+            if (customer.MeterReadings == null)
+                customer.MeterReadings = new List<MeterReading>();
             if (Id.HasValue && Id.Value > 0)
             {
                 // Edit
-                reading = customer.WaterMeterReadings.FirstOrDefault(r => r.Id == Id.Value);
+                reading = customer.MeterReadings.FirstOrDefault(r => r.Id == Id.Value);
                 if (reading == null)
                     return NotFound();
                 reading.Quarter = Quarter;
@@ -135,9 +131,9 @@ namespace WaterService.Controllers
             else
             {
                 // Add new
-                reading = new WaterMeterReading
+                reading = new MeterReading
                 {
-                    Id = _nextWaterMeterReadingId++,
+                    Id = _nextMeterReadingId++,
                     CustomerId = CustomerId,
                     Quarter = Quarter,
                     Year = Year,
@@ -146,7 +142,7 @@ namespace WaterService.Controllers
                     Notes = Notes,
                     CreatedAt = DateTime.UtcNow
                 };
-                customer.WaterMeterReadings.Add(reading);
+                customer.MeterReadings.Add(reading);
             }
             TempData["SuccessMessage"] = "Lưu chỉ số nước thành công.";
             return RedirectToAction("Details", new { id = CustomerId });
@@ -160,12 +156,12 @@ namespace WaterService.Controllers
             var customer = _customers.FirstOrDefault(c => c.Id == customerId);
             if (customer == null)
                 return NotFound();
-            if (customer.WaterMeterReadings == null)
+            if (customer.MeterReadings == null)
                 return NotFound();
-            var reading = customer.WaterMeterReadings.FirstOrDefault(r => r.Id == id);
+            var reading = customer.MeterReadings.FirstOrDefault(r => r.Id == id);
             if (reading == null)
                 return NotFound();
-            customer.WaterMeterReadings.Remove(reading);
+            customer.MeterReadings.Remove(reading);
             TempData["SuccessMessage"] = "Đã xóa chỉ số nước.";
             return RedirectToAction("Details", new { id = customerId });
         }
@@ -175,8 +171,7 @@ namespace WaterService.Controllers
         {
             var customer = new Customer
             {
-                CustomerCode = $"C{_nextCustomerCode:D6}",
-                RegistrationDate = DateTime.Today
+                CustomerCode = $"C{_nextCustomerCode:D6}"
             };
             return View(customer);
         }
@@ -236,7 +231,6 @@ namespace WaterService.Controllers
                 existingCustomer.HouseholdHeadName = customer.HouseholdHeadName;
                 existingCustomer.Address = customer.Address;
                 existingCustomer.PhoneNumber = customer.PhoneNumber;
-                existingCustomer.Email = customer.Email;
                 existingCustomer.Status = customer.Status;
                 existingCustomer.Notes = customer.Notes;
                 existingCustomer.UpdatedAt = DateTime.UtcNow;
@@ -272,7 +266,7 @@ namespace WaterService.Controllers
             }
 
             // Check if customer has any invoices
-            if (customer.Invoices.Any())
+            if (customer.Invoices != null && customer.Invoices.Any())
             {
                 TempData["ErrorMessage"] = "Cannot delete customer with existing invoices.";
                 return RedirectToAction(nameof(Index));
@@ -303,7 +297,7 @@ namespace WaterService.Controllers
                 case "activate":
                     foreach (var customer in selectedCustomers)
                     {
-                        customer.Status = CustomerStatus.Active;
+                        customer.Status = CustomerStatus.Paid;
                         customer.UpdatedAt = DateTime.UtcNow;
                     }
                     TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers activated.";
@@ -311,7 +305,7 @@ namespace WaterService.Controllers
                 case "deactivate":
                     foreach (var customer in selectedCustomers)
                     {
-                        customer.Status = CustomerStatus.Inactive;
+                        customer.Status = CustomerStatus.Pending;
                         customer.UpdatedAt = DateTime.UtcNow;
                     }
                     TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers deactivated.";
@@ -330,7 +324,7 @@ namespace WaterService.Controllers
             var csv = "Customer Code,Name,Phone,Address,Status,Registration Date\n";
             foreach (var customer in customers)
             {
-                csv += $"{customer.CustomerCode},{customer.HouseholdHeadName},{customer.PhoneNumber},{customer.Address},{customer.Status},{customer.RegistrationDate:yyyy-MM-dd}\n";
+                csv += $"{customer.CustomerCode},{customer.HouseholdHeadName},{customer.PhoneNumber},{customer.Address},{customer.Status}\n";
             }
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(csv);
@@ -350,12 +344,24 @@ namespace WaterService.Controllers
                     HouseholdHeadName = "Nguyen Van A",
                     Address = "123 Main Street, District 1, HCMC",
                     PhoneNumber = "0901234567",
-                    Email = "nguyenvana@email.com",
-                    RegistrationDate = new DateTime(2023, 1, 15),
-                    Status = CustomerStatus.Active,
+                    Status = CustomerStatus.Paid,
                     Notes = "Regular customer",
                     CreatedAt = DateTime.UtcNow.AddDays(-365),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-30)
+                    UpdatedAt = DateTime.UtcNow.AddDays(-30),
+                    MeterReadings = new List<MeterReading>
+                    {
+                        new MeterReading
+                        {
+                            Id = _nextMeterReadingId++,
+                            CustomerId = 1,
+                            Quarter = 1,
+                            Year = 2023,
+                            PreviousReading = 100,
+                            CurrentReading = 120,
+                            Notes = "Q1/2023",
+                            CreatedAt = DateTime.UtcNow.AddDays(-360)
+                        }
+                    }
                 },
                 new Customer
                 {
@@ -364,12 +370,24 @@ namespace WaterService.Controllers
                     HouseholdHeadName = "Tran Thi B",
                     Address = "456 Second Street, District 2, HCMC",
                     PhoneNumber = "0901234568",
-                    Email = "tranthib@email.com",
-                    RegistrationDate = new DateTime(2023, 3, 20),
-                    Status = CustomerStatus.Active,
+                    Status = CustomerStatus.Paid,
                     Notes = "Commercial customer",
                     CreatedAt = DateTime.UtcNow.AddDays(-300),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-15)
+                    UpdatedAt = DateTime.UtcNow.AddDays(-15),
+                    MeterReadings = new List<MeterReading>
+                    {
+                        new MeterReading
+                        {
+                            Id = _nextMeterReadingId++,
+                            CustomerId = 2,
+                            Quarter = 2,
+                            Year = 2023,
+                            PreviousReading = 200,
+                            CurrentReading = 230,
+                            Notes = "Q2/2023",
+                            CreatedAt = DateTime.UtcNow.AddDays(-290)
+                        }
+                    }
                 },
                 new Customer
                 {
@@ -378,12 +396,11 @@ namespace WaterService.Controllers
                     HouseholdHeadName = "Le Van C",
                     Address = "789 Third Street, District 3, HCMC",
                     PhoneNumber = "0901234569",
-                    Email = "levanc@email.com",
-                    RegistrationDate = new DateTime(2023, 6, 10),
-                    Status = CustomerStatus.Inactive,
+                    Status = CustomerStatus.Pending,
                     Notes = "Temporarily inactive",
                     CreatedAt = DateTime.UtcNow.AddDays(-200),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-5)
+                    UpdatedAt = DateTime.UtcNow.AddDays(-5),
+                    MeterReadings = new List<MeterReading>()
                 }
             };
 

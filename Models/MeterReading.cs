@@ -11,9 +11,13 @@ namespace WaterService.Models
         public int CustomerId { get; set; }
 
         [Required]
-        [Display(Name = "Reading Date")]
-        [DataType(DataType.Date)]
-        public DateTime ReadingDate { get; set; }
+        [Range(1, 4)]
+        [Display(Name = "Quarter")]
+        public int Quarter { get; set; }
+
+        [Required]
+        [Display(Name = "Year")]
+        public int Year { get; set; }
 
         [Required]
         [Display(Name = "Previous Reading")]
@@ -34,9 +38,6 @@ namespace WaterService.Models
         [DataType(DataType.Currency)]
         public decimal TotalAmount => Consumption * RatePerUnit;
 
-        [Display(Name = "Reading Type")]
-        public ReadingType Type { get; set; } = ReadingType.Regular;
-
         [StringLength(500)]
         [Display(Name = "Notes")]
         public string? Notes { get; set; }
@@ -44,14 +45,10 @@ namespace WaterService.Models
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [Display(Name = "Updated At")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
         // Navigation properties
         public virtual Customer Customer { get; set; } = null!;
-    }
-
-    public enum ReadingType
-    {
-        Regular,
-        Estimated,
-        Final
     }
 }

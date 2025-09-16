@@ -1,6 +1,6 @@
 @model WaterService.Models.Customer
 @{
-    ViewData["Title"] = "Delete Customer";
+ViewData["Title"] = "Delete Customer";
 }
 
 <div class="customer-delete">
@@ -22,7 +22,8 @@
                 <div class="card-body">
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Warning:</strong> This action cannot be undone. All customer data will be permanently deleted.
+                        <strong>Warning:</strong> This action cannot be undone. All customer data will be permanently
+                        deleted.
                     </div>
 
                     <div class="row mb-4">
@@ -36,7 +37,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Status</label>
                                 <p class="form-control-plaintext">
-                                    <span class="badge @(Model.Status == WaterService.Models.CustomerStatus.Active ? "bg-success" : "bg-secondary")">
+                                    <span class="badge @(Model.Status == WaterService.Models.CustomerStatus.Paid ? "bg-success" : "bg-secondary" )">
                                         @Model.Status
                                     </span>
                                 </p>
@@ -61,20 +62,14 @@
                                 <p class="form-control-plaintext">@Model.PhoneNumber</p>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Registration Date</label>
-                                <p class="form-control-plaintext">@Model.RegistrationDate.ToString("MMM dd, yyyy")</p>
-                            </div>
-                        </div>
                     </div>
 
                     @if (!string.IsNullOrEmpty(Model.Notes))
                     {
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Notes</label>
-                            <p class="form-control-plaintext">@Model.Notes</p>
-                        </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Notes</label>
+                        <p class="form-control-plaintext">@Model.Notes</p>
+                    </div>
                     }
 
                     <form asp-action="Delete" method="post" class="d-flex gap-2">
@@ -82,10 +77,10 @@
                         <button type="submit" class="btn btn-danger" onclick="return confirmDelete()">
                             <i class="fas fa-trash"></i> Yes, Delete Customer
                         </button>
-                        <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-secondary">
+                        <a href="@Url.Action(" Details", new { id=Model.Id })" class="btn btn-secondary">
                             <i class="fas fa-times"></i> Cancel
                         </a>
-                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <a href="@Url.Action(" Index")" class="btn btn-outline-secondary">
                             <i class="fas fa-list"></i> Back to List
                         </a>
                     </form>
@@ -153,7 +148,8 @@
                     <div class="alert alert-info" role="alert">
                         <small>
                             <i class="fas fa-info-circle"></i>
-                            <strong>Note:</strong> This customer cannot be deleted if they have existing invoices or meter readings.
+                            <strong>Note:</strong> This customer cannot be deleted if they have existing invoices or
+                            meter readings.
                         </small>
                     </div>
                 </div>
@@ -163,17 +159,17 @@
 </div>
 
 @section Scripts {
-    <script>
-        function confirmDelete() {
-            const customerName = '@Model.HouseholdHeadName';
-            const customerCode = '@Model.CustomerCode';
-            
-            return confirm(`Are you absolutely sure you want to delete customer ${customerCode} (${customerName})?\n\nThis action cannot be undone and all customer data will be permanently lost.`);
-        }
+<script>
+    function confirmDelete() {
+        const customerName = '@Model.HouseholdHeadName';
+        const customerCode = '@Model.CustomerCode';
 
-        $(document).ready(function() {
-            // Add any specific JavaScript for the delete page here
-            console.log('Delete confirmation page loaded for: @Model.CustomerCode');
-        });
-    </script>
+        return confirm(`Are you absolutely sure you want to delete customer ${customerCode} (${customerName})?\n\nThis action cannot be undone and all customer data will be permanently lost.`);
+    }
+
+    $(document).ready(function () {
+        // Add any specific JavaScript for the delete page here
+        console.log('Delete confirmation page loaded for: @Model.CustomerCode');
+    });
+</script>
 }

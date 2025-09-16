@@ -1,6 +1,6 @@
 @model WaterService.Models.Customer
 @{
-    ViewData["Title"] = "Add New Customer";
+ViewData["Title"] = "Add New Customer";
 }
 
 <div class="customer-form">
@@ -15,7 +15,7 @@
                 <div class="card-body">
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -29,24 +29,19 @@
                                     <span asp-validation-for="CustomerCode" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="RegistrationDate" class="form-label"></label>
-                                    <input asp-for="RegistrationDate" class="form-control" type="date" />
-                                    <span asp-validation-for="RegistrationDate" class="text-danger"></span>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="HouseholdHeadName" class="form-label"></label>
-                            <input asp-for="HouseholdHeadName" class="form-control" placeholder="Enter household head name" />
+                            <input asp-for="HouseholdHeadName" class="form-control"
+                                placeholder="Enter household head name" />
                             <span asp-validation-for="HouseholdHeadName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
-                            <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter complete address"></textarea>
+                            <textarea asp-for="Address" class="form-control" rows="3"
+                                placeholder="Enter complete address"></textarea>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
@@ -58,27 +53,21 @@
                                     <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="Email" class="form-label"></label>
-                                    <input asp-for="Email" class="form-control" type="email" placeholder="optional@email.com" />
-                                    <span asp-validation-for="Email" class="text-danger"></span>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Status" class="form-label"></label>
                             <select asp-for="Status" class="form-select">
-                                <option value="@WaterService.Models.CustomerStatus.Active">Active</option>
-                                <option value="@WaterService.Models.CustomerStatus.Inactive">Inactive</option>
+                                <option value="@WaterService.Models.CustomerStatus.Paid">Active</option>
+                                <option value="@WaterService.Models.CustomerStatus.Pending">Inactive</option>
                             </select>
                             <span asp-validation-for="Status" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Notes" class="form-label"></label>
-                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Additional notes or special requirements"></textarea>
+                            <textarea asp-for="Notes" class="form-control" rows="2"
+                                placeholder="Additional notes or special requirements"></textarea>
                             <span asp-validation-for="Notes" class="text-danger"></span>
                         </div>
 
@@ -86,7 +75,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Save Customer
                             </button>
-                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <a href="@Url.Action(" Index")" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Cancel
                             </a>
                             <button type="submit" name="saveAndAddAnother" value="true" class="btn btn-outline-primary">
@@ -129,7 +118,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="@Url.Action("Index")" class="btn btn-outline-primary btn-sm">
+                        <a href="@Url.Action(" Index")" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-list"></i> View All Customers
                         </a>
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearForm()">
@@ -143,63 +132,61 @@
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Generate customer code
-            $('#generateCode').on('click', function() {
-                // This would typically call an API endpoint to generate the next code
-                // For now, we'll just show a placeholder
-                const currentCode = $('#CustomerCode').val();
-                if (currentCode) {
-                    const nextNumber = parseInt(currentCode.substring(1)) + 1;
-                    $('#CustomerCode').val('C' + nextNumber.toString().padStart(6, '0'));
-                }
-            });
-
-            // Auto-save form data to localStorage
-            $('input, textarea, select').on('change', function() {
-                saveFormData();
-            });
-
-            // Load saved form data
-            loadFormData();
+<script>
+    $(document).ready(function () {
+        // Generate customer code
+        $('#generateCode').on('click', function () {
+            // This would typically call an API endpoint to generate the next code
+            // For now, we'll just show a placeholder
+            const currentCode = $('#CustomerCode').val();
+            if (currentCode) {
+                const nextNumber = parseInt(currentCode.substring(1)) + 1;
+                $('#CustomerCode').val('C' + nextNumber.toString().padStart(6, '0'));
+            }
         });
 
-        function clearForm() {
-            if (confirm('Are you sure you want to clear all form data?')) {
-                $('form')[0].reset();
-                localStorage.removeItem('customerFormData');
-            }
-        }
+        // Auto-save form data to localStorage
+        $('input, textarea, select').on('change', function () {
+            saveFormData();
+        });
 
-        function saveFormData() {
-            const formData = {
-                householdHeadName: $('#HouseholdHeadName').val(),
-                address: $('#Address').val(),
-                phoneNumber: $('#PhoneNumber').val(),
-                email: $('#Email').val(),
-                status: $('#Status').val(),
-                notes: $('#Notes').val()
-            };
-            localStorage.setItem('customerFormData', JSON.stringify(formData));
-        }
+        // Load saved form data
+        loadFormData();
+    });
 
-        function loadFormData() {
-            const savedData = localStorage.getItem('customerFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
-                $('#HouseholdHeadName').val(formData.householdHeadName || '');
-                $('#Address').val(formData.address || '');
-                $('#PhoneNumber').val(formData.phoneNumber || '');
-                $('#Email').val(formData.email || '');
-                $('#Status').val(formData.status || '@WaterService.Models.CustomerStatus.Active');
-                $('#Notes').val(formData.notes || '');
-            }
-        }
-
-        // Clear saved data on successful form submission
-        $('form').on('submit', function() {
+    function clearForm() {
+        if (confirm('Are you sure you want to clear all form data?')) {
+            $('form')[0].reset();
             localStorage.removeItem('customerFormData');
-        });
-    </script>
+        }
+    }
+
+    function saveFormData() {
+        const formData = {
+            householdHeadName: $('#HouseholdHeadName').val(),
+            address: $('#Address').val(),
+            phoneNumber: $('#PhoneNumber').val(),
+            status: $('#Status').val(),
+            notes: $('#Notes').val()
+        };
+        localStorage.setItem('customerFormData', JSON.stringify(formData));
+    }
+
+    function loadFormData() {
+        const savedData = localStorage.getItem('customerFormData');
+        if (savedData) {
+            const formData = JSON.parse(savedData);
+            $('#HouseholdHeadName').val(formData.householdHeadName || '');
+            $('#Address').val(formData.address || '');
+            $('#PhoneNumber').val(formData.phoneNumber || '');
+            $('#Status').val(formData.status || '@WaterService.Models.CustomerStatus.Paid');
+            $('#Notes').val(formData.notes || '');
+        }
+    }
+
+    // Clear saved data on successful form submission
+    $('form').on('submit', function () {
+        localStorage.removeItem('customerFormData');
+    });
+</script>
 }

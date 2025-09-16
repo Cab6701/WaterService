@@ -1,6 +1,6 @@
 @model WaterService.Models.Customer
 @{
-    ViewData["Title"] = "Edit Customer";
+ViewData["Title"] = "Edit Customer";
 }
 
 <div class="customer-form">
@@ -17,9 +17,9 @@
                         <input asp-for="Id" type="hidden" />
                         <input asp-for="CustomerCode" type="hidden" />
                         <input asp-for="CreatedAt" type="hidden" />
-                        
+
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -28,24 +28,19 @@
                                     <small class="text-muted">Customer ID cannot be changed</small>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Registration Date</label>
-                                    <input type="text" class="form-control" value="@Model.RegistrationDate.ToString("MMM dd, yyyy")" readonly />
-                                    <small class="text-muted">Registration date cannot be changed</small>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="HouseholdHeadName" class="form-label"></label>
-                            <input asp-for="HouseholdHeadName" class="form-control" placeholder="Enter household head name" />
+                            <input asp-for="HouseholdHeadName" class="form-control"
+                                placeholder="Enter household head name" />
                             <span asp-validation-for="HouseholdHeadName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
-                            <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter complete address"></textarea>
+                            <textarea asp-for="Address" class="form-control" rows="3"
+                                placeholder="Enter complete address"></textarea>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
@@ -57,27 +52,21 @@
                                     <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="Email" class="form-label"></label>
-                                    <input asp-for="Email" class="form-control" type="email" placeholder="optional@email.com" />
-                                    <span asp-validation-for="Email" class="text-danger"></span>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Status" class="form-label"></label>
                             <select asp-for="Status" class="form-select">
-                                <option value="@WaterService.Models.CustomerStatus.Active">Active</option>
-                                <option value="@WaterService.Models.CustomerStatus.Inactive">Inactive</option>
+                                <option value="@WaterService.Models.CustomerStatus.Paid">Active</option>
+                                <option value="@WaterService.Models.CustomerStatus.Pending">Inactive</option>
                             </select>
                             <span asp-validation-for="Status" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Notes" class="form-label"></label>
-                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Additional notes or special requirements"></textarea>
+                            <textarea asp-for="Notes" class="form-control" rows="2"
+                                placeholder="Additional notes or special requirements"></textarea>
                             <span asp-validation-for="Notes" class="text-danger"></span>
                         </div>
 
@@ -85,10 +74,10 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Update Customer
                             </button>
-                            <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-secondary">
+                            <a href="@Url.Action(" Details", new { id=Model.Id })" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Cancel
                             </a>
-                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <a href="@Url.Action(" Index")" class="btn btn-outline-secondary">
                                 <i class="fas fa-list"></i> Back to List
                             </a>
                         </div>
@@ -108,10 +97,6 @@
                         <p class="mb-0"><strong>@Model.CustomerCode</strong></p>
                     </div>
                     <div class="mb-3">
-                        <small class="text-muted">Registration Date</small>
-                        <p class="mb-0">@Model.RegistrationDate.ToString("MMM dd, yyyy")</p>
-                    </div>
-                    <div class="mb-3">
                         <small class="text-muted">Created</small>
                         <p class="mb-0">@Model.CreatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")</p>
                     </div>
@@ -128,13 +113,13 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-outline-primary btn-sm">
+                        <a href="@Url.Action(" Details", new { id=Model.Id })" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-eye"></i> View Details
                         </a>
-                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">
+                        <a href="@Url.Action(" Index")" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-list"></i> All Customers
                         </a>
-                        <a href="@Url.Action("Delete", new { id = Model.Id })" class="btn btn-outline-danger btn-sm">
+                        <a href="@Url.Action(" Delete", new { id=Model.Id })" class="btn btn-outline-danger btn-sm">
                             <i class="fas fa-trash"></i> Delete Customer
                         </a>
                     </div>
@@ -143,59 +128,57 @@
 
             @if (!string.IsNullOrEmpty(Model.Notes))
             {
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h6 class="mb-0">Current Notes</h6>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-0">@Model.Notes</p>
-                    </div>
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Current Notes</h6>
                 </div>
+                <div class="card-body">
+                    <p class="mb-0">@Model.Notes</p>
+                </div>
+            </div>
             }
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Auto-save form data to localStorage
-            $('input, textarea, select').on('change', function() {
-                saveFormData();
-            });
-
-            // Load saved form data
-            loadFormData();
+<script>
+    $(document).ready(function () {
+        // Auto-save form data to localStorage
+        $('input, textarea, select').on('change', function () {
+            saveFormData();
         });
 
-        function saveFormData() {
-            const formData = {
-                householdHeadName: $('#HouseholdHeadName').val(),
-                address: $('#Address').val(),
-                phoneNumber: $('#PhoneNumber').val(),
-                email: $('#Email').val(),
-                status: $('#Status').val(),
-                notes: $('#Notes').val()
-            };
-            localStorage.setItem('customerEditFormData', JSON.stringify(formData));
-        }
+        // Load saved form data
+        loadFormData();
+    });
 
-        function loadFormData() {
-            const savedData = localStorage.getItem('customerEditFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
-                $('#HouseholdHeadName').val(formData.householdHeadName || '');
-                $('#Address').val(formData.address || '');
-                $('#PhoneNumber').val(formData.phoneNumber || '');
-                $('#Email').val(formData.email || '');
-                $('#Status').val(formData.status || '@Model.Status');
-                $('#Notes').val(formData.notes || '');
-            }
-        }
+    function saveFormData() {
+        const formData = {
+            householdHeadName: $('#HouseholdHeadName').val(),
+            address: $('#Address').val(),
+            phoneNumber: $('#PhoneNumber').val(),
+            status: $('#Status').val(),
+            notes: $('#Notes').val()
+        };
+        localStorage.setItem('customerEditFormData', JSON.stringify(formData));
+    }
 
-        // Clear saved data on successful form submission
-        $('form').on('submit', function() {
-            localStorage.removeItem('customerEditFormData');
-        });
-    </script>
+    function loadFormData() {
+        const savedData = localStorage.getItem('customerEditFormData');
+        if (savedData) {
+            const formData = JSON.parse(savedData);
+            $('#HouseholdHeadName').val(formData.householdHeadName || '');
+            $('#Address').val(formData.address || '');
+            $('#PhoneNumber').val(formData.phoneNumber || '');
+            $('#Status').val(formData.status || '@Model.Status');
+            $('#Notes').val(formData.notes || '');
+        }
+    }
+
+    // Clear saved data on successful form submission
+    $('form').on('submit', function () {
+        localStorage.removeItem('customerEditFormData');
+    });
+</script>
 }
