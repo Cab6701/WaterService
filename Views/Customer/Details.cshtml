@@ -246,7 +246,6 @@ ViewData["Title"] = "Customer Details";
                                     <td>@reading.OldIndex</td>
                                     <td>@reading.NewIndex</td>
                                     <td>@(reading.NewIndex - reading.OldIndex)</td>
-                                    <td>@reading.Notes</td>
                                     <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
                                     <td>
                                         <form asp-action="EditMeterReading" method="get" style="display:inline">

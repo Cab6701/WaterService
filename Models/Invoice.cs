@@ -19,6 +19,8 @@ namespace WaterService.Models
         [Display(Name = "Water Meter Reading")]
         public int? WaterMeterReadingId { get; set; }
 
+        public virtual MeterReading WaterMeterReading { get; set; } = null!;
+
         [Display(Name = "Status")]
         public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
 

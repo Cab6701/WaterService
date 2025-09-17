@@ -35,8 +35,8 @@ namespace WaterService.Controllers
             }
 
             // Lọc theo năm/quý dựa trên MeterReadings
-            query = query.Where(c => c.Invoices != null &&
-                    c.Invoices.Any(i => i.Year == year.Value && i.Quarter == quarter.Value && i.Status.ToString() == status));
+            query = query.Where(c => c.MeterReadings != null &&
+                    c.MeterReadings.Any(i => i.Year == year.Value && i.Quarter == quarter.Value));
 
             // Calculate pagination
             var totalCount = query.Count();
@@ -103,14 +103,13 @@ namespace WaterService.Controllers
             if (Id.HasValue && Id.Value > 0)
             {
                 // Edit
-                reading = customer.MeterReadings.FirstOrDefault(r => r.Id == Id.Value);
+                reading = customer?.MeterReadings?.FirstOrDefault(r => r.Id == Id.Value);
                 if (reading == null)
                     return NotFound();
                 reading.Quarter = Quarter;
                 reading.Year = Year;
                 reading.OldIndex = PreviousReading;
                 reading.NewIndex = CurrentReading;
-                reading.Notes = Notes;
                 reading.CreatedAt = DateTime.UtcNow;
             }
             else
@@ -124,7 +123,6 @@ namespace WaterService.Controllers
                     Year = Year,
                     OldIndex = PreviousReading,
                     NewIndex = CurrentReading,
-                    Notes = Notes,
                     CreatedAt = DateTime.UtcNow
                 };
                 customer.MeterReadings.Add(reading);
@@ -319,115 +317,83 @@ namespace WaterService.Controllers
         {
             if (_customers.Any()) return;
 
-            var sampleCustomers = new List<Customer>
+            var random = new Random();
+            var sampleFirstNames = new[] { "Nguyen", "Tran", "Le", "Pham", "Hoang", "Dang", "Bui", "Do", "Phan", "Vu" };
+            var sampleLastNames = new[] { "Anh", "Binh", "Cuong", "Dung", "Hoa", "Hung", "Khanh", "Linh", "Minh", "Nam", "Phong", "Quang", "Son", "Trang", "Tuan" };
+            var sampleHamlets = new[] { "Minh Khai", "Quang Trung", "Hồng Quang" };
+
+            var sampleCustomers = new List<Customer>();
+
+            for (int i = 0; i < 40; i++)
             {
-                new Customer
+                string firstName = sampleFirstNames[random.Next(sampleFirstNames.Length)];
+                string lastName = sampleLastNames[random.Next(sampleLastNames.Length)];
+                string fullName = $"{firstName} {lastName}";
+
+                string phone = $"09{random.Next(10000000, 99999999)}";
+
+                string emailName = $"{firstName.ToLower()}{lastName.ToLower()}{random.Next(100, 999)}";
+                string email = $"{emailName}@example.com";
+
+                var meterReading = new MeterReading
                 {
-                    Id = _nextCustomerId++,
-                    CustomerCode = $"C{_nextCustomerCode++:D6}",
-                    Name = "Nguyen Van A",
-                    Address = "123 Main Street, District 1, HCMC",
-                    PhoneNumber = "0901234567",
-                    Notes = "Regular customer",
-                    CreatedAt = DateTime.UtcNow.AddDays(-365),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-30),
-                    MeterReadings = new List<MeterReading>
+                    Id = i++,
+                    CustomerId = i,
+                    Quarter = random.Next(1, 5),
+                    Year = DateTime.Now.Year - random.Next(0, 2),
+                    OldIndex = random.Next(100, 500),
+                    NewIndex = random.Next(501, 1000),
+                    RatePerUnit = 10000,
+                    CreatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 100)),
+                    UpdatedAt = DateTime.UtcNow,
+                    Invoice = new Invoice
                     {
-                        new MeterReading
-                        {
-                            Id = _nextMeterReadingId++,
-                            CustomerId = 1,
-                            Quarter = 1,
-                            Year = 2023,
-                            OldIndex = 100,
-                            NewIndex = 120,
-                            Notes = "Q1/2023",
-                            CreatedAt = DateTime.UtcNow.AddDays(-360)
-                        }
-                    },
-                    Invoices = new List<Invoice>
-                    {
-                        new Invoice
-                        {
-                            Id = 1,
-                            CustomerId = 1,
-                            InvoiceNumber = "INV0001",
-                            BillingPeriod = new DateTime(2025, 1, 1),
-                            Quarter = 3,
-                            Year = 2025,
-                            Amount = 200000,
-                            Status = InvoiceStatus.Paid,
-                            DueDate = new DateTime(2023, 2, 15),
-                            PaidDate = new DateTime(2023, 2, 10),
-                            CreatedAt = DateTime.UtcNow.AddDays(-350),
-                            UpdatedAt = DateTime.UtcNow.AddDays(-340),
-                            WaterMeterReadingId = 1
-                        }
+                        Id = i + 1,
+                        CustomerId = i,
+                        InvoiceNumber = $"INV{_nextCustomerCode:D6}",
+                        WaterMeterReadingId = i++,
+                        Status = InvoiceStatus.Paid,
+                        DueDate = DateTime.UtcNow.AddDays(30),
+                        PaidDate = DateTime.UtcNow.AddDays(-random.Next(1, 30)),
+                        CreatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 100)),
+                        UpdatedAt = DateTime.UtcNow
                     }
-                },
-                new Customer
+                };
+
+                var invoice = new Invoice
                 {
-                    Id = _nextCustomerId++,
-                    CustomerCode = $"C{_nextCustomerCode++:D6}",
-                    Name = "Tran Thi B",
-                    Address = "456 Second Street, District 2, HCMC",
-                    PhoneNumber = "0901234568",
-                    Notes = "Commercial customer",
-                    CreatedAt = DateTime.UtcNow.AddDays(-300),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-15),
-                    MeterReadings = new List<MeterReading>
-                    {
-                        new MeterReading
-                        {
-                            Id = _nextMeterReadingId++,
-                            CustomerId = 2,
-                            Quarter = 2,
-                            Year = 2023,
-                            OldIndex = 200,
-                            NewIndex = 230,
-                            Notes = "Q2/2023",
-                            CreatedAt = DateTime.UtcNow.AddDays(-290)
-                        }
-                    },
-                    Invoices = new List<Invoice>
-                    {
-                        new Invoice
-                        {
-                            Id = 2,
-                            CustomerId = 2,
-                            InvoiceNumber = "INV0002",
-                            BillingPeriod = new DateTime(2023, 4, 1),
-                            Quarter = 2,
-                            Year = 2025,
-                            Amount = 350000,
-                            Status = InvoiceStatus.Cancelled,
-                            DueDate = new DateTime(2025, 5, 15),
-                            PaidDate = null,
-                            CreatedAt = DateTime.UtcNow.AddDays(-280),
-                            UpdatedAt = DateTime.UtcNow.AddDays(-270),
-                            WaterMeterReadingId = 2
-                        }
-                    }
-                },
-                new Customer
+                    Id = i++,
+                    CustomerId = i,
+                    InvoiceNumber = $"INV{_nextCustomerCode:D6}",
+                    WaterMeterReadingId = meterReading.Id,
+                    WaterMeterReading = meterReading,
+                    Status = InvoiceStatus.Paid,
+                    DueDate = DateTime.UtcNow.AddDays(30),
+                    PaidDate = DateTime.UtcNow.AddDays(-random.Next(1, 30)),
+                    CreatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 100)),
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                var customer = new Customer
                 {
-                    Id = _nextCustomerId++,
+                    Id = i++,
                     CustomerCode = $"C{_nextCustomerCode++:D6}",
-                    Name = "Le Van C",
-                    Address = "789 Third Street, District 3, HCMC",
-                    PhoneNumber = "0901234569",
-                    Notes = "Temporarily inactive",
-                    CreatedAt = DateTime.UtcNow.AddDays(-200),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-5),
-                    MeterReadings = new List<MeterReading>(),
-                    Invoices = new List<Invoice>()
-                }
-            };
+                    Name = fullName,
+                    Address = sampleHamlets[random.Next(sampleHamlets.Length)],
+                    PhoneNumber = phone,
+                    Notes = "sample",
+                    CreatedAt = DateTime.UtcNow.AddDays(-random.Next(200, 400)),
+                    UpdatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 100)),
+                    Invoices = new List<Invoice> { invoice },
+                    MeterReadings = new List<MeterReading> { meterReading }
+                };
+
+                sampleCustomers.Add(customer);
+            }
 
             _customers.AddRange(sampleCustomers);
         }
     }
-
     public class CustomerIndexViewModel
     {
         public List<Customer> Customers { get; set; } = new List<Customer>();
@@ -441,3 +407,4 @@ namespace WaterService.Controllers
         public int PageSize { get; set; }
     }
 }
+
