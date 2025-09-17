@@ -16,23 +16,8 @@ namespace WaterService.Models
         public string InvoiceNumber { get; set; } = string.Empty;
 
         [Required]
-        [Display(Name = "Billing Period")]
-        [DataType(DataType.Date)]
-        public DateTime BillingPeriod { get; set; }
-
-        [Required]
-        [Range(1, 4)]
-        [Display(Name = "Quarter")]
-        public int Quarter { get; set; }
-
-        [Required]
-        [Display(Name = "Year")]
-        public int Year { get; set; }
-
-        [Required]
-        [Display(Name = "Amount")]
-        [DataType(DataType.Currency)]
-        public decimal Amount { get; set; }
+        [Display(Name = "Water Meter Reading")]
+        public int? WaterMeterReadingId { get; set; }
 
         [Display(Name = "Status")]
         public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
@@ -49,14 +34,6 @@ namespace WaterService.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         [Display(Name = "Updated At")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        [Display(Name = "Water Meter Reading")]
-        public int? WaterMeterReadingId { get; set; }
-        public virtual MeterReading? WaterMeterReading { get; set; }
-
-        // Navigation properties
-        public virtual Customer Customer { get; set; } = null!;
-        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 
     public enum InvoiceStatus

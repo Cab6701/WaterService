@@ -112,7 +112,7 @@ ViewData["Title"] = "Customer Management";
                                 <td>
                                     <strong>@customer.CustomerCode</strong>
                                 </td>
-                                <td>@customer.HouseholdHeadName</td>
+                                <td>@customer.Name</td>
                                 <td>@customer.PhoneNumber</td>
                                 <td class="text-truncate" style="max-width: 200px;" title="@customer.Address">
                                     @customer.Address
@@ -125,8 +125,8 @@ ViewData["Title"] = "Customer Management";
                                     @(customer.Notes ?? "-")
                                 </td>
                                 <td>
-                                    <span class="badge @(customer.Status == WaterService.Models.CustomerStatus.Paid ? "bg-success" : "bg-secondary" )">
-                                        @customer.Status
+                                    <span class="badge @(Model?.Status == "Paid" ? "bg-success" : "bg-secondary" )">
+                                        @Model.Status
                                     </span>
                                 </td>
                                 <td>

@@ -20,15 +20,15 @@ namespace WaterService.Models
         public int Year { get; set; }
 
         [Required]
-        [Display(Name = "Previous Reading")]
-        public decimal PreviousReading { get; set; }
+        [Display(Name = "Old Index")]
+        public decimal OldIndex { get; set; }
 
         [Required]
-        [Display(Name = "Current Reading")]
-        public decimal CurrentReading { get; set; }
+        [Display(Name = "New Index")]
+        public decimal NewIndex { get; set; }
 
         [Display(Name = "Consumption")]
-        public decimal Consumption => CurrentReading - PreviousReading;
+        public decimal Consumption => NewIndex - OldIndex;
 
         [Display(Name = "Rate per Unit")]
         [DataType(DataType.Currency)]
@@ -38,17 +38,10 @@ namespace WaterService.Models
         [DataType(DataType.Currency)]
         public decimal TotalAmount => Consumption * RatePerUnit;
 
-        [StringLength(500)]
-        [Display(Name = "Notes")]
-        public string? Notes { get; set; }
-
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [Display(Name = "Updated At")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        // Navigation properties
-        public virtual Customer Customer { get; set; } = null!;
     }
 }

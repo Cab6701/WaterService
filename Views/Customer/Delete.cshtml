@@ -33,21 +33,11 @@ ViewData["Title"] = "Delete Customer";
                                 <p class="form-control-plaintext">@Model.CustomerCode</p>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Status</label>
-                                <p class="form-control-plaintext">
-                                    <span class="badge @(Model.Status == WaterService.Models.CustomerStatus.Paid ? "bg-success" : "bg-secondary" )">
-                                        @Model.Status
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Customer Name</label>
-                        <p class="form-control-plaintext">@Model.HouseholdHeadName</p>
+                        <p class="form-control-plaintext">@Model.Name</p>
                     </div>
 
                     <div class="mb-3">
@@ -161,7 +151,7 @@ ViewData["Title"] = "Delete Customer";
 @section Scripts {
 <script>
     function confirmDelete() {
-        const customerName = '@Model.HouseholdHeadName';
+        const customerName = '@Model.Name';
         const customerCode = '@Model.CustomerCode';
 
         return confirm(`Are you absolutely sure you want to delete customer ${customerCode} (${customerName})?\n\nThis action cannot be undone and all customer data will be permanently lost.`);

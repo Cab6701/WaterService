@@ -22,36 +22,21 @@ namespace WaterService.Controllers
         public IActionResult Index(string? search, string? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
             var query = _customers.AsQueryable();
+            quarter ??= (DateTime.Now.Month - 1) / 3 + 1;
+            year ??= DateTime.Now.Year;
 
             // Apply search filter
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(c =>
                     c.CustomerCode.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    c.HouseholdHeadName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                     c.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase));
             }
 
-            // Apply status filter
-            if (!string.IsNullOrEmpty(status) && Enum.TryParse<CustomerStatus>(status, out var statusEnum))
-            {
-                query = query.Where(c => c.Status == statusEnum);
-            }
-
             // Lọc theo năm/quý dựa trên MeterReadings
-            if (year.HasValue)
-            {
-                if (quarter.HasValue && quarter.Value >= 1 && quarter.Value <= 4)
-                {
-                    query = query.Where(c => c.MeterReadings != null &&
-                        c.MeterReadings.Any(r => r.Year == year.Value && r.Quarter == quarter.Value));
-                }
-                else
-                {
-                    query = query.Where(c => c.MeterReadings != null &&
-                        c.MeterReadings.Any(r => r.Year == year.Value));
-                }
-            }
+            query = query.Where(c => c.Invoices != null &&
+                    c.Invoices.Any(i => i.Year == year.Value && i.Quarter == quarter.Value && i.Status.ToString() == status));
 
             // Calculate pagination
             var totalCount = query.Count();
@@ -123,8 +108,8 @@ namespace WaterService.Controllers
                     return NotFound();
                 reading.Quarter = Quarter;
                 reading.Year = Year;
-                reading.PreviousReading = PreviousReading;
-                reading.CurrentReading = CurrentReading;
+                reading.OldIndex = PreviousReading;
+                reading.NewIndex = CurrentReading;
                 reading.Notes = Notes;
                 reading.CreatedAt = DateTime.UtcNow;
             }
@@ -137,8 +122,8 @@ namespace WaterService.Controllers
                     CustomerId = CustomerId,
                     Quarter = Quarter,
                     Year = Year,
-                    PreviousReading = PreviousReading,
-                    CurrentReading = CurrentReading,
+                    OldIndex = PreviousReading,
+                    NewIndex = CurrentReading,
                     Notes = Notes,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -228,10 +213,9 @@ namespace WaterService.Controllers
                     return NotFound();
                 }
 
-                existingCustomer.HouseholdHeadName = customer.HouseholdHeadName;
+                existingCustomer.Name = customer.Name;
                 existingCustomer.Address = customer.Address;
                 existingCustomer.PhoneNumber = customer.PhoneNumber;
-                existingCustomer.Status = customer.Status;
                 existingCustomer.Notes = customer.Notes;
                 existingCustomer.UpdatedAt = DateTime.UtcNow;
 
@@ -290,30 +274,30 @@ namespace WaterService.Controllers
 
             var selectedCustomers = _customers.Where(c => customerIds.Contains(c.Id)).ToList();
 
-            switch (action.ToLower())
-            {
-                case "export":
-                    return ExportCustomers(selectedCustomers);
-                case "activate":
-                    foreach (var customer in selectedCustomers)
-                    {
-                        customer.Status = CustomerStatus.Paid;
-                        customer.UpdatedAt = DateTime.UtcNow;
-                    }
-                    TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers activated.";
-                    break;
-                case "deactivate":
-                    foreach (var customer in selectedCustomers)
-                    {
-                        customer.Status = CustomerStatus.Pending;
-                        customer.UpdatedAt = DateTime.UtcNow;
-                    }
-                    TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers deactivated.";
-                    break;
-                default:
-                    TempData["ErrorMessage"] = "Invalid action selected.";
-                    break;
-            }
+            //switch (action.ToLower())
+            //{
+            //    case "export":
+            //        return ExportCustomers(selectedCustomers);
+            //    case "activate":
+            //        foreach (var customer in selectedCustomers)
+            //        {
+            //            customer.Status = CustomerStatus.Paid;
+            //            customer.UpdatedAt = DateTime.UtcNow;
+            //        }
+            //        TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers activated.";
+            //        break;
+            //    case "deactivate":
+            //        foreach (var customer in selectedCustomers)
+            //        {
+            //            customer.Status = CustomerStatus.Pending;
+            //            customer.UpdatedAt = DateTime.UtcNow;
+            //        }
+            //        TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers deactivated.";
+            //        break;
+            //    default:
+            //        TempData["ErrorMessage"] = "Invalid action selected.";
+            //        break;
+            //}
 
             return RedirectToAction(nameof(Index));
         }
@@ -324,7 +308,7 @@ namespace WaterService.Controllers
             var csv = "Customer Code,Name,Phone,Address,Status,Registration Date\n";
             foreach (var customer in customers)
             {
-                csv += $"{customer.CustomerCode},{customer.HouseholdHeadName},{customer.PhoneNumber},{customer.Address},{customer.Status}\n";
+                csv += $"{customer.CustomerCode},{customer.Name},{customer.PhoneNumber},{customer.Address}\n";
             }
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(csv);
@@ -341,10 +325,9 @@ namespace WaterService.Controllers
                 {
                     Id = _nextCustomerId++,
                     CustomerCode = $"C{_nextCustomerCode++:D6}",
-                    HouseholdHeadName = "Nguyen Van A",
+                    Name = "Nguyen Van A",
                     Address = "123 Main Street, District 1, HCMC",
                     PhoneNumber = "0901234567",
-                    Status = CustomerStatus.Paid,
                     Notes = "Regular customer",
                     CreatedAt = DateTime.UtcNow.AddDays(-365),
                     UpdatedAt = DateTime.UtcNow.AddDays(-30),
@@ -356,10 +339,29 @@ namespace WaterService.Controllers
                             CustomerId = 1,
                             Quarter = 1,
                             Year = 2023,
-                            PreviousReading = 100,
-                            CurrentReading = 120,
+                            OldIndex = 100,
+                            NewIndex = 120,
                             Notes = "Q1/2023",
                             CreatedAt = DateTime.UtcNow.AddDays(-360)
+                        }
+                    },
+                    Invoices = new List<Invoice>
+                    {
+                        new Invoice
+                        {
+                            Id = 1,
+                            CustomerId = 1,
+                            InvoiceNumber = "INV0001",
+                            BillingPeriod = new DateTime(2025, 1, 1),
+                            Quarter = 3,
+                            Year = 2025,
+                            Amount = 200000,
+                            Status = InvoiceStatus.Paid,
+                            DueDate = new DateTime(2023, 2, 15),
+                            PaidDate = new DateTime(2023, 2, 10),
+                            CreatedAt = DateTime.UtcNow.AddDays(-350),
+                            UpdatedAt = DateTime.UtcNow.AddDays(-340),
+                            WaterMeterReadingId = 1
                         }
                     }
                 },
@@ -367,10 +369,9 @@ namespace WaterService.Controllers
                 {
                     Id = _nextCustomerId++,
                     CustomerCode = $"C{_nextCustomerCode++:D6}",
-                    HouseholdHeadName = "Tran Thi B",
+                    Name = "Tran Thi B",
                     Address = "456 Second Street, District 2, HCMC",
                     PhoneNumber = "0901234568",
-                    Status = CustomerStatus.Paid,
                     Notes = "Commercial customer",
                     CreatedAt = DateTime.UtcNow.AddDays(-300),
                     UpdatedAt = DateTime.UtcNow.AddDays(-15),
@@ -382,10 +383,29 @@ namespace WaterService.Controllers
                             CustomerId = 2,
                             Quarter = 2,
                             Year = 2023,
-                            PreviousReading = 200,
-                            CurrentReading = 230,
+                            OldIndex = 200,
+                            NewIndex = 230,
                             Notes = "Q2/2023",
                             CreatedAt = DateTime.UtcNow.AddDays(-290)
+                        }
+                    },
+                    Invoices = new List<Invoice>
+                    {
+                        new Invoice
+                        {
+                            Id = 2,
+                            CustomerId = 2,
+                            InvoiceNumber = "INV0002",
+                            BillingPeriod = new DateTime(2023, 4, 1),
+                            Quarter = 2,
+                            Year = 2025,
+                            Amount = 350000,
+                            Status = InvoiceStatus.Cancelled,
+                            DueDate = new DateTime(2025, 5, 15),
+                            PaidDate = null,
+                            CreatedAt = DateTime.UtcNow.AddDays(-280),
+                            UpdatedAt = DateTime.UtcNow.AddDays(-270),
+                            WaterMeterReadingId = 2
                         }
                     }
                 },
@@ -393,14 +413,14 @@ namespace WaterService.Controllers
                 {
                     Id = _nextCustomerId++,
                     CustomerCode = $"C{_nextCustomerCode++:D6}",
-                    HouseholdHeadName = "Le Van C",
+                    Name = "Le Van C",
                     Address = "789 Third Street, District 3, HCMC",
                     PhoneNumber = "0901234569",
-                    Status = CustomerStatus.Pending,
                     Notes = "Temporarily inactive",
                     CreatedAt = DateTime.UtcNow.AddDays(-200),
                     UpdatedAt = DateTime.UtcNow.AddDays(-5),
-                    MeterReadings = new List<MeterReading>()
+                    MeterReadings = new List<MeterReading>(),
+                    Invoices = new List<Invoice>()
                 }
             };
 

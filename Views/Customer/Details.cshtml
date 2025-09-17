@@ -44,7 +44,7 @@ ViewData["Title"] = "Customer Details";
                             <small class="text-muted">Name</small>
                         </div>
                         <div class="col-sm-8">
-                            @Model.HouseholdHeadName
+                            @Model.Name
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -53,17 +53,6 @@ ViewData["Title"] = "Customer Details";
                         </div>
                         <div class="col-sm-8">
                             <a href="tel:@Model.PhoneNumber">@Model.PhoneNumber</a>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <small class="text-muted">Status</small>
-                        </div>
-                        <div class="col-sm-8">
-                            <span class="badge @(Model.Status == WaterService.Models.CustomerStatus.Paid ? " bg-success"
-                                : "bg-secondary" )">
-                                @Model.Status
-                            </span>
                         </div>
                     </div>
                 </div>
@@ -254,9 +243,9 @@ ViewData["Title"] = "Customer Details";
                                 <tr>
                                     <td>@reading.Quarter</td>
                                     <td>@reading.Year</td>
-                                    <td>@reading.PreviousReading</td>
-                                    <td>@reading.CurrentReading</td>
-                                    <td>@(reading.CurrentReading - reading.PreviousReading)</td>
+                                    <td>@reading.OldIndex</td>
+                                    <td>@reading.NewIndex</td>
+                                    <td>@(reading.NewIndex - reading.OldIndex)</td>
                                     <td>@reading.Notes</td>
                                     <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
                                     <td>

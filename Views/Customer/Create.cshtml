@@ -32,10 +32,10 @@ ViewData["Title"] = "Add New Customer";
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="HouseholdHeadName" class="form-label"></label>
-                            <input asp-for="HouseholdHeadName" class="form-control"
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control"
                                 placeholder="Enter household head name" />
-                            <span asp-validation-for="HouseholdHeadName" class="text-danger"></span>
+                            <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
@@ -53,15 +53,6 @@ ViewData["Title"] = "Add New Customer";
                                     <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Status" class="form-label"></label>
-                            <select asp-for="Status" class="form-select">
-                                <option value="@WaterService.Models.CustomerStatus.Paid">Active</option>
-                                <option value="@WaterService.Models.CustomerStatus.Pending">Inactive</option>
-                            </select>
-                            <span asp-validation-for="Status" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
@@ -179,7 +170,7 @@ ViewData["Title"] = "Add New Customer";
             $('#HouseholdHeadName').val(formData.householdHeadName || '');
             $('#Address').val(formData.address || '');
             $('#PhoneNumber').val(formData.phoneNumber || '');
-            $('#Status').val(formData.status || '@WaterService.Models.CustomerStatus.Paid');
+            $('#Status').val(formData.status || '');
             $('#Notes').val(formData.notes || '');
         }
     }
