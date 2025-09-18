@@ -1,6 +1,6 @@
 ﻿@model WaterService.Controllers.CustomerIndexViewModel
 @{
-ViewData["Title"] = "Customer Management";
+    ViewData["Title"] = "Customer Management";
 }
 
 <div class="customer-management container-fluid py-4">
@@ -22,7 +22,7 @@ ViewData["Title"] = "Customer Management";
                 <div class="col-md-4">
                     <label for="search" class="form-label fw-semibold">🔍 Search</label>
                     <input type="text" class="form-control" id="search" name="search"
-                        placeholder="Search by ID, Name, or Phone..." value="@(Model.Search)">
+                           placeholder="Search by ID, Name, or Phone..." value="@(Model.Search)">
                 </div>
 
                 <!-- Address -->
@@ -65,7 +65,7 @@ ViewData["Title"] = "Customer Management";
                         <option value="">All</option>
                         @for (int y = DateTime.Now.Year; y >= 2000; y--)
                         {
-                        <option value="@(Model.Year == y ? " selected" : "" )">@y</option>
+                            <option value="@(Model.Year == y ? " selected" : "" )">@y</option>
                         }
                     </select>
                 </div>
@@ -91,16 +91,25 @@ ViewData["Title"] = "Customer Management";
                 <span class="selected-count me-3 fw-semibold text-primary">0 selected</span>
                 <div class="btn-group">
                     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                        data-bs-toggle="dropdown">
+                            data-bs-toggle="dropdown">
                         Bulk Actions
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" data-action="export"><i
-                                    class="fas fa-file-export me-1"></i> Export</a></li>
-                        <li><a class="dropdown-item" href="#" data-action="activate"><i
-                                    class="fas fa-check-circle text-success me-1"></i> Activate</a></li>
-                        <li><a class="dropdown-item" href="#" data-action="deactivate"><i
-                                    class="fas fa-ban text-danger me-1"></i> Deactivate</a></li>
+                        <li>
+                            <a class="dropdown-item" href="#" data-action="export">
+                                <i class="fas fa-file-export me-1"></i> Export
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" data-action="activate">
+                                <i class="fas fa-check-circle text-success me-1"></i> Activate
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" data-action="deactivate">
+                                <i class="fas fa-ban text-danger me-1"></i> Deactivate
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -109,79 +118,80 @@ ViewData["Title"] = "Customer Management";
         <div class="card-body p-0">
             @if (Model.Customers.Any())
             {
-            <div class="table-responsive">
-                <table class="table table-hover table-striped table-bordered align-middle mb-0">
-                    <thead class="table-primary">
-                        <tr>
-                            <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
-                            <th>Customer ID</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Address</th>
-                            <th class="text-end">Old Index</th>
-                            <th class="text-end">New Index</th>
-                            <th class="text-end">Actual</th>
-                            <th class="text-end">Money</th>
-                            <th>Notes</th>
-                            <th>Status</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var customer in Model.Customers)
-                        {
-                            var meterReading = customer.MeterReadings
-                                    .Where(mr => mr.CustomerId == customer.Id && mr.Year == Model.Year &&mr.Quarter == Model.Quarter)
-                                    .FirstOrDefault();
-                             var invoice = customer.Invoices
-                                    .Where(inv => inv.CustomerId == customer.Id && inv.WaterMeterReading.Year == Model.Year && inv.WaterMeterReading.Quarter == Model.Quarter)
-                                    .FirstOrDefault();
-                        <tr>
-                            <td><input type="checkbox" class="form-check-input customer-checkbox" value="@customer.Id">
-                            </td>
-                            <td><strong>@customer.CustomerCode</strong></td>
-                            <td>@customer.Name</td>
-                            <td>@customer.PhoneNumber</td>
-                            <td class="text-truncate" style="max-width: 150px;" title="@customer.Address">
-                                @customer.Address</td>
-                            <td class="text-end">@(meterReading?.OldIndex.ToString() ?? "-")</td>
-                            <td class="text-end">@(meterReading?.NewIndex.ToString() ?? "-")</td>
-                            <td class="text-end">@(meterReading?.Consumption.ToString() ?? "-")</td>
-                            <td class="text-end">@(meterReading?.TotalAmount.ToString("C") ?? "-")</td>
-                            <td class="text-truncate" style="max-width: 120px;" title="@customer.Notes">@(customer.Notes
-                                ?? "-")</td>
-                            <td>
-                                <span
-                                    class="badge px-3 py-2 @(invoice?.Status == InvoiceStatus.Paid ? "bg-success" : "bg-secondary" )">
-                                    @invoice?.Status
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <div class="btn-group btn-group-sm">
-                                    <a href="@Url.Action(" Details", new { id=customer.Id })"
-                                        class="btn btn-outline-info" title="View"><i class="fas fa-eye"></i></a>
-                                    <a href="@Url.Action(" Edit", new { id=customer.Id })"
-                                        class="btn btn-outline-warning" title="Edit"><i class="fas fa-edit"></i></a>
-                                    <a href="@Url.Action(" Delete", new { id=customer.Id })"
-                                        class="btn btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></a>
-                                </div>
-                            </td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped table-bordered align-middle mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
+                                <th>Customer ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th class="text-end">Old Index</th>
+                                <th class="text-end">New Index</th>
+                                <th class="text-end">Actual</th>
+                                <th class="text-end">Money</th>
+                                <th>Notes</th>
+                                <th>Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var customer in Model.Customers)
+                            {
+                                var meterReading = customer.MeterReadings
+                                        .Where(mr => mr.CustomerId == customer.Id && mr.Year == Model.Year && mr.Quarter == Model.Quarter)
+                                        .FirstOrDefault();
+                                var invoice = meterReading?.Invoice;
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input customer-checkbox" value="@customer.Id">
+                                    </td>
+                                    <td><strong>@customer.CustomerCode</strong></td>
+                                    <td>@customer.Name</td>
+                                    <td>@customer.PhoneNumber</td>
+                                    <td class="text-truncate" style="max-width: 150px;" title="@customer.Address">
+                                        @customer.Address
+                                    </td>
+                                    <td class="text-end">@(meterReading?.OldIndex.ToString() ?? "-")</td>
+                                    <td class="text-end">@(meterReading?.NewIndex.ToString() ?? "-")</td>
+                                    <td class="text-end">@(meterReading?.Consumption.ToString() ?? "-")</td>
+                                    <td class="text-end">@(meterReading?.TotalAmount.ToString("C") ?? "-")</td>
+                                    <td class="text-truncate" style="max-width: 120px;" title="@customer.Notes">
+                                        @(customer.Notes
+                                ?? "-")
+                                    </td>
+                                    <td>
+                                        <span class="badge px-3 py-2 @(invoice?.Status == InvoiceStatus.Paid ? "bg-success" : "bg-secondary" )">
+                                            @invoice?.Status
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="@Url.Action(" Details", new { id=customer.Id })"
+                                               class="btn btn-outline-info" title="View"><i class="fas fa-eye"></i></a>
+                                            <a href="@Url.Action(" Edit", new { id=customer.Id })"
+                                               class="btn btn-outline-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                                            <a href="@Url.Action(" Delete", new { id=customer.Id })"
+                                               class="btn btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
             else
             {
-            <div class="text-center py-5">
-                <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No customers found</h5>
-                <p class="text-muted">Try adjusting your search criteria or add a new customer.</p>
-                <a href="@Url.Action(" Create")" class="btn btn-primary">
-                    <i class="fas fa-plus me-1"></i> Add First Customer
-                </a>
-            </div>
+                <div class="text-center py-5">
+                    <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No customers found</h5>
+                    <p class="text-muted">Try adjusting your search criteria or add a new customer.</p>
+                    <a href="@Url.Action(" Create")" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Add First Customer
+                    </a>
+                </div>
             }
         </div>
     </div>
@@ -189,28 +199,32 @@ ViewData["Title"] = "Customer Management";
     <!-- Pagination -->
     @if (Model.TotalPages > 1)
     {
-    <nav aria-label="Customer pagination" class="mt-4">
-        <ul class="pagination justify-content-center">
-            @if (Model.CurrentPage > 1)
-            {
-            <li class="page-item">
-                <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
+        <nav aria-label="Customer pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                @if (Model.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
                     quarter=Model.Quarter, year=Model.Year, page=Model.CurrentPage - 1 })">Previous</a>
-            </li>
-            }
-            @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2);
-                i++) { <li class="page-item @(i == Model.CurrentPage ? " active" : "" )">
-                <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
+                    </li>
+                }
+                @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+                   i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? " active" : "" )">
+                        <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
                     quarter=Model.Quarter, year=Model.Year, page=i })">@i</a>
                 </li>
-                }
-                @if (Model.CurrentPage < Model.TotalPages) { <li class="page-item">
-                    <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
+            }
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
                         quarter=Model.Quarter, year=Model.Year, page=Model.CurrentPage + 1 })">Next</a>
                     </li>
-                    }
-        </ul>
-    </nav>
+                }
+            </ul>
+        </nav>
     }
 </div>
 
@@ -222,21 +236,48 @@ ViewData["Title"] = "Customer Management";
 </form>
 
 @section Scripts {
-<script>
-    $(document).ready(function () {
-        // Select all
-        $('#selectAll').on('change', function () {
-            $('.customer-checkbox').prop('checked', this.checked);
-            updateBulkActions();
+    <script>
+        $(document).ready(function () {
+            // Select all
+            $('#selectAll').on('change', function () {
+                $('.customer-checkbox').prop('checked', this.checked);
+                updateBulkActions();
+            });
+
+            // Individual check
+            $('.customer-checkbox').on('change', function () {
+                updateBulkActions();
+                updateSelectAllState();
+            });
+
+            // Bulk actions
+            $('.dropdown-item[data-action]').on('click', function (e) {
+                e.preventDefault();
+                const action = $(this).data('action');
+                const selectedIds = $('.customer-checkbox:checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                if (selectedIds.length === 0) {
+                    alert('Please select at least one customer.');
+                    return;
+                }
+
+                if (confirm(`Are you sure you want to ${action} ${selectedIds.length} customer(s)?`)) {
+                    $('#bulkActionType').val(action);
+                    $('#bulkActionCustomerIds').val(selectedIds.join(','));
+                    $('#bulkActionForm').submit();
+                }
+            });
         });
 
-        // Individual check
+        // Individual checkbox change
         $('.customer-checkbox').on('change', function () {
             updateBulkActions();
             updateSelectAllState();
         });
 
-        // Bulk actions
+        // Bulk action handlers
         $('.dropdown-item[data-action]').on('click', function (e) {
             e.preventDefault();
             const action = $(this).data('action');
@@ -255,47 +296,20 @@ ViewData["Title"] = "Customer Management";
                 $('#bulkActionForm').submit();
             }
         });
-    });
+        });
 
-    // Individual checkbox change
-    $('.customer-checkbox').on('change', function () {
-        updateBulkActions();
-        updateSelectAllState();
-    });
+        function updateBulkActions() {
+            const selectedCount = $('.customer-checkbox:checked').length;
+            const bulkActions = $('.bulk-actions');
+            const selectedCountSpan = $('.selected-count');
 
-    // Bulk action handlers
-    $('.dropdown-item[data-action]').on('click', function (e) {
-        e.preventDefault();
-        const action = $(this).data('action');
-        const selectedIds = $('.customer-checkbox:checked').map(function () {
-            return $(this).val();
-        }).get();
-
-        if (selectedIds.length === 0) {
-            alert('Please select at least one customer.');
-            return;
-        }
-
-        if (confirm(`Are you sure you want to ${action} ${selectedIds.length} customer(s)?`)) {
-            $('#bulkActionType').val(action);
-            $('#bulkActionCustomerIds').val(selectedIds.join(','));
-            $('#bulkActionForm').submit();
-        }
-    });
-    });
-
-    function updateBulkActions() {
-        const selectedCount = $('.customer-checkbox:checked').length;
-        const bulkActions = $('.bulk-actions');
-        const selectedCountSpan = $('.selected-count');
-
-        if (selectedCount > 0) {
-            bulkActions.show();
-            selectedCountSpan.text(`${selectedCount} selected`);
-        } else {
-            bulkActions.hide();
-        }
-</script>
+            if (selectedCount > 0) {
+                bulkActions.show();
+                selectedCountSpan.text(`${selectedCount} selected`);
+            } else {
+                bulkActions.hide();
+            }
+    </script>
 }
 
 <style>
