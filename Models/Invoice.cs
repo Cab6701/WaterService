@@ -15,12 +15,6 @@ namespace WaterService.Models
         [Display(Name = "Invoice Number")]
         public string InvoiceNumber { get; set; } = string.Empty;
 
-        [Required]
-        [Display(Name = "Water Meter Reading")]
-        public int? WaterMeterReadingId { get; set; }
-
-        public virtual MeterReading WaterMeterReading { get; set; } = null!;
-
         [Display(Name = "Status")]
         public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
 
@@ -36,6 +30,8 @@ namespace WaterService.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         [Display(Name = "Updated At")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        public virtual MeterReading WaterMeterReading { get; set; } = null!;
     }
 
     public enum InvoiceStatus
