@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using WaterService.Models;
+using System;
 using System.Linq;
+using System.Net;
+using WaterService.Models;
 
 namespace WaterService.Controllers
 {
@@ -19,10 +21,10 @@ namespace WaterService.Controllers
         }
 
         // GET: Customer
-        public IActionResult Index(string? search, string? status, int? quarter, int? year, int page = 1, int pageSize = 20)
+        public IActionResult Index(string? search, int? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
             var query = _customers.AsQueryable();
-            quarter ??= (DateTime.Now.Month - 1) / 3 + 1;
+            quarter = (DateTime.Now.Month - 1) / 3;
             year ??= DateTime.Now.Year;
 
             // Apply search filter
@@ -34,9 +36,20 @@ namespace WaterService.Controllers
                     c.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase));
             }
 
+            if (address != null)
+            {
+                query = query.Where(c => c.Address == ((CustomerAddress)address).ToString());
+            }
+
+            if (status != null) 
+            {
+                query = query.Where(c => c.Invoices != null &&
+                    c.Invoices.Any(i => i.Status == (InvoiceStatus)status));
+            }
+
             // Lọc theo năm/quý dựa trên MeterReadings
             query = query.Where(c => c.MeterReadings != null &&
-                    c.MeterReadings.Any(i => i.Year == year.Value && i.Quarter == quarter.Value));
+                    c.MeterReadings.Any(i => i.Year == year.Value && i.Quarter == quarter));
 
             // Calculate pagination
             var totalCount = query.Count();
@@ -51,7 +64,8 @@ namespace WaterService.Controllers
             {
                 Customers = customers,
                 Search = search,
-                Status = status,
+                Address = address == null ? string.Empty : ((CustomerAddress)address).ToString(),
+                Status = status == null ? string.Empty : ((InvoiceStatus)status).ToString(),
                 Quarter = quarter,
                 Year = year,
                 CurrentPage = page,
@@ -320,7 +334,8 @@ namespace WaterService.Controllers
             var random = new Random();
             var sampleFirstNames = new[] { "Nguyen", "Tran", "Le", "Pham", "Hoang", "Dang", "Bui", "Do", "Phan", "Vu" };
             var sampleLastNames = new[] { "Anh", "Binh", "Cuong", "Dung", "Hoa", "Hung", "Khanh", "Linh", "Minh", "Nam", "Phong", "Quang", "Son", "Trang", "Tuan" };
-            var sampleHamlets = new[] { "Minh Khai", "Quang Trung", "Hồng Quang" };
+            var addressValues = Enum.GetValues(typeof(CustomerAddress));
+            var randomAddress = (CustomerAddress)addressValues.GetValue(random.Next(addressValues.Length))!;
 
             var sampleCustomers = new List<Customer>();
 
@@ -337,10 +352,10 @@ namespace WaterService.Controllers
 
                 var meterReading = new MeterReading
                 {
-                    Id = i++,
+                    Id = i,
                     CustomerId = i,
-                    Quarter = random.Next(1, 5),
-                    Year = DateTime.Now.Year - random.Next(0, 2),
+                    Quarter = random.Next(0, 3),
+                    Year = 2025,
                     OldIndex = random.Next(100, 500),
                     NewIndex = random.Next(501, 1000),
                     RatePerUnit = 10000,
@@ -348,10 +363,9 @@ namespace WaterService.Controllers
                     UpdatedAt = DateTime.UtcNow,
                     Invoice = new Invoice
                     {
-                        Id = i + 1,
+                        Id = i,
                         CustomerId = i,
                         InvoiceNumber = $"INV{_nextCustomerCode:D6}",
-                        WaterMeterReadingId = i++,
                         Status = InvoiceStatus.Paid,
                         DueDate = DateTime.UtcNow.AddDays(30),
                         PaidDate = DateTime.UtcNow.AddDays(-random.Next(1, 30)),
@@ -360,31 +374,17 @@ namespace WaterService.Controllers
                     }
                 };
 
-                var invoice = new Invoice
-                {
-                    Id = i++,
-                    CustomerId = i,
-                    InvoiceNumber = $"INV{_nextCustomerCode:D6}",
-                    WaterMeterReadingId = meterReading.Id,
-                    WaterMeterReading = meterReading,
-                    Status = InvoiceStatus.Paid,
-                    DueDate = DateTime.UtcNow.AddDays(30),
-                    PaidDate = DateTime.UtcNow.AddDays(-random.Next(1, 30)),
-                    CreatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 100)),
-                    UpdatedAt = DateTime.UtcNow
-                };
-
                 var customer = new Customer
                 {
-                    Id = i++,
+                    Id = i,
                     CustomerCode = $"C{_nextCustomerCode++:D6}",
                     Name = fullName,
-                    Address = sampleHamlets[random.Next(sampleHamlets.Length)],
+                    Address = ((CustomerAddress)random.Next(0,9)).ToString(),
                     PhoneNumber = phone,
                     Notes = "sample",
                     CreatedAt = DateTime.UtcNow.AddDays(-random.Next(200, 400)),
                     UpdatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 100)),
-                    Invoices = new List<Invoice> { invoice },
+                    Invoices = new List<Invoice> { meterReading.Invoice },
                     MeterReadings = new List<MeterReading> { meterReading }
                 };
 
@@ -398,6 +398,7 @@ namespace WaterService.Controllers
     {
         public List<Customer> Customers { get; set; } = new List<Customer>();
         public string? Search { get; set; }
+        public string? Address { get; set; }
         public string? Status { get; set; }
         public int? Quarter { get; set; }
         public int? Year { get; set; }

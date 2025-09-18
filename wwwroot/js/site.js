@@ -20,9 +20,9 @@ function initializeCustomerManagement() {
     });
 
     // Filter change handlers
-    $('#status, #dateFrom, #dateTo').on('change', function() {
-        performSearch();
-    });
+    //$('#status, #address, #quarter, #year').on('change', function() {
+    //    performSearch();
+    //});
 
     // Select all functionality
     $('#selectAll').on('change', function() {

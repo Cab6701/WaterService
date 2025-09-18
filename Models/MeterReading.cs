@@ -46,4 +46,16 @@ namespace WaterService.Models
 
         public virtual Invoice Invoice { get; set; } = null!;
     }
+
+    public enum QuarterInYear
+    {
+        [Display(Name = "Quý 1")]
+        Q1,
+        [Display(Name = "Quý 2")]
+        Q2,
+        [Display(Name = "Quý 3")]
+        Q3,
+        [Display(Name = "Quý 4")]
+        Q4
+    }
 }

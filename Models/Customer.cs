@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WaterService.Models
 {
@@ -40,5 +40,29 @@ namespace WaterService.Models
         // Navigation properties
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
         public virtual List<MeterReading> MeterReadings { get; set; } = new List<MeterReading>();
+    }
+
+    public enum CustomerAddress
+    {
+        [Display(Name = "Tân Tiến")]
+        TanTien,
+        [Display(Name = "Chi Lê")]
+        ChiLe,
+        [Display(Name = "Bắc Sơn")]
+        BacSon,
+        [Display(Name = "Minh Sơn")]
+        MinhSon,
+        [Display(Name = "Hồng Hoàng")]
+        HongHoang,
+        [Display(Name = "Minh Tân")]
+        MinhTan,
+        [Display(Name = "Hồng Quang")]
+        HongQuang,
+        [Display(Name = "Quang Trung")]
+        QuangTrung,
+        [Display(Name = "Minh Khai")]
+        MinhKhai,
+        [Display(Name = "Cơ Quan Doanh Nghiệp")]
+        Organization
     }
 }

@@ -28,44 +28,35 @@
                 <!-- Address -->
                 <div class="col-md-3">
                     <label for="address" class="form-label fw-semibold">📍 Address</label>
-                    <select class="form-select" id="address" name="address">
+                    <select class="form-select" id="address" name="address" asp-for="Address"
+                            asp-items="Html.GetEnumSelectList<CustomerAddress>()">
                         <option value="">All</option>
-                        <option value="Hồng Quang">Hồng Quang</option>
-                        <option value="Minh Khai">Minh Khai</option>
-                        <option value="Quang Trung">Quang Trung</option>
                     </select>
                 </div>
 
                 <!-- Status -->
                 <div class="col-md-2">
                     <label for="status" class="form-label fw-semibold">⚡ Status</label>
-                    <select class="form-select" id="status" name="status">
+                    <select class="form-select" id="status" name="status" asp-for="Status"
+                            asp-items="Html.GetEnumSelectList<InvoiceStatus>()">
                         <option value="">All</option>
-                        <option value="@(InvoiceStatus.Paid)">Paid</option>
-                        <option value="@(InvoiceStatus.Pending)">Pending</option>
                     </select>
                 </div>
 
                 <!-- Quarter -->
                 <div class="col-md-2">
                     <label for="quarter" class="form-label fw-semibold">📅 Quarter</label>
-                    <select class="form-select" id="quarter" name="quarter">
-                        <option value="">All</option>
-                        <option value="@(Model.Quarter == 1 ? " selected" : "" )">Quý 1</option>
-                        <option value=" @(Model.Quarter == 2 ? " selected" : "" )">Quý 2</option>
-                        <option value=" @(Model.Quarter == 3 ? " selected" : "" )">Quý 3</option>
-                        <option value="@(Model.Quarter == 4 ? " selected" : "" )">Quý 4</option>
+                    <select class="form-select" id="quarter" name="quarter" asp-for="Quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()">
                     </select>
                 </div>
 
                 <!-- Year -->
                 <div class="col-md-2">
                     <label for="year" class="form-label fw-semibold">📆 Year</label>
-                    <select class="form-select" id="year" name="year">
-                        <option value="">All</option>
+                    <select class="form-select" id="year" name="year" asp-for="Year">
                         @for (int y = DateTime.Now.Year; y >= 2000; y--)
                         {
-                            <option value="@(Model.Year == y ? " selected" : "" )">@y</option>
+                            <option value="@y">@y</option>
                         }
                     </select>
                 </div>
@@ -153,16 +144,16 @@
                                     <td class="text-truncate" style="max-width: 150px;" title="@customer.Address">
                                         @customer.Address
                                     </td>
-                                    <td class="text-end">@(meterReading?.OldIndex.ToString() ?? "-")</td>
-                                    <td class="text-end">@(meterReading?.NewIndex.ToString() ?? "-")</td>
-                                    <td class="text-end">@(meterReading?.Consumption.ToString() ?? "-")</td>
-                                    <td class="text-end">@(meterReading?.TotalAmount.ToString("C") ?? "-")</td>
+                                    <td class="text-center">@(meterReading?.OldIndex.ToString() ?? "-")</td>
+                                    <td class="text-center">@(meterReading?.NewIndex.ToString() ?? "-")</td>
+                                    <td class="text-center">@(meterReading?.Consumption.ToString() ?? "-")</td>
+                                    <td class="text-center">@(meterReading?.TotalAmount.ToString("C") ?? "-")</td>
                                     <td class="text-truncate" style="max-width: 120px;" title="@customer.Notes">
                                         @(customer.Notes
                                 ?? "-")
                                     </td>
                                     <td>
-                                        <span class="badge px-3 py-2 @(invoice?.Status == InvoiceStatus.Paid ? "bg-success" : "bg-secondary" )">
+                                        <span class="badge px-3 py-2 text-center @(invoice?.Status == InvoiceStatus.Paid ? "bg-success" : "bg-secondary" )">
                                             @invoice?.Status
                                         </span>
                                     </td>
@@ -209,7 +200,7 @@
                     </li>
                 }
                 @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2);
-                   i++)
+      i++)
                 {
                     <li class="page-item @(i == Model.CurrentPage ? " active" : "" )">
                         <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
@@ -295,7 +286,6 @@
                 $('#bulkActionCustomerIds').val(selectedIds.join(','));
                 $('#bulkActionForm').submit();
             }
-        });
         });
 
         function updateBulkActions() {

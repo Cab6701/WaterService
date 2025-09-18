@@ -16,7 +16,7 @@ namespace WaterService.Models
         public string InvoiceNumber { get; set; } = string.Empty;
 
         [Display(Name = "Status")]
-        public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
+        public InvoiceStatus? Status { get; set; } = null;
 
         [Display(Name = "Due Date")]
         [DataType(DataType.Date)]
@@ -31,7 +31,7 @@ namespace WaterService.Models
         [Display(Name = "Updated At")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        public virtual MeterReading WaterMeterReading { get; set; } = null!;
+        public virtual MeterReading? WaterMeterReading { get; set; } = null!;
     }
 
     public enum InvoiceStatus
