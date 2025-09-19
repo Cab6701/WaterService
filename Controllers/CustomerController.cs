@@ -24,7 +24,7 @@ namespace WaterService.Controllers
         public IActionResult Index(string? search, int? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
             var query = _customers.AsQueryable();
-            quarter = (DateTime.Now.Month - 1) / 3;
+            quarter ??= (DateTime.Now.Month - 1) / 3;
             year ??= DateTime.Now.Year;
 
             // Apply search filter
