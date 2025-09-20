@@ -1,6 +1,6 @@
 @model WaterService.Models.Customer
 @{
-ViewData["Title"] = "Customer Details";
+    ViewData["Title"] = "Customer Details";
 }
 
 <div class="customer-details">
@@ -11,10 +11,10 @@ ViewData["Title"] = "Customer Details";
                 <p class="text-muted mb-0">Complete information for <strong>@Model.CustomerCode</strong></p>
             </div>
             <div class="btn-group">
-                <a href="@Url.Action(" Edit", new { id=Model.Id })" class="btn btn-primary">
+                <a href="@Url.Action("Edit", new { id=Model.Id })" class="btn btn-primary">
                     <i class="fas fa-edit"></i> Edit Customer
                 </a>
-                <a href="@Url.Action(" Index")" class="btn btn-outline-secondary">
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
                     <i class="fas fa-list"></i> Back to List
                 </a>
             </div>
@@ -96,14 +96,14 @@ ViewData["Title"] = "Customer Details";
                     </div>
                     @if (!string.IsNullOrEmpty(Model.Notes))
                     {
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <small class="text-muted">Notes</small>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <small class="text-muted">Notes</small>
+                            </div>
+                            <div class="col-sm-8">
+                                <p class="mb-0">@Model.Notes</p>
+                            </div>
                         </div>
-                        <div class="col-sm-8">
-                            <p class="mb-0">@Model.Notes</p>
-                        </div>
-                    </div>
                     }
                 </div>
             </div>
@@ -176,49 +176,6 @@ ViewData["Title"] = "Customer Details";
                     </h6>
                 </div>
                 <div class="card-body">
-                    <!-- Form nhập/chỉnh sửa chỉ số nước -->
-                    <div class="mb-4">
-                        <form asp-action="AddOrEditMeterReading" method="post" class="row g-3 align-items-end">
-                            <input type="hidden" name="CustomerId" value="@Model.Id" />
-                            <input type="hidden" name="Id" value="@ViewBag.EditReading?.Id" />
-                            <div class="col-md-2">
-                                <label class="form-label">Quý</label>
-                                <select class="form-select" name="Quarter" required>
-                                    <option value="">Chọn quý</option>
-                                    @for (int q = 1; q <= 4; q++) { <option value="@q"
-                                        selected="@(ViewBag.EditReading?.Quarter == q)">
-                                        Quý @q
-                                        </option>
-                                        }
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Năm</label>
-                                <input type="number" class="form-control" name="Year"
-                                    value="@(ViewBag.EditReading?.Year ?? DateTime.Now.Year)" required min="2000"
-                                    max="2100" />
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Chỉ số cũ</label>
-                                <input type="number" step="0.01" class="form-control" name="PreviousReading"
-                                    value="@ViewBag.EditReading?.PreviousReading" required />
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Chỉ số mới</label>
-                                <input type="number" step="0.01" class="form-control" name="CurrentReading"
-                                    value="@ViewBag.EditReading?.CurrentReading" required />
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Ghi chú</label>
-                                <input type="text" class="form-control" name="Notes"
-                                    value="@ViewBag.EditReading?.Notes" />
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100">@((ViewBag.EditReading != null) ?
-                                    "Cập nhật" : "Thêm mới")</button>
-                            </div>
-                        </form>
-                    </div>
                     <!-- Bảng lịch sử chỉ số nước -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover align-middle">
@@ -231,43 +188,29 @@ ViewData["Title"] = "Customer Details";
                                     <th>Tiêu thụ</th>
                                     <th>Ghi chú</th>
                                     <th>Ngày nhập</th>
-                                    <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if (Model.MeterReadings != null && Model.MeterReadings.Any())
                                 {
-                                foreach (var reading in Model.MeterReadings.OrderByDescending(r =>
-                                r.Year).ThenByDescending(r => r.Quarter))
-                                {
-                                <tr>
-                                    <td>@reading.Quarter</td>
-                                    <td>@reading.Year</td>
-                                    <td>@reading.OldIndex</td>
-                                    <td>@reading.NewIndex</td>
-                                    <td>@(reading.NewIndex - reading.OldIndex)</td>
-                                    <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
-                                    <td>
-                                        <form asp-action="EditMeterReading" method="get" style="display:inline">
-                                            <input type="hidden" name="id" value="@reading.Id" />
-                                            <input type="hidden" name="customerId" value="@Model.Id" />
-                                            <button type="submit" class="btn btn-sm btn-warning">Chỉnh sửa</button>
-                                        </form>
-                                        <form asp-action="DeleteMeterReading" method="post" style="display:inline"
-                                            onsubmit="return confirm('Bạn có chắc muốn xóa?');">
-                                            <input type="hidden" name="id" value="@reading.Id" />
-                                            <input type="hidden" name="customerId" value="@Model.Id" />
-                                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                }
+                                    foreach (var reading in Model.MeterReadings.OrderByDescending(r =>
+                                    r.Year).ThenByDescending(r => r.Quarter))
+                                    {
+                                        <tr>
+                                            <td>@reading.Quarter</td>
+                                            <td>@reading.Year</td>
+                                            <td>@reading.OldIndex</td>
+                                            <td>@reading.NewIndex</td>
+                                            <td>@(reading.Consumption)</td>
+                                            <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                        </tr>
+                                    }
                                 }
                                 else
                                 {
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted">Chưa có chỉ số nước nào</td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Chưa có chỉ số nước nào</td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>
@@ -295,10 +238,10 @@ ViewData["Title"] = "Customer Details";
 </div>
 
 @section Scripts {
-<script>
+    <script>
     $(document).ready(function () {
         // Add any specific JavaScript for the details page here
         console.log('Customer details page loaded for: @Model.CustomerCode');
     });
-</script>
+    </script>
 }

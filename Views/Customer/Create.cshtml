@@ -1,6 +1,6 @@
-@model WaterService.Models.Customer
+﻿@model WaterService.Models.Customer
 @{
-ViewData["Title"] = "Add New Customer";
+    ViewData["Title"] = "Add New Customer";
 }
 
 <div class="customer-form">
@@ -21,7 +21,7 @@ ViewData["Title"] = "Add New Customer";
                                 <div class="mb-3">
                                     <label asp-for="CustomerCode" class="form-label"></label>
                                     <div class="input-group">
-                                        <input asp-for="CustomerCode" class="form-control" readonly />
+                                        <input asp-for="CustomerCode" class="form-control" />
                                         <button type="button" class="btn btn-outline-secondary" id="generateCode">
                                             <i class="fas fa-sync-alt"></i> Generate
                                         </button>
@@ -34,14 +34,14 @@ ViewData["Title"] = "Add New Customer";
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label"></label>
                             <input asp-for="Name" class="form-control"
-                                placeholder="Enter household head name" />
+                                   placeholder="Enter household head name" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
                             <textarea asp-for="Address" class="form-control" rows="3"
-                                placeholder="Enter complete address"></textarea>
+                                      placeholder="Enter complete address"></textarea>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
@@ -58,15 +58,34 @@ ViewData["Title"] = "Add New Customer";
                         <div class="mb-3">
                             <label asp-for="Notes" class="form-label"></label>
                             <textarea asp-for="Notes" class="form-control" rows="2"
-                                placeholder="Additional notes or special requirements"></textarea>
+                                      placeholder="Additional notes or special requirements"></textarea>
                             <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-5 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">Quý</label>
+                                <select class="form-select" id="quarter" name="quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()"></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Năm</label>
+                                <input type="number" class="form-control" name="InitialYear" value="@DateTime.Now.Year" required min="2000" max="2100" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Chỉ số cũ</label>
+                                <input type="number" step="1" class="form-control" name="InitialOldIndex" required />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Chỉ số mới</label>
+                                <input type="number" step="1" class="form-control" name="InitialNewIndex" required />
+                            </div>
                         </div>
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Save Customer
                             </button>
-                            <a href="@Url.Action(" Index")" class="btn btn-secondary">
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Cancel
                             </a>
                             <button type="submit" name="saveAndAddAnother" value="true" class="btn btn-outline-primary">
@@ -109,7 +128,7 @@ ViewData["Title"] = "Add New Customer";
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="@Url.Action(" Index")" class="btn btn-outline-primary btn-sm">
+                        <a href="@Url.Action("Index")" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-list"></i> View All Customers
                         </a>
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearForm()">
@@ -123,61 +142,61 @@ ViewData["Title"] = "Add New Customer";
 </div>
 
 @section Scripts {
-<script>
-    $(document).ready(function () {
-        // Generate customer code
-        $('#generateCode').on('click', function () {
-            // This would typically call an API endpoint to generate the next code
-            // For now, we'll just show a placeholder
-            const currentCode = $('#CustomerCode').val();
-            if (currentCode) {
-                const nextNumber = parseInt(currentCode.substring(1)) + 1;
-                $('#CustomerCode').val('C' + nextNumber.toString().padStart(6, '0'));
+    <script>
+        $(document).ready(function () {
+            // Generate customer code
+            $('#generateCode').on('click', function () {
+                // This would typically call an API endpoint to generate the next code
+                // For now, we'll just show a placeholder
+                const currentCode = $('#CustomerCode').val();
+                if (currentCode) {
+                    const nextNumber = parseInt(currentCode.substring(1)) + 1;
+                    $('#CustomerCode').val('C' + nextNumber.toString().padStart(6, '0'));
+                }
+            });
+
+            // Auto-save form data to localStorage
+            $('input, textarea, select').on('change', function () {
+                saveFormData();
+            });
+
+            // Load saved form data
+            loadFormData();
+        });
+
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all form data?')) {
+                $('form')[0].reset();
+                localStorage.removeItem('customerFormData');
             }
-        });
+        }
 
-        // Auto-save form data to localStorage
-        $('input, textarea, select').on('change', function () {
-            saveFormData();
-        });
+        function saveFormData() {
+            const formData = {
+                householdHeadName: $('#HouseholdHeadName').val(),
+                address: $('#Address').val(),
+                phoneNumber: $('#PhoneNumber').val(),
+                status: $('#Status').val(),
+                notes: $('#Notes').val()
+            };
+            localStorage.setItem('customerFormData', JSON.stringify(formData));
+        }
 
-        // Load saved form data
-        loadFormData();
-    });
+        function loadFormData() {
+            const savedData = localStorage.getItem('customerFormData');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                $('#HouseholdHeadName').val(formData.householdHeadName || '');
+                $('#Address').val(formData.address || '');
+                $('#PhoneNumber').val(formData.phoneNumber || '');
+                $('#Status').val(formData.status || '');
+                $('#Notes').val(formData.notes || '');
+            }
+        }
 
-    function clearForm() {
-        if (confirm('Are you sure you want to clear all form data?')) {
-            $('form')[0].reset();
+        // Clear saved data on successful form submission
+        $('form').on('submit', function () {
             localStorage.removeItem('customerFormData');
-        }
-    }
-
-    function saveFormData() {
-        const formData = {
-            householdHeadName: $('#HouseholdHeadName').val(),
-            address: $('#Address').val(),
-            phoneNumber: $('#PhoneNumber').val(),
-            status: $('#Status').val(),
-            notes: $('#Notes').val()
-        };
-        localStorage.setItem('customerFormData', JSON.stringify(formData));
-    }
-
-    function loadFormData() {
-        const savedData = localStorage.getItem('customerFormData');
-        if (savedData) {
-            const formData = JSON.parse(savedData);
-            $('#HouseholdHeadName').val(formData.householdHeadName || '');
-            $('#Address').val(formData.address || '');
-            $('#PhoneNumber').val(formData.phoneNumber || '');
-            $('#Status').val(formData.status || '');
-            $('#Notes').val(formData.notes || '');
-        }
-    }
-
-    // Clear saved data on successful form submission
-    $('form').on('submit', function () {
-        localStorage.removeItem('customerFormData');
-    });
-</script>
+        });
+    </script>
 }

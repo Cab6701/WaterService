@@ -67,10 +67,10 @@ ViewData["Title"] = "Delete Customer";
                         <button type="submit" class="btn btn-danger" onclick="return confirmDelete()">
                             <i class="fas fa-trash"></i> Yes, Delete Customer
                         </button>
-                        <a href="@Url.Action(" Details", new { id=Model.Id })" class="btn btn-secondary">
+                        <a href="@Url.Action("Details", new { id=Model.Id })" class="btn btn-secondary">
                             <i class="fas fa-times"></i> Cancel
                         </a>
-                        <a href="@Url.Action(" Index")" class="btn btn-outline-secondary">
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
                             <i class="fas fa-list"></i> Back to List
                         </a>
                     </form>

@@ -28,7 +28,7 @@ namespace WaterService.Models
         public decimal NewIndex { get; set; }
 
         [Display(Name = "Consumption")]
-        public decimal Consumption => NewIndex - OldIndex;
+        public decimal? Consumption => NewIndex - OldIndex;
 
         [Display(Name = "Rate per Unit")]
         [DataType(DataType.Currency)]
@@ -36,7 +36,7 @@ namespace WaterService.Models
 
         [Display(Name = "Total Amount")]
         [DataType(DataType.Currency)]
-        public decimal TotalAmount => Consumption * RatePerUnit;
+        public decimal? TotalAmount => Consumption * RatePerUnit;
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

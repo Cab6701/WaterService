@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Net;
+using WaterService.Extensions;
 using WaterService.Models;
 
 namespace WaterService.Controllers
@@ -176,7 +174,7 @@ namespace WaterService.Controllers
         // POST: Customer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Customer customer)
+        public IActionResult Create(Customer customer, int InitialQuarter, int InitialYear, decimal InitialOldIndex, decimal InitialNewIndex, string? InitialNotes)
         {
             if (ModelState.IsValid)
             {
@@ -184,6 +182,21 @@ namespace WaterService.Controllers
                 customer.CustomerCode = $"C{_nextCustomerCode:D6}";
                 customer.CreatedAt = DateTime.UtcNow;
                 customer.UpdatedAt = DateTime.UtcNow;
+
+                // Thêm meter reading đầu tiên
+                customer.MeterReadings = new List<MeterReading>
+                {
+                    new MeterReading
+                    {
+                        Id = _nextMeterReadingId++,
+                        CustomerId = customer.Id,
+                        Quarter = InitialQuarter,
+                        Year = InitialYear,
+                        OldIndex = InitialOldIndex,
+                        NewIndex = InitialNewIndex,
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
 
                 _customers.Add(customer);
                 _nextCustomerCode++;
@@ -379,7 +392,7 @@ namespace WaterService.Controllers
                     Id = i,
                     CustomerCode = $"C{_nextCustomerCode++:D6}",
                     Name = fullName,
-                    Address = ((CustomerAddress)random.Next(0,9)).ToString(),
+                    Address = ((CustomerAddress)random.Next(0,9)).GetDisplayName(),
                     PhoneNumber = phone,
                     Notes = "sample",
                     CreatedAt = DateTime.UtcNow.AddDays(-random.Next(200, 400)),

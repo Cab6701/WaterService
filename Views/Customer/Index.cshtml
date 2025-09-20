@@ -114,16 +114,16 @@
                         <thead class="table-primary">
                             <tr>
                                 <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
-                                <th>Customer ID</th>
-                                <th>Name</th>
-                                <th>Phone</th>
-                                <th>Address</th>
-                                <th class="text-end">Old Index</th>
-                                <th class="text-end">New Index</th>
-                                <th class="text-end">Actual</th>
-                                <th class="text-end">Money</th>
-                                <th>Notes</th>
-                                <th>Status</th>
+                                <th class="text-center">Customer ID</th>
+                                <th class="text-center">Name</th>
+                                <th class="text-center">Phone</th>
+                                <th class="text-center">Address</th>
+                                <th class="text-center">Old Index</th>
+                                <th class="text-center">New Index</th>
+                                <th class="text-center">Actual</th>
+                                <th class="text-center">Money</th>
+                                <th class="text-center">Notes</th>
+                                <th class="text-center">Status</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -147,7 +147,7 @@
                                     <td class="text-center">@(meterReading?.OldIndex.ToString() ?? "-")</td>
                                     <td class="text-center">@(meterReading?.NewIndex.ToString() ?? "-")</td>
                                     <td class="text-center">@(meterReading?.Consumption.ToString() ?? "-")</td>
-                                    <td class="text-center">@(meterReading?.TotalAmount.ToString("C") ?? "-")</td>
+                                    <td class="text-center">@(meterReading?.TotalAmount.ToString() ?? "-")</td>
                                     <td class="text-truncate" style="max-width: 120px;" title="@customer.Notes">
                                         @(customer.Notes
                                 ?? "-")
@@ -159,11 +159,11 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm">
-                                            <a href="@Url.Action(" Details", new { id=customer.Id })"
+                                            <a href="@Url.Action("Details", new { id=customer.Id })"
                                                class="btn btn-outline-info" title="View"><i class="fas fa-eye"></i></a>
-                                            <a href="@Url.Action(" Edit", new { id=customer.Id })"
+                                            <a href="@Url.Action("Edit", new { id=customer.Id })"
                                                class="btn btn-outline-warning" title="Edit"><i class="fas fa-edit"></i></a>
-                                            <a href="@Url.Action(" Delete", new { id=customer.Id })"
+                                            <a href="@Url.Action("Delete", new { id=customer.Id })"
                                                class="btn btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></a>
                                         </div>
                                     </td>
@@ -179,7 +179,7 @@
                     <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
                     <h5 class="text-muted">No customers found</h5>
                     <p class="text-muted">Try adjusting your search criteria or add a new customer.</p>
-                    <a href="@Url.Action(" Create")" class="btn btn-primary">
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
                         <i class="fas fa-plus me-1"></i> Add First Customer
                     </a>
                 </div>
@@ -195,7 +195,7 @@
                 @if (Model.CurrentPage > 1)
                 {
                     <li class="page-item">
-                        <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
+                        <a class="page-link" href="@Url.Action("Index", new { search=Model.Search, status=Model.Status,
                     quarter=Model.Quarter, year=Model.Year, page=Model.CurrentPage - 1 })">Previous</a>
                     </li>
                 }
@@ -203,14 +203,14 @@
       i++)
                 {
                     <li class="page-item @(i == Model.CurrentPage ? " active" : "" )">
-                        <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
+                        <a class="page-link" href="@Url.Action("Index", new { search=Model.Search, status=Model.Status,
                     quarter=Model.Quarter, year=Model.Year, page=i })">@i</a>
                 </li>
             }
                 @if (Model.CurrentPage < Model.TotalPages)
                 {
                     <li class="page-item">
-                        <a class="page-link" href="@Url.Action(" Index", new { search=Model.Search, status=Model.Status,
+                        <a class="page-link" href="@Url.Action("Index", new { search=Model.Search, status=Model.Status,
                         quarter=Model.Quarter, year=Model.Year, page=Model.CurrentPage + 1 })">Next</a>
                     </li>
                 }
@@ -220,7 +220,7 @@
 </div>
 
 <!-- Bulk Action Form -->
-<form id="bulkActionForm" method="post" action="@Url.Action(" BulkAction")" style="display: none;">
+<form id="bulkActionForm" method="post" action="@Url.Action("BulkAction")" style="display: none;">
     @Html.AntiForgeryToken()
     <input type="hidden" name="action" id="bulkActionType">
     <input type="hidden" name="customerIds" id="bulkActionCustomerIds">
