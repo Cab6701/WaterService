@@ -140,7 +140,7 @@ namespace WaterService.Controllers
                 customer.MeterReadings.Add(reading);
             }
             TempData["SuccessMessage"] = "Lưu chỉ số nước thành công.";
-            return RedirectToAction("Details", new { id = CustomerId });
+            return RedirectToAction("Edit", new { id = CustomerId });
         }
 
         // POST: Customer/DeleteMeterReading

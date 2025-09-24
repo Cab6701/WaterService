@@ -7,6 +7,11 @@
     <div class="page-header mb-4">
         <h1 class="h3 mb-0">Edit Customer</h1>
         <p class="text-muted">Update customer information for <strong>@Model.CustomerCode</strong>.</p>
+        <div class="d-flex justify-content-end mb-3">
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-list"></i> Back to List
+            </a>
+        </div>
     </div>
 
     <div class="row">
@@ -80,12 +85,7 @@
                         <input type="hidden" name="Id" value="" />
                         <div class="col-md-2">
                             <label class="form-label">Quarter</label>
-                            <select class="form-select" name="Quarter" required>
-                                <option value="">Select</option>
-                                @for (int q = 1; q <= 4; q++)
-                                {
-                                    <option value="@q">Q@q</option>
-                                }
+                            <select class="form-select" id="quarter" name="quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()">
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -121,7 +121,7 @@
                 <div class="card-body">
                     <div class="mb-2">
                         <small class="text-muted">Customer ID</small>
-                        <div><strong>@Model.CustomerCode</strong></div>
+                        <div><strong>@Model.Id</strong></div>
                     </div>
                     <div class="mb-2">
                         <small class="text-muted">Created</small>
@@ -165,7 +165,7 @@
                                     foreach (var reading in Model.MeterReadings.OrderByDescending(r => r.Year).ThenByDescending(r => r.Quarter))
                                     {
                                         <tr data-id="@reading.Id">
-                                            <td>@reading.Quarter</td>
+                                            <td>@(reading.Quarter+1)</td>
                                             <td>@reading.Year</td>
                                             <td>@reading.OldIndex</td>
                                             <td>@reading.NewIndex</td>
