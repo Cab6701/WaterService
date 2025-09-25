@@ -36,10 +36,11 @@ namespace WaterService.Controllers
 
             if (address != null)
             {
-                query = query.Where(c => c.Address == ((CustomerAddress)address).ToString());
+                var addressName = ((CustomerAddress)address).GetDisplayName();
+                query = query.AsEnumerable().Where(c => c.Address == addressName).AsQueryable();
             }
 
-            if (status != null) 
+            if (status != null)
             {
                 query = query.Where(c => c.Invoices != null &&
                     c.Invoices.Any(i => i.Status == (InvoiceStatus)status));
@@ -392,7 +393,7 @@ namespace WaterService.Controllers
                     Id = i,
                     CustomerCode = $"C{_nextCustomerCode++:D6}",
                     Name = fullName,
-                    Address = ((CustomerAddress)random.Next(0,9)).GetDisplayName(),
+                    Address = ((CustomerAddress)random.Next(0, 9)).GetDisplayName(),
                     PhoneNumber = phone,
                     Notes = "sample",
                     CreatedAt = DateTime.UtcNow.AddDays(-random.Next(200, 400)),
