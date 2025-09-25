@@ -44,6 +44,7 @@ namespace WaterService.Models
         [Display(Name = "Updated At")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        public int InvoiceId { get; set; }
         public virtual Invoice Invoice { get; set; } = null!;
     }
 
