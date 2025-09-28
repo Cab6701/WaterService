@@ -1,7 +1,9 @@
 ﻿@model WaterService.Controllers.CustomerIndexViewModel
 @{
     ViewData["Title"] = "Customer Management";
+
 }
+@using WaterService.Extensions
 
 <div class="customer-management container-fluid py-4">
     <!-- Header -->
@@ -82,30 +84,30 @@
     <div class="card shadow-sm border-0">
         <div class="card-header d-flex justify-content-between align-items-center bg-light">
             <h5 class="mb-0 fw-bold">
-                <i class="fas fa-list me-2 text-primary"></i> Customers
-                <span class="text-muted">(@Model.TotalCount total)</span>
+                <i class="fas fa-list me-2 text-primary"></i> Người Dùng
+                <span class="text-muted">(@Model.TotalCount Người)</span>
             </h5>
             <div class="bulk-actions" style="display: none;">
-                <span class="selected-count me-3 fw-semibold text-primary">0 selected</span>
+               <span class="selected-count me-3 fw-semibold text-primary">0 selected</span>
                 <div class="btn-group">
                     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
                             data-bs-toggle="dropdown">
-                        Bulk Actions
+                              Hành động hàng loạt
                     </button>
                     <ul class="dropdown-menu">
                         <li>
                             <a class="dropdown-item" href="#" data-action="export">
-                                <i class="fas fa-file-export me-1"></i> Export
+                                <i class="fas fa-file-export me-1"></i> Xuất File
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="#" data-action="activate">
-                                <i class="fas fa-check-circle text-success me-1"></i> Activate
+                                <i class="fas fa-check-circle text-success me-1"></i> Kích Hoạt 
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="#" data-action="deactivate">
-                                <i class="fas fa-ban text-danger me-1"></i> Deactivate
+                                <i class="fas fa-ban text-danger me-1"></i> Bỏ Kích Hoạt
                             </a>
                         </li>
                     </ul>
@@ -121,17 +123,17 @@
                         <thead class="table-primary">
                             <tr>
                                 <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
-                                <th class="text-center">Customer ID</th>
-                                <th class="text-center">Name</th>
-                                <th class="text-center">Phone</th>
-                                <th class="text-center">Address</th>
-                                <th class="text-center">Old Index</th>
-                                <th class="text-center">New Index</th>
-                                <th class="text-center">Actual</th>
-                                <th class="text-center">Money</th>
-                                <th class="text-center">Notes</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Actions</th>
+                                <th class="text-center">Mã Khách Hàng</th>
+                                <th class="text-center">Tên</th>
+                                <th class="text-center">Số Điện Thoại</th>
+                                <th class="text-center">Địa Chỉ</th>
+                                <th class="text-center">Chỉ Số Cũ</th>
+                                <th class="text-center">Chỉ Số Mới</th>
+                                <th class="text-center">Số Thực Dùng</th>
+                                <th class="text-center">Thành Tiền</th>
+                                <th class="text-center">Ghi Chú</th>
+                                <th class="text-center">Trạng Thái</th>
+                                <th class="text-center">Quản Lý</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -159,11 +161,11 @@
                                         @(customer.Notes
                                 ?? "-")
                                     </td>
-                                    <td>
-                                        <span class="badge px-3 py-2 text-center @(invoice?.Status == InvoiceStatus.Paid ? "bg-success" : "bg-secondary" )">
-                                            @invoice?.Status
+                                      <td>
+                                        <span class="badge px-3 py-2 text-center @(invoice?.Status == InvoiceStatus.Paid ? "bg-success" : "bg-secondary")">
+                                            @invoice?.Status.GetDisplayName()
                                         </span>
-                                    </td>
+                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm">
                                             <a href="@Url.Action("Details", new { id=customer.Id })"
@@ -184,8 +186,8 @@
             {
                 <div class="text-center py-5">
                     <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No customers found</h5>
-                    <p class="text-muted">Try adjusting your search criteria or add a new customer.</p>
+                    <h5 class="text-muted">Không tìm thấy khách hàng nào</h5>
+                    <p class="text-muted">Hãy thử điều chỉnh tiêu chí tìm kiếm hoặc thêm khách hàng mới.</p>
                     <a href="@Url.Action("Create")" class="btn btn-primary">
                         <i class="fas fa-plus me-1"></i> Add First Customer
                     </a>

@@ -42,8 +42,9 @@ namespace WaterService.Controllers
 
             if (status != null)
             {
+                var statusEnum = (InvoiceStatus)status;
                 query = query.Where(c => c.Invoices != null &&
-                    c.Invoices.Any(i => i.Status == (InvoiceStatus)status));
+                                         c.Invoices.Any(i => i.Status == statusEnum));
             }
 
             // Lọc theo năm/quý dựa trên MeterReadings
