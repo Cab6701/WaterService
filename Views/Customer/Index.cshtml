@@ -20,7 +20,7 @@
             <form method="get" action="@Url.Action("Index")" class="row g-3 align-items-end">
                 <!-- Search -->
                 <div class="col-md-4">
-                    <label for="search" class="form-label fw-semibold">🔍 Search</label>
+                    <label for="search" class="form-label fw-semibold">🔍 Tìm Kiếm</label>
                     <input type="text" class="form-control" id="search" name="search"
                            placeholder="Search by ID, Name, or Phone..." value="@(Model.Search)">
                 </div>
@@ -60,13 +60,20 @@
                         }
                     </select>
                 </div>
-
                 <!-- Search button -->
-                <div class="col-md-1 d-grid">
+                <div class="col-md-2 d-grid">
                     <button type="submit" class="btn btn-outline-primary">
                         <i class="fas fa-search me-1"></i> Search
                     </button>
                 </div>
+
+                <!-- Reset button -->
+                <div class="col-md-2 d-grid">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo me-1"></i> Reset
+                    </a>
+                </div>
+
             </form>
         </div>
     </div>
