@@ -7,10 +7,10 @@
     <!-- Header -->
     <div class="page-header d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 fw-bold text-primary mb-0">
-            <i class="fas fa-users me-2"></i> Customer Management
+            <i class="fas fa-users me-2"></i> Quản Lý Người Dùng
         </h1>
         <a href="@Url.Action("Create")" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus me-1"></i> Add Customer
+            <i class="fas fa-plus me-1"></i> Thêm Người Dùng
         </a>
     </div>
 
@@ -20,39 +20,39 @@
             <form method="get" action="@Url.Action("Index")" class="row g-3 align-items-end">
                 <!-- Search -->
                 <div class="col-md-4">
-                    <label for="search" class="form-label fw-semibold">🔍 Tìm Kiếm</label>
+                    <label for="search" class="form-label fw-semibold">🔍 Tìm Kiếm </label>
                     <input type="text" class="form-control" id="search" name="search"
                            placeholder="Search by ID, Name, or Phone..." value="@(Model.Search)">
                 </div>
 
                 <!-- Address -->
                 <div class="col-md-3">
-                    <label for="address" class="form-label fw-semibold">📍 Address</label>
+                    <label for="address" class="form-label fw-semibold">📍 Địa Chỉ </label>
                     <select class="form-select" id="address" name="address" asp-for="Address"
                             asp-items="Html.GetEnumSelectList<CustomerAddress>()">
-                        <option value="">All</option>
+                        <option value="">Tất Cả</option>
                     </select>
                 </div>
 
                 <!-- Status -->
                 <div class="col-md-2">
-                    <label for="status" class="form-label fw-semibold">⚡ Status</label>
+                    <label for="status" class="form-label fw-semibold">⚡ Trạng Thái </label>
                     <select class="form-select" id="status" name="status" asp-for="Status"
                             asp-items="Html.GetEnumSelectList<InvoiceStatus>()">
-                        <option value="">All</option>
+                        <option value="">Tất Cả</option>
                     </select>
                 </div>
 
                 <!-- Quarter -->
                 <div class="col-md-2">
-                    <label for="quarter" class="form-label fw-semibold">📅 Quarter</label>
+                    <label for="quarter" class="form-label fw-semibold">📅 Quý </label>
                     <select class="form-select" id="quarter" name="quarter" asp-for="Quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()">
                     </select>
                 </div>
 
                 <!-- Year -->
                 <div class="col-md-2">
-                    <label for="year" class="form-label fw-semibold">📆 Year</label>
+                    <label for="year" class="form-label fw-semibold">📆 Năm </label>
                     <select class="form-select" id="year" name="year" asp-for="Year">
                         @for (int y = DateTime.Now.Year; y >= 2000; y--)
                         {
@@ -63,14 +63,14 @@
                 <!-- Search button -->
                 <div class="col-md-2 d-grid">
                     <button type="submit" class="btn btn-outline-primary">
-                        <i class="fas fa-search me-1"></i> Search
+                        <i class="fas fa-search me-1"></i> Tìm Kiếm 
                     </button>
                 </div>
 
                 <!-- Reset button -->
                 <div class="col-md-2 d-grid">
                     <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                        <i class="fas fa-undo me-1"></i> Reset
+                        <i class="fas fa-undo me-1"></i> Lọc Lại 
                     </a>
                 </div>
 
