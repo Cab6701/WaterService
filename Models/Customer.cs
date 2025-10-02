@@ -4,11 +4,12 @@ namespace WaterService.Models
 {
     public class Customer
     {
+        [Key]
         public int Id { get; set; }
 
         [Required]
         [StringLength(10)]
-        [Display(Name = "Customer ID")]
+        [Display(Name = "Customer Code")]
         public string CustomerCode { get; set; } = string.Empty;
 
         [Required]

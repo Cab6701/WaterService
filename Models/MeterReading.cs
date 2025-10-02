@@ -4,11 +4,12 @@ namespace WaterService.Models
 {
     public class MeterReading
     {
+        [Key]
         public int Id { get; set; }
 
         [Required]
-        [Display(Name = "Customer")]
-        public int CustomerId { get; set; }
+        [Display(Name = "Customer Code")]
+        public required string CustomerCode { get; set; }
 
         [Required]
         [Range(1, 4)]
@@ -44,7 +45,7 @@ namespace WaterService.Models
         [Display(Name = "Updated At")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        public int InvoiceId { get; set; }
+        public int? InvoiceId { get; set; }
         public virtual Invoice Invoice { get; set; } = null!;
     }
 

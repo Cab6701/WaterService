@@ -131,7 +131,7 @@
                             @foreach (var customer in Model.Customers)
                             {
                                 var meterReading = customer.MeterReadings
-                                        .Where(mr => mr.CustomerId == customer.Id && mr.Year == Model.Year && mr.Quarter == Model.Quarter)
+                                        .Where(mr => mr.CustomerCode == customer.CustomerCode && mr.Year == Model.Year && mr.Quarter == Model.Quarter)
                                         .FirstOrDefault();
                                 var invoice = meterReading?.Invoice;
                                 <tr>

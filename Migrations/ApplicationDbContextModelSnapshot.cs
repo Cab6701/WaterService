@@ -67,7 +67,11 @@ namespace WaterService.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("CustomerId")
+                    b.Property<string>("CustomerCode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("CustomerId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DueDate")
@@ -77,6 +81,9 @@ namespace WaterService.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("MeterReadingId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("PaidDate")
                         .HasColumnType("TEXT");
@@ -103,10 +110,14 @@ namespace WaterService.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("CustomerId")
+                    b.Property<string>("CustomerCode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("CustomerId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int?>("InvoiceId")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("NewIndex")
@@ -141,24 +152,18 @@ namespace WaterService.Migrations
                 {
                     b.HasOne("WaterService.Models.Customer", null)
                         .WithMany("Invoices")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
                 });
 
             modelBuilder.Entity("WaterService.Models.MeterReading", b =>
                 {
                     b.HasOne("WaterService.Models.Customer", null)
                         .WithMany("MeterReadings")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("WaterService.Models.Invoice", "Invoice")
                         .WithOne("WaterMeterReading")
-                        .HasForeignKey("WaterService.Models.MeterReading", "InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WaterService.Models.MeterReading", "InvoiceId");
 
                     b.Navigation("Invoice");
                 });

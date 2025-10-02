@@ -40,8 +40,10 @@
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
-                            <textarea asp-for="Address" class="form-control" rows="3"
-                                      placeholder="Enter complete address"></textarea>
+                            <select class="form-select" id="address" name="address" asp-for="Address"
+                                    asp-items="Html.GetEnumSelectList<CustomerAddress>()">
+                                <option value="">All</option>
+                            </select>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
@@ -57,7 +59,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Notes" class="form-label"></label>
-                            <textarea asp-for="Notes" class="form-control" rows="2"
+                            <textarea id="Notes" name="Notes" asp-for="Notes" class="form-control" rows="2"
                                       placeholder="Additional notes or special requirements"></textarea>
                             <span asp-validation-for="Notes" class="text-danger"></span>
                         </div>
@@ -173,7 +175,7 @@
 
         function saveFormData() {
             const formData = {
-                householdHeadName: $('#HouseholdHeadName').val(),
+                name: $('#Name').val(),
                 address: $('#Address').val(),
                 phoneNumber: $('#PhoneNumber').val(),
                 status: $('#Status').val(),
@@ -186,7 +188,7 @@
             const savedData = localStorage.getItem('customerFormData');
             if (savedData) {
                 const formData = JSON.parse(savedData);
-                $('#HouseholdHeadName').val(formData.householdHeadName || '');
+                $('#Name').val(formData.Name || '');
                 $('#Address').val(formData.address || '');
                 $('#PhoneNumber').val(formData.phoneNumber || '');
                 $('#Status').val(formData.status || '');
