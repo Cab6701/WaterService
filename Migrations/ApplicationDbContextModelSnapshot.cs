@@ -110,11 +110,7 @@ namespace WaterService.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CustomerCode")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("CustomerId")
+                    b.Property<int>("CustomerId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("InvoiceId")
@@ -157,13 +153,17 @@ namespace WaterService.Migrations
 
             modelBuilder.Entity("WaterService.Models.MeterReading", b =>
                 {
-                    b.HasOne("WaterService.Models.Customer", null)
+                    b.HasOne("WaterService.Models.Customer", "Customer")
                         .WithMany("MeterReadings")
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("WaterService.Models.Invoice", "Invoice")
                         .WithOne("WaterMeterReading")
                         .HasForeignKey("WaterService.Models.MeterReading", "InvoiceId");
+
+                    b.Navigation("Customer");
 
                     b.Navigation("Invoice");
                 });

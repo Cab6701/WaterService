@@ -88,89 +88,74 @@ namespace WaterService.Controllers
             return View(customer);
         }
 
-        // GET: Customer/EditMeterReading
-        [HttpGet]
-        public IActionResult EditMeterReading(int id, int customerId)
+        // POST: Customer/EditMeterReadings
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditMeterReadings(string CustomerCode, int? MeterReadingId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading)
         {
-            var customer = _context.Customers.FirstOrDefault(c => c.Id == customerId);
+            var customer = _context.Customers
+                .Include(c => c.MeterReadings)
+                .FirstOrDefault(c => c.CustomerCode == CustomerCode);
             if (customer == null)
+            {
                 return NotFound();
-            var reading = customer.MeterReadings?.FirstOrDefault(r => r.Id == id);
-            if (reading == null)
-                return NotFound();
-            ViewBag.EditReading = reading;
-            return View("Details", customer);
+            }
+
+            var meterReading = _context.MeterReadings.FirstOrDefault(m => m.Id == MeterReadingId);
+            MeterReading reading;
+            if (meterReading == null)
+            {
+                reading = new MeterReading
+                {
+                    Quarter = Quarter,
+                    Year = Year,
+                    OldIndex = PreviousReading,
+                    NewIndex = CurrentReading,
+                    RatePerUnit = 5,
+                    Customer = customer,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.MeterReadings.Add(reading);
+                _context.Customers.FirstOrDefault(c => c.CustomerCode == CustomerCode)?.MeterReadings.Add(reading);
+            }
+            else
+            {
+                reading = meterReading;
+                reading.Quarter = Quarter;
+                reading.Year = Year;
+                reading.OldIndex = PreviousReading;
+                reading.NewIndex = CurrentReading;
+                reading.UpdatedAt = DateTime.UtcNow;
+
+                _context.MeterReadings.Update(reading);
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Edit), new { id = customer.Id });
         }
-
-        // POST: Customer/AddOrEditMeterReading
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult AddOrEditMeterReading(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, string? Notes)
-        //{
-        //    var customer = _context.Customers.FirstOrDefault(c => c.Id == CustomerId);
-        //    if (customer == null)
-        //        return NotFound();
-
-        //    MeterReading reading;
-        //    if (customer.MeterReadings == null)
-        //        customer.MeterReadings = new List<MeterReading>();
-        //    if (Id.HasValue && Id.Value > 0)
-        //    {
-        //        // Edit
-        //        reading = customer?.MeterReadings?.FirstOrDefault(r => r.Id == Id.Value);
-        //        if (reading == null)
-        //            return NotFound();
-        //        reading.Quarter = Quarter;
-        //        reading.Year = Year;
-        //        reading.OldIndex = PreviousReading;
-        //        reading.NewIndex = CurrentReading;
-        //        reading.CreatedAt = DateTime.UtcNow;
-        //    }
-        //    else
-        //    {
-        //        // Add new
-        //        reading = new MeterReading
-        //        {
-        //            Id = _nextMeterReadingId++,
-        //            CustomerId = CustomerId,
-        //            Quarter = Quarter,
-        //            Year = Year,
-        //            OldIndex = PreviousReading,
-        //            NewIndex = CurrentReading,
-        //            CreatedAt = DateTime.UtcNow
-        //        };
-        //        customer.MeterReadings.Add(reading);
-        //    }
-        //    TempData["SuccessMessage"] = "Lưu chỉ số nước thành công.";
-        //    return RedirectToAction("Edit", new { id = CustomerId });
-        //}
 
         // POST: Customer/DeleteMeterReading
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteMeterReading(int id, int customerId)
         {
-            var customer = _context.Customers.FirstOrDefault(c => c.Id == customerId);
+            var customer = _context.Customers.Find(customerId);
             if (customer == null)
                 return NotFound();
-            if (customer.MeterReadings == null)
-                return NotFound();
-            var reading = customer.MeterReadings.FirstOrDefault(r => r.Id == id);
+            var reading = _context.MeterReadings.FirstOrDefault(r => r.Id == id && r.Customer.Id == customer.Id);
             if (reading == null)
                 return NotFound();
-            customer.MeterReadings.Remove(reading);
+            _context.MeterReadings.Remove(reading);
+            _context.SaveChanges();
             TempData["SuccessMessage"] = "Đã xóa chỉ số nước.";
-            return RedirectToAction("Details", new { id = customerId });
+            return RedirectToAction(nameof(Edit), new { id = customer.Id });
         }
 
         // GET: Customer/Create
         public IActionResult Create()
         {
-            var customer = new Customer
-            {
-                CustomerCode = $"C{(_context.Customers.Count() + 1001):D6}"
-            };
-            return View(customer);
+            return View(new Customer());
         }
 
         // POST: Customer/Create
@@ -180,19 +165,19 @@ namespace WaterService.Controllers
         {
             if (ModelState.IsValid)
             {
-                customer.CustomerCode = $"C{(_context.Customers.Count() + 1001):D6}";
+                customer.CustomerCode = customer.CustomerCode;
                 customer.Address = ((CustomerAddress)address).GetDisplayName();
                 customer.CreatedAt = DateTime.UtcNow;
                 customer.UpdatedAt = DateTime.UtcNow;
 
                 var initialReading = new MeterReading
                 {
-                    CustomerCode = customer.CustomerCode,
                     Quarter = InitialQuarter,
                     Year = InitialYear,
                     OldIndex = InitialOldIndex,
                     NewIndex = InitialNewIndex,
                     RatePerUnit = 5,
+                    Customer = customer,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -230,23 +215,19 @@ namespace WaterService.Controllers
         // POST: Customer/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Customer customer)
+        public IActionResult Edit(Customer customer)
         {
-            if (id != customer.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                var existingCustomer = _context.Customers.Find(id);
+                var existingCustomer = _context.Customers.Find(customer.Id);
                 if (existingCustomer == null)
                 {
                     return NotFound();
                 }
 
+                existingCustomer.CustomerCode = customer.CustomerCode;
                 existingCustomer.Name = customer.Name;
-                existingCustomer.Address = customer.Address;
+                existingCustomer.Address = ((CustomerAddress)(int.Parse(customer.Address))).GetDisplayName();
                 existingCustomer.PhoneNumber = customer.PhoneNumber;
                 existingCustomer.Notes = customer.Notes;
                 existingCustomer.UpdatedAt = DateTime.UtcNow;

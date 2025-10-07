@@ -16,12 +16,18 @@ namespace WaterService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
             modelBuilder.Entity<Invoice>()
                 .HasOne(i => i.WaterMeterReading)
                 .WithOne(m => m.Invoice)
                 .HasForeignKey<MeterReading>(m => m.InvoiceId);
+
+            modelBuilder.Entity<MeterReading>()
+            .HasOne(mr => mr.Customer)
+            .WithMany(c => c.MeterReadings)
+            .HasForeignKey(mr => mr.CustomerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

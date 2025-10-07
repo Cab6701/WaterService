@@ -23,27 +23,23 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="Edit" method="post" autocomplete="off">
-                        <input asp-for="Id" type="hidden" />
-                        <input asp-for="CustomerCode" type="hidden" />
-                        <input asp-for="CreatedAt" type="hidden" />
-
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
                         <div class="mb-3">
-                            <label class="form-label">Customer ID</label>
-                            <input type="text" class="form-control" value="@Model.CustomerCode" readonly />
-                            <small class="text-muted">Customer ID cannot be changed</small>
+                            <label asp-for="CustomerCode" class="form-label">Customer Code</label>
+                            <input asp-for="CustomerCode" type="text" class="form-control" value="@Model.CustomerCode" />
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label"></label>
-                            <input asp-for="Name" class="form-control" placeholder="Enter household head name" />
+                            <input asp-for="Name" class="form-control" placeholder="Enter Name" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
-                            <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter complete address"></textarea>
+                            <select class="form-select" id="address" name="address" asp-for="Address"
+                                    asp-items="Html.GetEnumSelectList<CustomerAddress>()">
+                            </select>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
@@ -80,9 +76,8 @@
                     <h6 class="mb-0"><i class="fas fa-tachometer-alt"></i> Add New Meter Reading</h6>
                 </div>
                 <div class="card-body">
-                    <form asp-action="AddOrEditMeterReading" method="post" class="row g-3 align-items-end">
-                        <input type="hidden" name="CustomerId" value="@Model.Id" />
-                        <input type="hidden" name="Id" value="" />
+                    <form asp-action="EditMeterReadings" method="post" class="row g-3 align-items-end">
+                        <input type="hidden" name="CustomerCode" value="@Model.CustomerCode" />
                         <div class="col-md-2">
                             <label class="form-label">Quarter</label>
                             <select class="form-select" id="quarter" name="quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()">
@@ -92,17 +87,13 @@
                             <label class="form-label">Year</label>
                             <input type="number" class="form-control" name="Year" value="@DateTime.Now.Year" required min="2000" max="2100" />
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label class="form-label">Previous</label>
                             <input type="number" step="1" class="form-control" name="PreviousReading" required />
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label class="form-label">Current</label>
                             <input type="number" step="1" class="form-control" name="CurrentReading" required />
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Notes</label>
-                            <input type="text" class="form-control" name="Notes" />
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">Add</button>
@@ -219,10 +210,6 @@
                             <label class="form-label">Current</label>
                             <input type="number" class="form-control" name="CurrentReading" id="editNewIndex" required />
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Notes</label>
-                            <input type="text" class="form-control" name="Notes" id="editNotes" />
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -248,10 +235,9 @@
 
         function saveFormData() {
             const formData = {
-                householdHeadName: $('#HouseholdHeadName').val(),
+                name: $('#Name').val(),
                 address: $('#Address').val(),
                 phoneNumber: $('#PhoneNumber').val(),
-                status: $('#Status').val(),
                 notes: $('#Notes').val()
             };
             localStorage.setItem('customerEditFormData', JSON.stringify(formData));
@@ -261,10 +247,9 @@
             const savedData = localStorage.getItem('customerEditFormData');
             if (savedData) {
                 const formData = JSON.parse(savedData);
-                $('#HouseholdHeadName').val(formData.householdHeadName || '');
+                $('#Name').val(formData.name || '');
                 $('#Address').val(formData.address || '');
                 $('#PhoneNumber').val(formData.phoneNumber || '');
-                $('#Status').val(formData.status || '');
                 $('#Notes').val(formData.notes || '');
             }
         }
@@ -314,7 +299,7 @@
     $('#editReadingForm').on('submit', function (e) {
         e.preventDefault();
         $.ajax({
-            url: '@Url.Action("AddOrEditMeterReading", "Customer")',
+            url: '@Url.Action("EditMeterReadings", "Customer")',
             type: 'POST',
             data: $(this).serialize() + '&__RequestVerificationToken=' + $('input[name="__RequestVerificationToken"]').val(),
             success: function () {

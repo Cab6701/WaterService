@@ -34,7 +34,7 @@
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label"></label>
                             <input asp-for="Name" class="form-control"
-                                   placeholder="Enter household head name" />
+                                   placeholder="Name" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
@@ -42,7 +42,6 @@
                             <label asp-for="Address" class="form-label"></label>
                             <select class="form-select" id="address" name="address" asp-for="Address"
                                     asp-items="Html.GetEnumSelectList<CustomerAddress>()">
-                                <option value="">All</option>
                             </select>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
@@ -51,7 +50,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="PhoneNumber" class="form-label"></label>
-                                    <input asp-for="PhoneNumber" class="form-control" placeholder="e.g., 0901234567" />
+                                    <input asp-for="PhoneNumber" class="form-control" />
                                     <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                                 </div>
                             </div>
@@ -87,9 +86,6 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Save Customer
                             </button>
-                            <a href="@Url.Action("Index")" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
-                            </a>
                             <button type="submit" name="saveAndAddAnother" value="true" class="btn btn-outline-primary">
                                 <i class="fas fa-plus"></i> Save & Add Another
                             </button>
@@ -146,59 +142,15 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Generate customer code
             $('#generateCode').on('click', function () {
-                // This would typically call an API endpoint to generate the next code
-                // For now, we'll just show a placeholder
-                const currentCode = $('#CustomerCode').val();
-                if (currentCode) {
-                    const nextNumber = parseInt(currentCode.substring(1)) + 1;
-                    $('#CustomerCode').val('C' + nextNumber.toString().padStart(6, '0'));
-                }
+                $('#CustomerCode').val('C' + Math.random().toString(36).slice(2, 8).toUpperCase());
             });
-
-            // Auto-save form data to localStorage
-            $('input, textarea, select').on('change', function () {
-                saveFormData();
-            });
-
-            // Load saved form data
-            loadFormData();
         });
 
         function clearForm() {
             if (confirm('Are you sure you want to clear all form data?')) {
                 $('form')[0].reset();
-                localStorage.removeItem('customerFormData');
             }
         }
-
-        function saveFormData() {
-            const formData = {
-                name: $('#Name').val(),
-                address: $('#Address').val(),
-                phoneNumber: $('#PhoneNumber').val(),
-                status: $('#Status').val(),
-                notes: $('#Notes').val()
-            };
-            localStorage.setItem('customerFormData', JSON.stringify(formData));
-        }
-
-        function loadFormData() {
-            const savedData = localStorage.getItem('customerFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
-                $('#Name').val(formData.Name || '');
-                $('#Address').val(formData.address || '');
-                $('#PhoneNumber').val(formData.phoneNumber || '');
-                $('#Status').val(formData.status || '');
-                $('#Notes').val(formData.notes || '');
-            }
-        }
-
-        // Clear saved data on successful form submission
-        $('form').on('submit', function () {
-            localStorage.removeItem('customerFormData');
-        });
     </script>
 }
