@@ -185,11 +185,6 @@ namespace WaterService.Controllers
                 customer.CreatedAt = DateTime.UtcNow;
                 customer.UpdatedAt = DateTime.UtcNow;
 
-                // Save customer first
-                _context.Customers.Add(customer);
-                _context.SaveChanges();
-
-                // Now create the initial meter reading with the correct CustomerId
                 var initialReading = new MeterReading
                 {
                     CustomerCode = customer.CustomerCode,
@@ -202,7 +197,12 @@ namespace WaterService.Controllers
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                _context.MeterReadings.Add(initialReading);
+                if (customer.MeterReadings == null)
+                {
+                    customer.MeterReadings = new List<MeterReading>();
+                }
+                customer.MeterReadings.Add(initialReading);
+                _context.Customers.Add(customer);
                 _context.SaveChanges();
 
                 TempData["SuccessMessage"] = "Customer created successfully.";
