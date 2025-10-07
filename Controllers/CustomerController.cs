@@ -91,48 +91,22 @@ namespace WaterService.Controllers
         // POST: Customer/EditMeterReadings
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditMeterReadings(string CustomerCode, int? MeterReadingId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading)
+        public IActionResult EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading)
         {
-            var customer = _context.Customers
-                .Include(c => c.MeterReadings)
-                .FirstOrDefault(c => c.CustomerCode == CustomerCode);
-            if (customer == null)
+            var meterReading = _context.MeterReadings.FirstOrDefault(m => m.Id == Id && m.CustomerId == CustomerId);
+            if (meterReading == null)
             {
                 return NotFound();
             }
+            meterReading.Quarter = Quarter - 1;
+            meterReading.Year = Year;
+            meterReading.OldIndex = PreviousReading;
+            meterReading.NewIndex = CurrentReading;
+            meterReading.UpdatedAt = DateTime.UtcNow;
 
-            var meterReading = _context.MeterReadings.FirstOrDefault(m => m.Id == MeterReadingId);
-            MeterReading reading;
-            if (meterReading == null)
-            {
-                reading = new MeterReading
-                {
-                    Quarter = Quarter,
-                    Year = Year,
-                    OldIndex = PreviousReading,
-                    NewIndex = CurrentReading,
-                    RatePerUnit = 5,
-                    Customer = customer,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                _context.MeterReadings.Add(reading);
-                _context.Customers.FirstOrDefault(c => c.CustomerCode == CustomerCode)?.MeterReadings.Add(reading);
-            }
-            else
-            {
-                reading = meterReading;
-                reading.Quarter = Quarter;
-                reading.Year = Year;
-                reading.OldIndex = PreviousReading;
-                reading.NewIndex = CurrentReading;
-                reading.UpdatedAt = DateTime.UtcNow;
-
-                _context.MeterReadings.Update(reading);
-            }
-
+            _context.MeterReadings.Update(meterReading);
             _context.SaveChanges();
-            return RedirectToAction(nameof(Edit), new { id = customer.Id });
+            return RedirectToAction(nameof(Edit), new { id = CustomerId });
         }
 
         // POST: Customer/DeleteMeterReading
