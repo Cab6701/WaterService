@@ -5,8 +5,8 @@
 
 <div class="customer-form">
     <div class="page-header mb-4">
-        <h1 class="h3 mb-0">Add New Customer</h1>
-        <p class="text-muted">Create a new customer account in the water service system.</p>
+        <h1 class="h3 mb-0">Thêm khách hàng mới</h1>
+        <p class="text-muted">Thêm khách hàng mới trong hệ thống dịch vụ cấp nước.</p>
     </div>
 
     <div class="row">
@@ -23,7 +23,7 @@
                                     <div class="input-group">
                                         <input asp-for="CustomerCode" class="form-control" />
                                         <button type="button" class="btn btn-outline-secondary" id="generateCode">
-                                            <i class="fas fa-sync-alt"></i> Generate
+                                            <i class="fas fa-sync-alt"></i> Tự động tạo mã
                                         </button>
                                     </div>
                                     <span asp-validation-for="CustomerCode" class="text-danger"></span>
@@ -34,14 +34,14 @@
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label"></label>
                             <input asp-for="Name" class="form-control"
-                                   placeholder="Enter household head name" />
+                                   placeholder="Nhập tên chủ hộ" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
                             <textarea asp-for="Address" class="form-control" rows="3"
-                                      placeholder="Enter complete address"></textarea>
+                                      placeholder="Nhập địa chỉ"></textarea>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
@@ -58,7 +58,7 @@
                         <div class="mb-3">
                             <label asp-for="Notes" class="form-label"></label>
                             <textarea asp-for="Notes" class="form-control" rows="2"
-                                      placeholder="Additional notes or special requirements"></textarea>
+                                      placeholder="Ghi chú bổ sung hoặc yêu cầu đặc biệt"></textarea>
                             <span asp-validation-for="Notes" class="text-danger"></span>
                         </div>
 
@@ -83,13 +83,13 @@
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Customer
+                                <i class="fas fa-save"></i> Lưu khách hàng 
                             </button>
                             <a href="@Url.Action("Index")" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> Thoát 
                             </a>
                             <button type="submit" name="saveAndAddAnother" value="true" class="btn btn-outline-primary">
-                                <i class="fas fa-plus"></i> Save & Add Another
+                                <i class="fas fa-plus"></i> Lưu và thêm khách hàng khác
                             </button>
                         </div>
                     </form>
@@ -100,39 +100,39 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Customer Information</h6>
+                    <h6 class="mb-0">Thông tin khách hàng</h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <small class="text-muted">Customer ID Format</small>
+                        <small class="text-muted">Định dạng ID khách hàng</small>
                         <p class="mb-0">C###### (e.g., C001234)</p>
                     </div>
                     <div class="mb-3">
-                        <small class="text-muted">Phone Number</small>
+                        <small class="text-muted">Số điện thoại</small>
                         <p class="mb-0">10-11 digits only</p>
                     </div>
                     <div class="mb-3">
-                        <small class="text-muted">Registration Date</small>
-                        <p class="mb-0">Cannot be in the future</p>
+                        <small class="text-muted">Ngày đăng ký</small>
+                        <p class="mb-0">Chưa kích hoạt</p>
                     </div>
                     <div class="mb-3">
                         <small class="text-muted">Status</small>
-                        <p class="mb-0">Active customers can receive services</p>
+                        <p class="mb-0">Khách hàng đang hoạt động có thể nhận được dịch vụ</p>
                     </div>
                 </div>
             </div>
 
             <div class="card mt-3">
                 <div class="card-header">
-                    <h6 class="mb-0">Quick Actions</h6>
+                    <h6 class="mb-0">Thao tác nhanh</h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="@Url.Action("Index")" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-list"></i> View All Customers
+                            <i class="fas fa-list"></i> Xem tất cả khách hàng
                         </a>
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearForm()">
-                            <i class="fas fa-eraser"></i> Clear Form
+                            <i class="fas fa-eraser"></i> Xóa biểu mẫu
                         </button>
                     </div>
                 </div>
@@ -165,7 +165,7 @@
         });
 
         function clearForm() {
-            if (confirm('Are you sure you want to clear all form data?')) {
+            if (confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu biểu mẫu không?')) {
                 $('form')[0].reset();
                 localStorage.removeItem('customerFormData');
             }
