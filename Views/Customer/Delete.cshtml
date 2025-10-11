@@ -1,14 +1,14 @@
-@model WaterService.Models.Customer
+﻿@model WaterService.Models.Customer
 @{
-ViewData["Title"] = "Delete Customer";
+    ViewData["Title"] = "Xóa khách hàng";
 }
 
 <div class="customer-delete">
     <div class="page-header mb-4">
         <h1 class="h3 mb-0 text-danger">
-            <i class="fas fa-exclamation-triangle"></i> Delete Customer
+            <i class="fas fa-exclamation-triangle"></i> Xóa khách hàng
         </h1>
-        <p class="text-muted">Are you sure you want to delete this customer?</p>
+        <p class="text-muted">Bạn có chắc chắn muốn xóa khách hàng này không?</p>
     </div>
 
     <div class="row">
@@ -16,39 +16,38 @@ ViewData["Title"] = "Delete Customer";
             <div class="card border-danger">
                 <div class="card-header bg-danger text-white">
                     <h6 class="mb-0">
-                        <i class="fas fa-trash"></i> Confirm Deletion
+                        <i class="fas fa-trash"></i> Xác nhận xóa
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Warning:</strong> This action cannot be undone. All customer data will be permanently
-                        deleted.
+                        <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác. Tất cả dữ liệu của khách hàng sẽ bị xóa vĩnh viễn.
                     </div>
 
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Customer ID</label>
+                                <label class="form-label fw-bold">Mã khách hàng</label>
                                 <p class="form-control-plaintext">@Model.CustomerCode</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Customer Name</label>
+                        <label class="form-label fw-bold">Tên khách hàng</label>
                         <p class="form-control-plaintext">@Model.Name</p>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Address</label>
+                        <label class="form-label fw-bold">Địa chỉ</label>
                         <p class="form-control-plaintext">@Model.Address</p>
                     </div>
 
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Phone Number</label>
+                                <label class="form-label fw-bold">Số điện thoại</label>
                                 <p class="form-control-plaintext">@Model.PhoneNumber</p>
                             </div>
                         </div>
@@ -56,22 +55,22 @@ ViewData["Title"] = "Delete Customer";
 
                     @if (!string.IsNullOrEmpty(Model.Notes))
                     {
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Notes</label>
-                        <p class="form-control-plaintext">@Model.Notes</p>
-                    </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Ghi chú</label>
+                            <p class="form-control-plaintext">@Model.Notes</p>
+                        </div>
                     }
 
                     <form asp-action="Delete" method="post" class="d-flex gap-2">
                         <input asp-for="Id" type="hidden" />
                         <button type="submit" class="btn btn-danger" onclick="return confirmDelete()">
-                            <i class="fas fa-trash"></i> Yes, Delete Customer
+                            <i class="fas fa-trash"></i> Có, xóa khách hàng
                         </button>
-                        <a href="@Url.Action("Details", new { id=Model.Id })" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Cancel
+                        <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Hủy bỏ
                         </a>
                         <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                            <i class="fas fa-list"></i> Back to List
+                            <i class="fas fa-list"></i> Quay lại danh sách
                         </a>
                     </form>
                 </div>
@@ -82,21 +81,21 @@ ViewData["Title"] = "Delete Customer";
             <div class="card">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-info-circle"></i> Deletion Information
+                        <i class="fas fa-info-circle"></i> Thông tin xóa
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <small class="text-muted">Customer ID</small>
+                        <small class="text-muted">Mã khách hàng</small>
                         <p class="mb-0"><strong>@Model.CustomerCode</strong></p>
                     </div>
                     <div class="mb-3">
-                        <small class="text-muted">Created</small>
-                        <p class="mb-0">@Model.CreatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")</p>
+                        <small class="text-muted">Ngày tạo</small>
+                        <p class="mb-0">@Model.CreatedAt.ToString("dd/MM/yyyy 'lúc' HH:mm")</p>
                     </div>
                     <div class="mb-3">
-                        <small class="text-muted">Last Updated</small>
-                        <p class="mb-0">@Model.UpdatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")</p>
+                        <small class="text-muted">Cập nhật lần cuối</small>
+                        <p class="mb-0">@Model.UpdatedAt.ToString("dd/MM/yyyy 'lúc' HH:mm")</p>
                     </div>
                 </div>
             </div>
@@ -104,25 +103,25 @@ ViewData["Title"] = "Delete Customer";
             <div class="card mt-3">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-exclamation-triangle text-warning"></i> What will be deleted?
+                        <i class="fas fa-exclamation-triangle text-warning"></i> Những dữ liệu sẽ bị xóa
                     </h6>
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
                         <li class="mb-2">
-                            <i class="fas fa-check text-danger"></i> Customer profile
+                            <i class="fas fa-check text-danger"></i> Hồ sơ khách hàng
                         </li>
                         <li class="mb-2">
-                            <i class="fas fa-check text-danger"></i> Contact information
+                            <i class="fas fa-check text-danger"></i> Thông tin liên hệ
                         </li>
                         <li class="mb-2">
-                            <i class="fas fa-check text-danger"></i> Address details
+                            <i class="fas fa-check text-danger"></i> Địa chỉ
                         </li>
                         <li class="mb-2">
-                            <i class="fas fa-check text-danger"></i> Registration data
+                            <i class="fas fa-check text-danger"></i> Dữ liệu đăng ký
                         </li>
                         <li class="mb-2">
-                            <i class="fas fa-check text-danger"></i> Notes and comments
+                            <i class="fas fa-check text-danger"></i> Ghi chú và bình luận
                         </li>
                     </ul>
                 </div>
@@ -131,15 +130,14 @@ ViewData["Title"] = "Delete Customer";
             <div class="card mt-3">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-shield-alt text-info"></i> Safety Check
+                        <i class="fas fa-shield-alt text-info"></i> Kiểm tra an toàn
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info" role="alert">
                         <small>
                             <i class="fas fa-info-circle"></i>
-                            <strong>Note:</strong> This customer cannot be deleted if they have existing invoices or
-                            meter readings.
+                            <strong>Lưu ý:</strong> Khách hàng này không thể bị xóa nếu còn tồn tại hóa đơn hoặc chỉ số công tơ.
                         </small>
                     </div>
                 </div>
@@ -149,17 +147,16 @@ ViewData["Title"] = "Delete Customer";
 </div>
 
 @section Scripts {
-<script>
-    function confirmDelete() {
-        const customerName = '@Model.Name';
-        const customerCode = '@Model.CustomerCode';
+    <script>
+        function confirmDelete() {
+            const customerName = '@Model.Name';
+            const customerCode = '@Model.CustomerCode';
 
-        return confirm(`Are you absolutely sure you want to delete customer ${customerCode} (${customerName})?\n\nThis action cannot be undone and all customer data will be permanently lost.`);
-    }
+            return confirm(`Bạn có chắc chắn muốn xóa khách hàng ${customerCode} (${customerName}) không?\n\nHành động này không thể hoàn tác và toàn bộ dữ liệu của khách hàng sẽ bị xóa vĩnh viễn.`);
+        }
 
-    $(document).ready(function () {
-        // Add any specific JavaScript for the delete page here
-        console.log('Delete confirmation page loaded for: @Model.CustomerCode');
-    });
-</script>
+        $(document).ready(function () {
+            console.log('Trang xác nhận xóa khách hàng: @Model.CustomerCode');
+        });
+    </script>
 }
