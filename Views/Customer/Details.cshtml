@@ -7,15 +7,15 @@
     <div class="page-header mb-4">
         <div class="d-flex justify-content-between align-items-start">
             <div>
-                <h1 class="h3 mb-0">Customer Details</h1>
-                <p class="text-muted mb-0">Complete information for <strong>@Model.CustomerCode</strong></p>
+                <h1 class="h3 mb-0">Chi tiết khách hàng</h1>
+                <p class="text-muted mb-0">Thông tin đầy đủ <strong>@Model.CustomerCode</strong></p>
             </div>
             <div class="btn-group">
                 <a href="@Url.Action("Edit", new { id=Model.Id })" class="btn btn-primary">
-                    <i class="fas fa-edit"></i> Edit Customer
+                    <i class="fas fa-edit"></i> Chỉnh sửa khách hàng
                 </a>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                    <i class="fas fa-list"></i> Back to List
+                    <i class="fas fa-list"></i> Quay lại danh sách
                 </a>
             </div>
         </div>
@@ -27,13 +27,13 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-user"></i> Basic Information
+                        <i class="fas fa-user"></i> Thông tin cơ bản
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Customer ID</small>
+                            <small class="text-muted">Mã khách hàng</small>
                         </div>
                         <div class="col-sm-8">
                             <strong>@Model.CustomerCode</strong>
@@ -41,7 +41,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Name</small>
+                            <small class="text-muted">Tên khách hàng</small>
                         </div>
                         <div class="col-sm-8">
                             @Model.Name
@@ -49,7 +49,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Phone</small>
+                            <small class="text-muted">Số điện thoại</small>
                         </div>
                         <div class="col-sm-8">
                             <a href="tel:@Model.PhoneNumber">@Model.PhoneNumber</a>
@@ -62,7 +62,7 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-map-marker-alt"></i> Address
+                        <i class="fas fa-map-marker-alt"></i> Địa chỉ
                     </h6>
                 </div>
                 <div class="card-body">
@@ -74,13 +74,13 @@
             <div class="card">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-info-circle"></i> Account Information
+                        <i class="fas fa-info-circle"></i>Thông tin tài khoản
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Created</small>
+                            <small class="text-muted">Tạo</small>
                         </div>
                         <div class="col-sm-8">
                             @Model.CreatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")
@@ -88,7 +88,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Last Updated</small>
+                            <small class="text-muted">Cập nhật lần cuối</small>
                         </div>
                         <div class="col-sm-8">
                             @Model.UpdatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")
@@ -98,7 +98,7 @@
                     {
                         <div class="row">
                             <div class="col-sm-4">
-                                <small class="text-muted">Notes</small>
+                                <small class="text-muted">Ghi chú</small>
                             </div>
                             <div class="col-sm-8">
                                 <p class="mb-0">@Model.Notes</p>
@@ -115,7 +115,7 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-receipt"></i> Billing Summary
+                        <i class="fas fa-receipt"></i> Tóm tắt thanh toán
                     </h6>
                 </div>
                 <div class="card-body">
@@ -123,24 +123,24 @@
                         <div class="col-md-3">
                             <div class="border-end">
                                 <h4 class="text-primary mb-1">₫0</h4>
-                                <small class="text-muted">Current Balance</small>
+                                <small class="text-muted">Số dư hiện tại</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="border-end">
                                 <h4 class="text-success mb-1">₫0</h4>
-                                <small class="text-muted">Total Paid</small>
+                                <small class="text-muted">Tổng số tiền đã trả</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="border-end">
                                 <h4 class="text-info mb-1">0</h4>
-                                <small class="text-muted">Total Invoices</small>
+                                <small class="text-muted">Tổng hóa đơn</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <h4 class="text-warning mb-1">0</h4>
-                            <small class="text-muted">Overdue Invoices</small>
+                            <small class="text-muted">Hóa đơn quá hạn</small>
                         </div>
                     </div>
                 </div>
@@ -150,19 +150,19 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
-                        <i class="fas fa-file-invoice"></i> Recent Invoices
+                        <i class="fas fa-file-invoice"></i> Hóa đơn gần đây
                     </h6>
                     <a href="#" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-plus"></i> New Invoice
+                        <i class="fas fa-plus"></i> Hóa đơn mới
                     </a>
                 </div>
                 <div class="card-body">
                     <div class="text-center py-4">
                         <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
-                        <h6 class="text-muted">No invoices found</h6>
-                        <p class="text-muted mb-0">This customer doesn't have any invoices yet.</p>
+                        <h6 class="text-muted">Không tìm thấy hóa đơn</h6>
+                        <p class="text-muted mb-0">Khách hàng này chưa có hóa đơn nào.</p>
                         <a href="#" class="btn btn-sm btn-primary mt-2">
-                            <i class="fas fa-plus"></i> Create First Invoice
+                            <i class="fas fa-plus"></i> Tạo hóa đơn đầu tiên
                         </a>
                     </div>
                 </div>
@@ -172,7 +172,7 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
-                        <i class="fas fa-tachometer-alt"></i> Meter Reading History
+                        <i class="fas fa-tachometer-alt"></i> Lịch sử đọc đồng hồ
                     </h6>
                 </div>
                 <div class="card-body">

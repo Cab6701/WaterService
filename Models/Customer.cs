@@ -8,7 +8,7 @@ namespace WaterService.Models
 
         [Required]
         [StringLength(10)]
-        [Display(Name = "ID Khách hàng")]
+        [Display(Name = "Mã khách hàng")]
         public string CustomerCode { get; set; } = string.Empty;
 
         [Required]
