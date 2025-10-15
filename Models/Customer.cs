@@ -11,33 +11,33 @@ namespace WaterService.Models
 
         [Required]
         [StringLength(10)]
-        [Display(Name = "Customer Code")]
+        [Display(Name = "Mã khách hàng")]
         public string CustomerCode { get; set; } = string.Empty;
 
         [Required]
         [StringLength(100)]
-        [Display(Name = "Name")]
+        [Display(Name = "Tên khách hàng")]
         public string Name { get; set; } = string.Empty;
 
         [Required]
         [StringLength(500)]
-        [Display(Name = "Address")]
+        [Display(Name = "Địa chỉ")]
         public string Address { get; set; } = string.Empty;
 
         [Required]
         [StringLength(15)]
-        [Display(Name = "Phone Number")]
-        [RegularExpression(@"^[0-9]{10,11}$", ErrorMessage = "Phone number must be 10-11 digits")]
+        [Display(Name = "Số điện thoại")]
+        [RegularExpression(@"^[0-9]{10,11}$", ErrorMessage = "Số điện thoại phải bao gồm từ 10 - 11 ký tự!")]
         public string PhoneNumber { get; set; } = string.Empty;
 
         [StringLength(1000)]
-        [Display(Name = "Notes")]
+        [Display(Name = "Ghi chú")]
         public string? Notes { get; set; }
 
-        [Display(Name = "Created At")]
+        [Display(Name = "Ngày tạo")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [Display(Name = "Updated At")]
+        [Display(Name = "Ngày cập nhật")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
