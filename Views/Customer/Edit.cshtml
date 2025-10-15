@@ -38,7 +38,7 @@
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
                             <select class="form-select" id="address" name="address" asp-for="Address"
-                                    asp-items="Html.GetEnumSelectList<CustomerAddress>()">
+                                    asp-items="Customer.AddressOptions">
                             </select>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
@@ -76,8 +76,8 @@
                     <h6 class="mb-0"><i class="fas fa-tachometer-alt"></i> Add New Meter Reading</h6>
                 </div>
                 <div class="card-body">
-                    <form asp-action="EditMeterReadings" method="post" class="row g-3 align-items-end">
-                        <input type="hidden" name="CustomerCode" value="@Model.CustomerCode" />
+                    <form asp-action="AddMeterReadings" method="post" class="row g-3 align-items-end">
+                        <input type="hidden" name="CustomerId" value="@Model.Id" />
                         <div class="col-md-2">
                             <label class="form-label">Quarter</label>
                             <select class="form-select" id="quarter" name="quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()">
@@ -87,13 +87,17 @@
                             <label class="form-label">Year</label>
                             <input type="number" class="form-control" name="Year" value="@DateTime.Now.Year" required min="2000" max="2100" />
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Previous</label>
                             <input type="number" step="1" class="form-control" name="PreviousReading" required />
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Current</label>
                             <input type="number" step="1" class="form-control" name="CurrentReading" required />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Đơn giá</label>
+                            <input type="number" class="form-control" name="UnitPrice" required />
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">Add</button>
@@ -145,7 +149,7 @@
                                     <th>Year</th>
                                     <th>Prev</th>
                                     <th>Curr</th>
-                                    <th>Usage</th>
+                                    <th>Unit</th>
                                     <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
@@ -160,7 +164,7 @@
                                             <td>@reading.Year</td>
                                             <td>@reading.OldIndex</td>
                                             <td>@reading.NewIndex</td>
-                                            <td>@(reading.Consumption)</td>
+                                            <td>@(reading.UnitPrice)</td>
                                             <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-warning btn-edit-reading" data-id="@reading.Id">Edit</button>
@@ -202,13 +206,17 @@
                             <label class="form-label">Year</label>
                             <input type="number" class="form-control" name="Year" id="editYear" required min="2000" max="2100" />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Previous</label>
                             <input type="number" class="form-control" name="PreviousReading" id="editOldIndex" required />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Current</label>
                             <input type="number" class="form-control" name="CurrentReading" id="editNewIndex" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Đơn giá</label>
+                            <input type="number" class="form-control" name="UnitPrice" id="editUnitPrice" required />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -290,7 +298,7 @@
         $('#editYear').val(row.find('td:eq(1)').text());
         $('#editOldIndex').val(row.find('td:eq(2)').text());
         $('#editNewIndex').val(row.find('td:eq(3)').text());
-        $('#editNotes').val(row.find('td:eq(5)').text());
+        $('#editUnitPrice').val(row.find('td:eq(4)').text());
         var modal = new bootstrap.Modal(document.getElementById('editReadingModal'));
         modal.show();
     });

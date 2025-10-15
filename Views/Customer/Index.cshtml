@@ -29,7 +29,7 @@
                 <div class="col-md-3">
                     <label for="address" class="form-label fw-semibold">📍 Address</label>
                     <select class="form-select" id="address" name="address" asp-for="Address"
-                            asp-items="Html.GetEnumSelectList<CustomerAddress>()">
+                            asp-items="Customer.AddressOptions">
                         <option value="">All</option>
                     </select>
                 </div>

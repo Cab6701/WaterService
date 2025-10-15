@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using WaterService.Data;
@@ -17,7 +18,7 @@ namespace WaterService.Controllers
         }
 
         // GET: Customer
-        public IActionResult Index(string? search, int? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
+        public IActionResult Index(string? search, string? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
             var query = _context.Customers
                 .Include(c => c.MeterReadings)
@@ -37,7 +38,7 @@ namespace WaterService.Controllers
 
             if (address != null)
             {
-                var addressName = ((CustomerAddress)address).GetDisplayName();
+                var addressName = address;
                 query = query.Where(c => c.Address == addressName);
             }
 
@@ -60,7 +61,7 @@ namespace WaterService.Controllers
             {
                 Customers = customers,
                 Search = search,
-                Address = address == null ? string.Empty : ((CustomerAddress)address).ToString(),
+                Address = address == null ? string.Empty : address,
                 Status = status == null ? string.Empty : ((InvoiceStatus)status).ToString(),
                 Quarter = quarter,
                 Year = year,
@@ -91,7 +92,7 @@ namespace WaterService.Controllers
         // POST: Customer/EditMeterReadings
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading)
+        public IActionResult EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
         {
             var meterReading = _context.MeterReadings.FirstOrDefault(m => m.Id == Id && m.CustomerId == CustomerId);
             if (meterReading == null)
@@ -102,7 +103,36 @@ namespace WaterService.Controllers
             meterReading.Year = Year;
             meterReading.OldIndex = PreviousReading;
             meterReading.NewIndex = CurrentReading;
+            meterReading.UnitPrice = UnitPrice;
             meterReading.UpdatedAt = DateTime.UtcNow;
+
+            _context.MeterReadings.Update(meterReading);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Edit), new { id = CustomerId });
+        }
+
+        // POST: Customer/AddMeterReadings
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddMeterReadings(int CustomerId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
+        {
+            var customer = _context.Customers.Find(CustomerId);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            var meterReading = new MeterReading
+            {
+                Quarter = Quarter,
+                Year = Year,
+                OldIndex = PreviousReading,
+                NewIndex = CurrentReading,
+                UnitPrice = UnitPrice,
+                Customer = customer,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
 
             _context.MeterReadings.Update(meterReading);
             _context.SaveChanges();
@@ -135,12 +165,11 @@ namespace WaterService.Controllers
         // POST: Customer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Customer customer, int address, int InitialQuarter, int InitialYear, decimal InitialOldIndex = 0, decimal InitialNewIndex = 0)
+        public IActionResult Create(Customer customer, int InitialQuarter, int InitialYear, decimal InitialOldIndex = 0, decimal InitialNewIndex = 0, decimal UnitPrice = 0)
         {
             if (ModelState.IsValid)
             {
                 customer.CustomerCode = customer.CustomerCode;
-                customer.Address = ((CustomerAddress)address).GetDisplayName();
                 customer.CreatedAt = DateTime.UtcNow;
                 customer.UpdatedAt = DateTime.UtcNow;
 
@@ -150,7 +179,7 @@ namespace WaterService.Controllers
                     Year = InitialYear,
                     OldIndex = InitialOldIndex,
                     NewIndex = InitialNewIndex,
-                    RatePerUnit = 5,
+                    UnitPrice = UnitPrice,
                     Customer = customer,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -201,7 +230,7 @@ namespace WaterService.Controllers
 
                 existingCustomer.CustomerCode = customer.CustomerCode;
                 existingCustomer.Name = customer.Name;
-                existingCustomer.Address = ((CustomerAddress)(int.Parse(customer.Address))).GetDisplayName();
+                existingCustomer.Address = customer.Address;
                 existingCustomer.PhoneNumber = customer.PhoneNumber;
                 existingCustomer.Notes = customer.Notes;
                 existingCustomer.UpdatedAt = DateTime.UtcNow;

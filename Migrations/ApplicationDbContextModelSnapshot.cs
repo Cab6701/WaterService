@@ -125,7 +125,7 @@ namespace WaterService.Migrations
                     b.Property<int>("Quarter")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("RatePerUnit")
+                    b.Property<decimal>("UnitPrice")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedAt")

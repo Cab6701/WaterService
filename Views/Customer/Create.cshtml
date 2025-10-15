@@ -41,7 +41,7 @@
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
                             <select class="form-select" id="address" name="address" asp-for="Address"
-                                    asp-items="Html.GetEnumSelectList<CustomerAddress>()">
+                                    asp-items="Customer.AddressOptions">
                             </select>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
@@ -64,21 +64,25 @@
                         </div>
 
                         <div class="row mb-5 align-items-end">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label">Quý</label>
                                 <select class="form-select" id="quarter" name="quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()"></select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label">Năm</label>
                                 <input type="number" class="form-control" name="InitialYear" value="@DateTime.Now.Year" required min="2000" max="2100" />
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label">Chỉ số cũ</label>
                                 <input type="number" step="1" class="form-control" name="InitialOldIndex" required />
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label">Chỉ số mới</label>
                                 <input type="number" step="1" class="form-control" name="InitialNewIndex" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Đơn giá</label>
+                                <input type="number" class="form-control" name="UnitPrice" required />
                             </div>
                         </div>
 

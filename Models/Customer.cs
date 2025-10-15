@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaterService.Models
 {
@@ -41,6 +43,9 @@ namespace WaterService.Models
         // Navigation properties
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
         public virtual List<MeterReading> MeterReadings { get; set; } = new List<MeterReading>();
+
+        [NotMapped]
+        public static List<SelectListItem> AddressOptions => SelectListHelper.GetAddressSelectList();
     }
 
     public enum CustomerAddress
