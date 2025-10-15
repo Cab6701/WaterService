@@ -72,7 +72,7 @@
                 <!-- Reset button -->
                 <div class="col-md-2 d-grid">
                     <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                        <i class="fas fa-undo me-1"></i> Lọc Lại 
+                        <i class="fas fa-undo me-1"></i> Đặt lại bộ lọc
                     </a>
                 </div>
 
@@ -88,7 +88,7 @@
                 <span class="text-muted">(@Model.TotalCount Người)</span>
             </h5>
             <div class="bulk-actions" style="display: none;">
-               <span class="selected-count me-3 fw-semibold text-primary">0 selected</span>
+               <span class="selected-count me-3 fw-semibold text-primary">0 được chọn</span>
                 <div class="btn-group">
                     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
                             data-bs-toggle="dropdown">
@@ -189,7 +189,7 @@
                     <h5 class="text-muted">Không tìm thấy khách hàng nào</h5>
                     <p class="text-muted">Hãy thử điều chỉnh tiêu chí tìm kiếm hoặc thêm khách hàng mới.</p>
                     <a href="@Url.Action("Create")" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i> Add First Customer
+                        <i class="fas fa-plus me-1"></i> Thêm khách hàng mới
                     </a>
                 </div>
             }
@@ -211,7 +211,7 @@
                 @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2);
       i++)
                 {
-                    <li class="page-item @(i == Model.CurrentPage ? " active" : "" )">
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
                         <a class="page-link" href="@Url.Action("Index", new { search=Model.Search, status=Model.Status,
                     quarter=Model.Quarter, year=Model.Year, page=i })">@i</a>
                 </li>
@@ -220,7 +220,7 @@
                 {
                     <li class="page-item">
                         <a class="page-link" href="@Url.Action("Index", new { search=Model.Search, status=Model.Status,
-                        quarter=Model.Quarter, year=Model.Year, page=Model.CurrentPage + 1 })">Next</a>
+                        quarter=Model.Quarter, year=Model.Year, page=Model.CurrentPage + 1 })">Trang tiếp</a>
                     </li>
                 }
             </ul>
@@ -259,7 +259,7 @@
                 }).get();
 
                 if (selectedIds.length === 0) {
-                    alert('Please select at least one customer.');
+                    alert('Bạn phải chọn ít nhất một khách hàng.');
                     return;
                 }
 
@@ -286,7 +286,7 @@
             }).get();
 
             if (selectedIds.length === 0) {
-                alert('Please select at least one customer.');
+                alert('Bạn phải chọn ít nhất một khách hàng.');
                 return;
             }
 
@@ -304,7 +304,7 @@
 
             if (selectedCount > 0) {
                 bulkActions.show();
-                selectedCountSpan.text(`${selectedCount} selected`);
+                selectedCountSpan.text(`${selectedCount} được chọn`);
             } else {
                 bulkActions.hide();
             }
