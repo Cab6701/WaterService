@@ -1,14 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaterService.Models
 {
     public class Customer
     {
+        [Key]
         public int Id { get; set; }
 
         [Required]
         [StringLength(10)]
-        [Display(Name = "Customer ID")]
+        [Display(Name = "Customer Code")]
         public string CustomerCode { get; set; } = string.Empty;
 
         [Required]
@@ -40,6 +43,9 @@ namespace WaterService.Models
         // Navigation properties
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
         public virtual List<MeterReading> MeterReadings { get; set; } = new List<MeterReading>();
+
+        [NotMapped]
+        public static List<SelectListItem> AddressOptions => SelectListHelper.GetAddressSelectList();
     }
 
     public enum CustomerAddress
