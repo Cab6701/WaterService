@@ -23,16 +23,10 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="Edit" method="post" autocomplete="off">
-                        <input asp-for="Id" type="hidden" />
-                        <input asp-for="CustomerCode" type="hidden" />
-                        <input asp-for="CreatedAt" type="hidden" />
-
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
                         <div class="mb-3">
-                            <label class="form-label">Mã khách hàng</label>
-                            <input type="text" class="form-control" value="@Model.CustomerCode" readonly />
-                            <small class="text-muted">Không thể thay đổi ID khách hàng</small>
+                            <label asp-for="CustomerCode" class="form-label">Mã khách hàng</label>
+                            <input asp-for="CustomerCode" type="text" class="form-control" value="@Model.CustomerCode" />
                         </div>
 
                         <div class="mb-3">
@@ -43,7 +37,9 @@
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
-                            <textarea asp-for="Address" class="form-control" rows="3" placeholder="Nhập địa chỉ đầy đủ"></textarea>
+                            <select class="form-select" id="address" name="address" asp-for="Address"
+                                    asp-items="Customer.AddressOptions">
+                            </select>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
@@ -80,9 +76,8 @@
                     <h6 class="mb-0"><i class="fas fa-tachometer-alt"></i>Thêm số đọc đồng hồ mới</h6>
                 </div>
                 <div class="card-body">
-                    <form asp-action="AddOrEditMeterReading" method="post" class="row g-3 align-items-end">
+                    <form asp-action="AddMeterReadings" method="post" class="row g-3 align-items-end">
                         <input type="hidden" name="CustomerId" value="@Model.Id" />
-                        <input type="hidden" name="Id" value="" />
                         <div class="col-md-2">
                             <label class="form-label">Quý</label>
                             <select class="form-select" id="quarter" name="quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()">
@@ -101,8 +96,8 @@
                             <input type="number" step="1" class="form-control" name="CurrentReading" required />
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label">Ghi chú</label>
-                            <input type="text" class="form-control" name="Notes" />
+                            <label class="form-label">Đơn giá</label>
+                            <input type="number" class="form-control" name="UnitPrice" required />
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">Thêm</button>
@@ -165,8 +160,8 @@
                                     <th>Năm</th>
                                     <th>Chỉ số cũ</th>
                                     <th>Chỉ số mới</th>
-                                    <th>Tiêu thụ</th>
-                                    <th>Ngày ghi</th>
+                                    <th>Đơn giá</th>
+                                    <th>Ngày tạo</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
@@ -176,19 +171,15 @@
                                     foreach (var reading in Model.MeterReadings.OrderByDescending(r => r.Year).ThenByDescending(r => r.Quarter))
                                     {
                                         <tr data-id="@reading.Id">
-                                            <td class="text-center">@((reading.Quarter + 1))</td>
-                                            <td class="text-center">@reading.Year</td>
-                                            <td class="text-end">@reading.OldIndex</td>
-                                            <td class="text-end">@reading.NewIndex</td>
-                                            <td class="text-end fw-bold">@reading.Consumption</td>
-                                            <td class="text-center">@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-outline-warning btn-edit-reading me-1" data-id="@reading.Id">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger btn-delete-reading" data-id="@reading.Id">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
+                                            <td>@(reading.Quarter+1)</td>
+                                            <td>@reading.Year</td>
+                                            <td>@reading.OldIndex</td>
+                                            <td>@reading.NewIndex</td>
+                                            <td>@(reading.UnitPrice)</td>
+                                            <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-warning btn-edit-reading" data-id="@reading.Id">Sửa</button>
+                                                <button type="button" class="btn btn-sm btn-danger btn-delete-reading" data-id="@reading.Id">Xoá</button>
                                             </td>
                                         </tr>
                                     }
@@ -228,17 +219,17 @@
                             <label class="form-label">Năm</label>
                             <input type="number" class="form-control" name="Year" id="editYear" required min="2000" max="2100" />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Chỉ số cũ</label>
                             <input type="number" class="form-control" name="PreviousReading" id="editOldIndex" required />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Chỉ số mới</label>
                             <input type="number" class="form-control" name="CurrentReading" id="editNewIndex" required />
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Ghi chú</label>
-                            <input type="text" class="form-control" name="Notes" id="editNotes" />
+                        <div class="col-md-4">
+                            <label class="form-label">Đơn giá</label>
+                            <input type="number" class="form-control" name="UnitPrice" id="editUnitPrice" required />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -265,10 +256,9 @@
 
         function saveFormData() {
             const formData = {
-                householdHeadName: $('#HouseholdHeadName').val(),
+                name: $('#Name').val(),
                 address: $('#Address').val(),
                 phoneNumber: $('#PhoneNumber').val(),
-                status: $('#Status').val(),
                 notes: $('#Notes').val()
             };
             localStorage.setItem('customerEditFormData', JSON.stringify(formData));
@@ -278,10 +268,9 @@
             const savedData = localStorage.getItem('customerEditFormData');
             if (savedData) {
                 const formData = JSON.parse(savedData);
-                $('#HouseholdHeadName').val(formData.householdHeadName || '');
+                $('#Name').val(formData.name || '');
                 $('#Address').val(formData.address || '');
                 $('#PhoneNumber').val(formData.phoneNumber || '');
-                $('#Status').val(formData.status || '');
                 $('#Notes').val(formData.notes || '');
             }
         }
@@ -322,7 +311,7 @@
         $('#editYear').val(row.find('td:eq(1)').text());
         $('#editOldIndex').val(row.find('td:eq(2)').text());
         $('#editNewIndex').val(row.find('td:eq(3)').text());
-        $('#editNotes').val(row.find('td:eq(5)').text());
+        $('#editUnitPrice').val(row.find('td:eq(4)').text());
         var modal = new bootstrap.Modal(document.getElementById('editReadingModal'));
         modal.show();
     });
@@ -331,7 +320,7 @@
     $('#editReadingForm').on('submit', function (e) {
         e.preventDefault();
         $.ajax({
-            url: '@Url.Action("AddOrEditMeterReading", "Customer")',
+            url: '@Url.Action("EditMeterReadings", "Customer")',
             type: 'POST',
             data: $(this).serialize() + '&__RequestVerificationToken=' + $('input[name="__RequestVerificationToken"]').val(),
             success: function () {
