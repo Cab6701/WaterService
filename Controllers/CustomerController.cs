@@ -290,7 +290,7 @@ namespace WaterService.Controllers
         {
             if (customerIds == null || customerIds.Length == 0)
             {
-                TempData["ErrorMessage"] = "No customers selected.";
+                TempData["ErrorMessage"] = "Không có khách hàng nào được chọn!";
                 return RedirectToAction(nameof(Index));
             }
 

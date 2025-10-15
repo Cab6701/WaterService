@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WaterService.Models
 {
@@ -38,9 +38,13 @@ namespace WaterService.Models
 
     public enum InvoiceStatus
     {
+        [Display(Name = "Đang Chờ")]
         Pending,
+        [Display(Name = "Đã thanh toán")]
         Paid,
+        [Display(Name = "Quá hạn")]
         Overdue,
+        [Display(Name = "Đã hủy")]
         Cancelled
     }
 }
