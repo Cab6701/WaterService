@@ -4,11 +4,8 @@ namespace WaterService.Models
 {
     public class MeterReading
     {
+        [Key]
         public int Id { get; set; }
-
-        [Required]
-        [Display(Name = "Customer")]
-        public int CustomerId { get; set; }
 
         [Required]
         [Range(1, 4)]
@@ -30,13 +27,13 @@ namespace WaterService.Models
         [Display(Name = "Consumption")]
         public decimal? Consumption => NewIndex - OldIndex;
 
-        [Display(Name = "Rate per Unit")]
+        [Display(Name = "Unit Price")]
         [DataType(DataType.Currency)]
-        public decimal RatePerUnit { get; set; }
+        public decimal UnitPrice { get; set; }
 
         [Display(Name = "Total Amount")]
         [DataType(DataType.Currency)]
-        public decimal? TotalAmount => Consumption * RatePerUnit;
+        public decimal? TotalAmount => Consumption * UnitPrice;
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -44,6 +41,9 @@ namespace WaterService.Models
         [Display(Name = "Updated At")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        public int CustomerId { get; set; }
+        public required Customer Customer { get; set; }
+        public int? InvoiceId { get; set; }
         public virtual Invoice Invoice { get; set; } = null!;
     }
 

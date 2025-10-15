@@ -31,7 +31,7 @@
                 <div class="col-md-3">
                     <label for="address" class="form-label fw-semibold">📍 Địa Chỉ </label>
                     <select class="form-select" id="address" name="address" asp-for="Address"
-                            asp-items="Html.GetEnumSelectList<CustomerAddress>()">
+                            asp-items="Customer.AddressOptions">
                         <option value="">Tất Cả</option>
                     </select>
                 </div>
@@ -140,7 +140,7 @@
                             @foreach (var customer in Model.Customers)
                             {
                                 var meterReading = customer.MeterReadings
-                                        .Where(mr => mr.CustomerId == customer.Id && mr.Year == Model.Year && mr.Quarter == Model.Quarter)
+                                        .Where(mr => mr.Customer.Id == customer.Id && mr.Year == Model.Year && mr.Quarter == Model.Quarter)
                                         .FirstOrDefault();
                                 var invoice = meterReading?.Invoice;
                                 <tr>

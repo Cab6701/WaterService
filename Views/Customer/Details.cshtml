@@ -185,8 +185,8 @@
                                     <th>Năm</th>
                                     <th>Chỉ số cũ</th>
                                     <th>Chỉ số mới</th>
+                                    <th>Đơn giá</th>
                                     <th>Tiêu thụ</th>
-                                    <th>Ghi chú</th>
                                     <th>Ngày nhập</th>
                                 </tr>
                             </thead>
@@ -197,10 +197,11 @@
                                     r.Year).ThenByDescending(r => r.Quarter))
                                     {
                                         <tr>
-                                            <td>@reading.Quarter</td>
+                                            <td>@(reading.Quarter + 1)</td>
                                             <td>@reading.Year</td>
                                             <td>@reading.OldIndex</td>
                                             <td>@reading.NewIndex</td>
+                                            <td>@reading.UnitPrice</td>
                                             <td>@(reading.Consumption)</td>
                                             <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
                                         </tr>
