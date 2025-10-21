@@ -4,54 +4,58 @@ namespace WaterService.Models
 {
     public class MeterReading
     {
+        [Key]
         public int Id { get; set; }
 
         [Required]
-        [Display(Name = "Customer")]
-        public int CustomerId { get; set; }
+        [Range(1, 4)]
+        [Display(Name = "Quarter")]
+        public int Quarter { get; set; }
 
         [Required]
-        [Display(Name = "Reading Date")]
-        [DataType(DataType.Date)]
-        public DateTime ReadingDate { get; set; }
+        [Display(Name = "Year")]
+        public int Year { get; set; }
 
         [Required]
-        [Display(Name = "Previous Reading")]
-        public decimal PreviousReading { get; set; }
+        [Display(Name = "Old Index")]
+        public decimal OldIndex { get; set; }
 
         [Required]
-        [Display(Name = "Current Reading")]
-        public decimal CurrentReading { get; set; }
+        [Display(Name = "New Index")]
+        public decimal NewIndex { get; set; }
 
         [Display(Name = "Consumption")]
-        public decimal Consumption => CurrentReading - PreviousReading;
+        public decimal? Consumption => NewIndex - OldIndex;
 
-        [Display(Name = "Rate per Unit")]
+        [Display(Name = "Unit Price")]
         [DataType(DataType.Currency)]
-        public decimal RatePerUnit { get; set; }
+        public decimal UnitPrice { get; set; }
 
         [Display(Name = "Total Amount")]
         [DataType(DataType.Currency)]
-        public decimal TotalAmount => Consumption * RatePerUnit;
-
-        [Display(Name = "Reading Type")]
-        public ReadingType Type { get; set; } = ReadingType.Regular;
-
-        [StringLength(500)]
-        [Display(Name = "Notes")]
-        public string? Notes { get; set; }
+        public decimal? TotalAmount => Consumption * UnitPrice;
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation properties
-        public virtual Customer Customer { get; set; } = null!;
+        [Display(Name = "Updated At")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        public int CustomerId { get; set; }
+        public required Customer Customer { get; set; }
+        public int? InvoiceId { get; set; }
+        public virtual Invoice Invoice { get; set; } = null!;
     }
 
-    public enum ReadingType
+    public enum QuarterInYear
     {
-        Regular,
-        Estimated,
-        Final
+        [Display(Name = "Quý 1")]
+        Q1,
+        [Display(Name = "Quý 2")]
+        Q2,
+        [Display(Name = "Quý 3")]
+        Q3,
+        [Display(Name = "Quý 4")]
+        Q4
     }
 }

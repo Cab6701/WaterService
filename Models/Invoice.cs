@@ -1,32 +1,23 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WaterService.Models
 {
     public class Invoice
     {
+        [Key]
         public int Id { get; set; }
 
         [Required]
-        [Display(Name = "Customer")]
-        public int CustomerId { get; set; }
+        [Display(Name = "Customer Code")]
+        public required string CustomerCode { get; set; }
 
         [Required]
         [StringLength(20)]
         [Display(Name = "Invoice Number")]
         public string InvoiceNumber { get; set; } = string.Empty;
 
-        [Required]
-        [Display(Name = "Billing Period")]
-        [DataType(DataType.Date)]
-        public DateTime BillingPeriod { get; set; }
-
-        [Required]
-        [Display(Name = "Amount")]
-        [DataType(DataType.Currency)]
-        public decimal Amount { get; set; }
-
         [Display(Name = "Status")]
-        public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
+        public InvoiceStatus? Status { get; set; } = null;
 
         [Display(Name = "Due Date")]
         [DataType(DataType.Date)]
@@ -38,17 +29,22 @@ namespace WaterService.Models
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [Display(Name = "Updated At")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation properties
-        public virtual Customer Customer { get; set; } = null!;
-        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public int? MeterReadingId { get; set; }
+        public virtual MeterReading? WaterMeterReading { get; set; } = null!;
     }
 
     public enum InvoiceStatus
     {
+        [Display(Name = "Đang Chờ")]
         Pending,
+        [Display(Name = "Đã thanh toán")]
         Paid,
+        [Display(Name = "Quá hạn")]
         Overdue,
+        [Display(Name = "Đã hủy")]
         Cancelled
     }
 }

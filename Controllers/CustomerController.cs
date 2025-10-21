@@ -1,63 +1,54 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
+using WaterService.Data;
+using WaterService.Extensions;
 using WaterService.Models;
-using System.Linq;
 
 namespace WaterService.Controllers
 {
     public class CustomerController : Controller
     {
-        private readonly ILogger<CustomerController> _logger;
-        private static List<Customer> _customers = new List<Customer>();
-        private static int _nextCustomerId = 1;
-        private static int _nextCustomerCode = 1001;
-        private static int _nextWaterMeterReadingId = 1;
+        private readonly ApplicationDbContext _context;
 
-        public CustomerController(ILogger<CustomerController> logger)
+        public CustomerController(ApplicationDbContext context)
         {
-            _logger = logger;
-            InitializeSampleData();
+            _context = context;
         }
 
         // GET: Customer
-        public IActionResult Index(string? search, string? status, int? quarter, int? year, int page = 1, int pageSize = 20)
+        public IActionResult Index(string? search, string? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
-            var query = _customers.AsQueryable();
+            var query = _context.Customers
+                .Include(c => c.MeterReadings)
+                .Include(c => c.Invoices)
+                .AsQueryable();
 
-            // Apply search filter
+            quarter ??= (DateTime.Now.Month - 1) / 3;
+            year ??= DateTime.Now.Year;
+
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(c =>
-                    c.CustomerCode.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    c.HouseholdHeadName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    c.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase));
+                    c.CustomerCode.Contains(search) ||
+                    c.Name.Contains(search) ||
+                    c.PhoneNumber.Contains(search));
             }
 
-            // Apply status filter
-            if (!string.IsNullOrEmpty(status) && Enum.TryParse<CustomerStatus>(status, out var statusEnum))
+            if (address != null)
             {
-                query = query.Where(c => c.Status == statusEnum);
+                var addressName = address;
+                query = query.Where(c => c.Address == addressName);
             }
 
-            // Chỉ lọc theo quý nếu có chọn năm
-            if (year.HasValue)
+            if (status != null)
             {
-                if (quarter.HasValue && quarter.Value >= 1 && quarter.Value <= 4)
-                {
-                    int startMonth = (quarter.Value - 1) * 3 + 1;
-                    int endMonth = startMonth + 2;
-                    var startDate = new DateTime(year.Value, startMonth, 1);
-                    var endDate = new DateTime(year.Value, endMonth, DateTime.DaysInMonth(year.Value, endMonth));
-                    query = query.Where(c => c.RegistrationDate >= startDate && c.RegistrationDate <= endDate);
-                }
-                else
-                {
-                    var startDate = new DateTime(year.Value, 1, 1);
-                    var endDate = new DateTime(year.Value, 12, 31);
-                    query = query.Where(c => c.RegistrationDate >= startDate && c.RegistrationDate <= endDate);
-                }
+                query = query.Where(c => c.Invoices.Any(i => i.Status == (InvoiceStatus)status));
             }
 
-            // Calculate pagination
+            query = query.Where(c => c.MeterReadings.Any(i => i.Year == year.Value && i.Quarter == quarter));
+
             var totalCount = query.Count();
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
             var customers = query
@@ -70,7 +61,8 @@ namespace WaterService.Controllers
             {
                 Customers = customers,
                 Search = search,
-                Status = status,
+                Address = address == null ? string.Empty : address,
+                Status = status == null ? string.Empty : ((InvoiceStatus)status).ToString(),
                 Quarter = quarter,
                 Year = year,
                 CurrentPage = page,
@@ -85,7 +77,11 @@ namespace WaterService.Controllers
         // GET: Customer/Details/5
         public IActionResult Details(int id)
         {
-            var customer = _customers.FirstOrDefault(c => c.Id == id);
+            var customer = _context.Customers
+                .Include(c => c.MeterReadings)
+                .Include(c => c.Invoices)
+                .FirstOrDefault(c => c.Id == id);
+
             if (customer == null)
             {
                 return NotFound();
@@ -93,63 +89,54 @@ namespace WaterService.Controllers
             return View(customer);
         }
 
-        // GET: Customer/EditMeterReading
-        [HttpGet]
-        public IActionResult EditMeterReading(int id, int customerId)
-        {
-            var customer = _customers.FirstOrDefault(c => c.Id == customerId);
-            if (customer == null)
-                return NotFound();
-            var reading = customer.WaterMeterReadings?.FirstOrDefault(r => r.Id == id);
-            if (reading == null)
-                return NotFound();
-            ViewBag.EditReading = reading;
-            return View("Details", customer);
-        }
-
-        // POST: Customer/AddOrEditMeterReading
+        // POST: Customer/EditMeterReadings
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddOrEditMeterReading(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, string? Notes)
+        public IActionResult EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
         {
-            var customer = _customers.FirstOrDefault(c => c.Id == CustomerId);
-            if (customer == null)
+            var meterReading = _context.MeterReadings.FirstOrDefault(m => m.Id == Id && m.CustomerId == CustomerId);
+            if (meterReading == null)
+            {
                 return NotFound();
+            }
+            meterReading.Quarter = Quarter - 1;
+            meterReading.Year = Year;
+            meterReading.OldIndex = PreviousReading;
+            meterReading.NewIndex = CurrentReading;
+            meterReading.UnitPrice = UnitPrice;
+            meterReading.UpdatedAt = DateTime.UtcNow;
 
-            WaterMeterReading reading;
-            if (customer.WaterMeterReadings == null)
-                customer.WaterMeterReadings = new List<WaterMeterReading>();
-            if (Id.HasValue && Id.Value > 0)
+            _context.MeterReadings.Update(meterReading);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Edit), new { id = CustomerId });
+        }
+
+        // POST: Customer/AddMeterReadings
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddMeterReadings(int CustomerId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
+        {
+            var customer = _context.Customers.Find(CustomerId);
+            if (customer == null)
             {
-                // Edit
-                reading = customer.WaterMeterReadings.FirstOrDefault(r => r.Id == Id.Value);
-                if (reading == null)
-                    return NotFound();
-                reading.Quarter = Quarter;
-                reading.Year = Year;
-                reading.PreviousReading = PreviousReading;
-                reading.CurrentReading = CurrentReading;
-                reading.Notes = Notes;
-                reading.CreatedAt = DateTime.UtcNow;
+                return NotFound();
             }
-            else
+
+            var meterReading = new MeterReading
             {
-                // Add new
-                reading = new WaterMeterReading
-                {
-                    Id = _nextWaterMeterReadingId++,
-                    CustomerId = CustomerId,
-                    Quarter = Quarter,
-                    Year = Year,
-                    PreviousReading = PreviousReading,
-                    CurrentReading = CurrentReading,
-                    Notes = Notes,
-                    CreatedAt = DateTime.UtcNow
-                };
-                customer.WaterMeterReadings.Add(reading);
-            }
-            TempData["SuccessMessage"] = "Lưu chỉ số nước thành công.";
-            return RedirectToAction("Details", new { id = CustomerId });
+                Quarter = Quarter,
+                Year = Year,
+                OldIndex = PreviousReading,
+                NewIndex = CurrentReading,
+                UnitPrice = UnitPrice,
+                Customer = customer,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.MeterReadings.Update(meterReading);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Edit), new { id = CustomerId });
         }
 
         // POST: Customer/DeleteMeterReading
@@ -157,44 +144,54 @@ namespace WaterService.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteMeterReading(int id, int customerId)
         {
-            var customer = _customers.FirstOrDefault(c => c.Id == customerId);
+            var customer = _context.Customers.Find(customerId);
             if (customer == null)
                 return NotFound();
-            if (customer.WaterMeterReadings == null)
-                return NotFound();
-            var reading = customer.WaterMeterReadings.FirstOrDefault(r => r.Id == id);
+            var reading = _context.MeterReadings.FirstOrDefault(r => r.Id == id && r.Customer.Id == customer.Id);
             if (reading == null)
                 return NotFound();
-            customer.WaterMeterReadings.Remove(reading);
+            _context.MeterReadings.Remove(reading);
+            _context.SaveChanges();
             TempData["SuccessMessage"] = "Đã xóa chỉ số nước.";
-            return RedirectToAction("Details", new { id = customerId });
+            return RedirectToAction(nameof(Edit), new { id = customer.Id });
         }
 
         // GET: Customer/Create
         public IActionResult Create()
         {
-            var customer = new Customer
-            {
-                CustomerCode = $"C{_nextCustomerCode:D6}",
-                RegistrationDate = DateTime.Today
-            };
-            return View(customer);
+            return View(new Customer());
         }
 
         // POST: Customer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Customer customer)
+        public IActionResult Create(Customer customer, int InitialQuarter, int InitialYear, decimal InitialOldIndex = 0, decimal InitialNewIndex = 0, decimal UnitPrice = 0)
         {
             if (ModelState.IsValid)
             {
-                customer.Id = _nextCustomerId++;
-                customer.CustomerCode = $"C{_nextCustomerCode:D6}";
+                customer.CustomerCode = customer.CustomerCode;
                 customer.CreatedAt = DateTime.UtcNow;
                 customer.UpdatedAt = DateTime.UtcNow;
 
-                _customers.Add(customer);
-                _nextCustomerCode++;
+                var initialReading = new MeterReading
+                {
+                    Quarter = InitialQuarter,
+                    Year = InitialYear,
+                    OldIndex = InitialOldIndex,
+                    NewIndex = InitialNewIndex,
+                    UnitPrice = UnitPrice,
+                    Customer = customer,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                if (customer.MeterReadings == null)
+                {
+                    customer.MeterReadings = new List<MeterReading>();
+                }
+                customer.MeterReadings.Add(initialReading);
+                _context.Customers.Add(customer);
+                _context.SaveChanges();
 
                 TempData["SuccessMessage"] = "Customer created successfully.";
                 return RedirectToAction(nameof(Details), new { id = customer.Id });
@@ -206,7 +203,10 @@ namespace WaterService.Controllers
         // GET: Customer/Edit/5
         public IActionResult Edit(int id)
         {
-            var customer = _customers.FirstOrDefault(c => c.Id == id);
+            var customer = _context.Customers
+                .Include(c => c.MeterReadings)
+                .FirstOrDefault(c => c.Id == id);
+
             if (customer == null)
             {
                 return NotFound();
@@ -218,28 +218,24 @@ namespace WaterService.Controllers
         // POST: Customer/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Customer customer)
+        public IActionResult Edit(Customer customer)
         {
-            if (id != customer.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                var existingCustomer = _customers.FirstOrDefault(c => c.Id == id);
+                var existingCustomer = _context.Customers.Find(customer.Id);
                 if (existingCustomer == null)
                 {
                     return NotFound();
                 }
 
-                existingCustomer.HouseholdHeadName = customer.HouseholdHeadName;
+                existingCustomer.CustomerCode = customer.CustomerCode;
+                existingCustomer.Name = customer.Name;
                 existingCustomer.Address = customer.Address;
                 existingCustomer.PhoneNumber = customer.PhoneNumber;
-                existingCustomer.Email = customer.Email;
-                existingCustomer.Status = customer.Status;
                 existingCustomer.Notes = customer.Notes;
                 existingCustomer.UpdatedAt = DateTime.UtcNow;
+
+                _context.SaveChanges();
 
                 TempData["SuccessMessage"] = "Customer updated successfully.";
                 return RedirectToAction(nameof(Details), new { id = customer.Id });
@@ -251,7 +247,7 @@ namespace WaterService.Controllers
         // GET: Customer/Delete/5
         public IActionResult Delete(int id)
         {
-            var customer = _customers.FirstOrDefault(c => c.Id == id);
+            var customer = _context.Customers.Find(id);
             if (customer == null)
             {
                 return NotFound();
@@ -265,20 +261,24 @@ namespace WaterService.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var customer = _customers.FirstOrDefault(c => c.Id == id);
+            var customer = _context.Customers
+                .Include(c => c.Invoices)
+                .FirstOrDefault(c => c.Id == id);
+
             if (customer == null)
             {
                 return NotFound();
             }
 
-            // Check if customer has any invoices
-            if (customer.Invoices.Any())
+            if (customer.Invoices != null && customer.Invoices.Any())
             {
                 TempData["ErrorMessage"] = "Cannot delete customer with existing invoices.";
                 return RedirectToAction(nameof(Index));
             }
 
-            _customers.Remove(customer);
+            _context.Customers.Remove(customer);
+            _context.SaveChanges();
+
             TempData["SuccessMessage"] = "Customer deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
@@ -290,36 +290,36 @@ namespace WaterService.Controllers
         {
             if (customerIds == null || customerIds.Length == 0)
             {
-                TempData["ErrorMessage"] = "No customers selected.";
+                TempData["ErrorMessage"] = "Không có khách hàng nào được chọn!";
                 return RedirectToAction(nameof(Index));
             }
 
-            var selectedCustomers = _customers.Where(c => customerIds.Contains(c.Id)).ToList();
+            var selectedCustomers = _context.Customers.Where(c => customerIds.Contains(c.Id)).ToList();
 
-            switch (action.ToLower())
-            {
-                case "export":
-                    return ExportCustomers(selectedCustomers);
-                case "activate":
-                    foreach (var customer in selectedCustomers)
-                    {
-                        customer.Status = CustomerStatus.Active;
-                        customer.UpdatedAt = DateTime.UtcNow;
-                    }
-                    TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers activated.";
-                    break;
-                case "deactivate":
-                    foreach (var customer in selectedCustomers)
-                    {
-                        customer.Status = CustomerStatus.Inactive;
-                        customer.UpdatedAt = DateTime.UtcNow;
-                    }
-                    TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers deactivated.";
-                    break;
-                default:
-                    TempData["ErrorMessage"] = "Invalid action selected.";
-                    break;
-            }
+            //switch (action.ToLower())
+            //{
+            //    case "export":
+            //        return ExportCustomers(selectedCustomers);
+            //    case "activate":
+            //        foreach (var customer in selectedCustomers)
+            //        {
+            //            customer.Status = CustomerStatus.Paid;
+            //            customer.UpdatedAt = DateTime.UtcNow;
+            //        }
+            //        TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers activated.";
+            //        break;
+            //    case "deactivate":
+            //        foreach (var customer in selectedCustomers)
+            //        {
+            //            customer.Status = CustomerStatus.Pending;
+            //            customer.UpdatedAt = DateTime.UtcNow;
+            //        }
+            //        TempData["SuccessMessage"] = $"{selectedCustomers.Count} customers deactivated.";
+            //        break;
+            //    default:
+            //        TempData["ErrorMessage"] = "Invalid action selected.";
+            //        break;
+            //}
 
             return RedirectToAction(nameof(Index));
         }
@@ -330,71 +330,18 @@ namespace WaterService.Controllers
             var csv = "Customer Code,Name,Phone,Address,Status,Registration Date\n";
             foreach (var customer in customers)
             {
-                csv += $"{customer.CustomerCode},{customer.HouseholdHeadName},{customer.PhoneNumber},{customer.Address},{customer.Status},{customer.RegistrationDate:yyyy-MM-dd}\n";
+                csv += $"{customer.CustomerCode},{customer.Name},{customer.PhoneNumber},{customer.Address}\n";
             }
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(csv);
             return File(bytes, "text/csv", $"customers_export_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         }
-
-        private void InitializeSampleData()
-        {
-            if (_customers.Any()) return;
-
-            var sampleCustomers = new List<Customer>
-            {
-                new Customer
-                {
-                    Id = _nextCustomerId++,
-                    CustomerCode = $"C{_nextCustomerCode++:D6}",
-                    HouseholdHeadName = "Nguyen Van A",
-                    Address = "123 Main Street, District 1, HCMC",
-                    PhoneNumber = "0901234567",
-                    Email = "nguyenvana@email.com",
-                    RegistrationDate = new DateTime(2023, 1, 15),
-                    Status = CustomerStatus.Active,
-                    Notes = "Regular customer",
-                    CreatedAt = DateTime.UtcNow.AddDays(-365),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-30)
-                },
-                new Customer
-                {
-                    Id = _nextCustomerId++,
-                    CustomerCode = $"C{_nextCustomerCode++:D6}",
-                    HouseholdHeadName = "Tran Thi B",
-                    Address = "456 Second Street, District 2, HCMC",
-                    PhoneNumber = "0901234568",
-                    Email = "tranthib@email.com",
-                    RegistrationDate = new DateTime(2023, 3, 20),
-                    Status = CustomerStatus.Active,
-                    Notes = "Commercial customer",
-                    CreatedAt = DateTime.UtcNow.AddDays(-300),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-15)
-                },
-                new Customer
-                {
-                    Id = _nextCustomerId++,
-                    CustomerCode = $"C{_nextCustomerCode++:D6}",
-                    HouseholdHeadName = "Le Van C",
-                    Address = "789 Third Street, District 3, HCMC",
-                    PhoneNumber = "0901234569",
-                    Email = "levanc@email.com",
-                    RegistrationDate = new DateTime(2023, 6, 10),
-                    Status = CustomerStatus.Inactive,
-                    Notes = "Temporarily inactive",
-                    CreatedAt = DateTime.UtcNow.AddDays(-200),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-5)
-                }
-            };
-
-            _customers.AddRange(sampleCustomers);
-        }
     }
-
     public class CustomerIndexViewModel
     {
         public List<Customer> Customers { get; set; } = new List<Customer>();
         public string? Search { get; set; }
+        public string? Address { get; set; }
         public string? Status { get; set; }
         public int? Quarter { get; set; }
         public int? Year { get; set; }
@@ -404,3 +351,4 @@ namespace WaterService.Controllers
         public int PageSize { get; set; }
     }
 }
+

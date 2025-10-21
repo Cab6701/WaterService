@@ -1,12 +1,12 @@
-@model WaterService.Models.Customer
+﻿@model WaterService.Models.Customer
 @{
     ViewData["Title"] = "Add New Customer";
 }
 
 <div class="customer-form">
     <div class="page-header mb-4">
-        <h1 class="h3 mb-0">Add New Customer</h1>
-        <p class="text-muted">Create a new customer account in the water service system.</p>
+        <h1 class="h3 mb-0">Thêm khách hàng mới</h1>
+        <p class="text-muted">Thêm khách hàng mới trong hệ thống dịch vụ cấp nước.</p>
     </div>
 
     <div class="row">
@@ -15,38 +15,34 @@
                 <div class="card-body">
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="CustomerCode" class="form-label"></label>
                                     <div class="input-group">
-                                        <input asp-for="CustomerCode" class="form-control" readonly />
+                                        <input asp-for="CustomerCode" class="form-control" />
                                         <button type="button" class="btn btn-outline-secondary" id="generateCode">
-                                            <i class="fas fa-sync-alt"></i> Generate
+                                            <i class="fas fa-sync-alt"></i> Tạo mã
                                         </button>
                                     </div>
                                     <span asp-validation-for="CustomerCode" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="RegistrationDate" class="form-label"></label>
-                                    <input asp-for="RegistrationDate" class="form-control" type="date" />
-                                    <span asp-validation-for="RegistrationDate" class="text-danger"></span>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="HouseholdHeadName" class="form-label"></label>
-                            <input asp-for="HouseholdHeadName" class="form-control" placeholder="Enter household head name" />
-                            <span asp-validation-for="HouseholdHeadName" class="text-danger"></span>
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control"
+                                   placeholder="Nhập tên chủ hộ" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
-                            <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter complete address"></textarea>
+                            <select class="form-select" id="address" name="address" asp-for="Address"
+                                    asp-items="Customer.AddressOptions">
+                            </select>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
@@ -54,43 +50,48 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="PhoneNumber" class="form-label"></label>
-                                    <input asp-for="PhoneNumber" class="form-control" placeholder="e.g., 0901234567" />
+                                    <input asp-for="PhoneNumber" class="form-control" />
                                     <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="Email" class="form-label"></label>
-                                    <input asp-for="Email" class="form-control" type="email" placeholder="optional@email.com" />
-                                    <span asp-validation-for="Email" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Status" class="form-label"></label>
-                            <select asp-for="Status" class="form-select">
-                                <option value="@WaterService.Models.CustomerStatus.Active">Active</option>
-                                <option value="@WaterService.Models.CustomerStatus.Inactive">Inactive</option>
-                            </select>
-                            <span asp-validation-for="Status" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Notes" class="form-label"></label>
-                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Additional notes or special requirements"></textarea>
+                            <textarea id="Notes" asp-for="Notes" class="form-control" rows="2"
+                                      placeholder="Ghi chú bổ sung hoặc yêu cầu đặc biệt"></textarea>
                             <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-5 align-items-end">
+                            <div class="col-md-2">
+                                <label class="form-label">Quý</label>
+                                <select class="form-select" id="quarter" name="quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()"></select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Năm</label>
+                                <input type="number" class="form-control" name="InitialYear" value="@DateTime.Now.Year" required min="2000" max="2100" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Chỉ số cũ</label>
+                                <input type="number" step="1" class="form-control" name="InitialOldIndex" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Chỉ số mới</label>
+                                <input type="number" step="1" class="form-control" name="InitialNewIndex" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Đơn giá</label>
+                                <input type="number" class="form-control" name="UnitPrice" required />
+                            </div>
                         </div>
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Customer
+                                <i class="fas fa-save"></i> Lưu khách hàng 
                             </button>
-                            <a href="@Url.Action("Index")" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
-                            </a>
                             <button type="submit" name="saveAndAddAnother" value="true" class="btn btn-outline-primary">
-                                <i class="fas fa-plus"></i> Save & Add Another
+                                <i class="fas fa-plus"></i> Lưu và thêm khách hàng khác
                             </button>
                         </div>
                     </form>
@@ -101,39 +102,39 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Customer Information</h6>
+                    <h6 class="mb-0">Thông tin khách hàng</h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <small class="text-muted">Customer ID Format</small>
+                        <small class="text-muted">Định dạng ID khách hàng</small>
                         <p class="mb-0">C###### (e.g., C001234)</p>
                     </div>
                     <div class="mb-3">
-                        <small class="text-muted">Phone Number</small>
+                        <small class="text-muted">Số điện thoại</small>
                         <p class="mb-0">10-11 digits only</p>
                     </div>
                     <div class="mb-3">
-                        <small class="text-muted">Registration Date</small>
-                        <p class="mb-0">Cannot be in the future</p>
+                        <small class="text-muted">Ngày đăng ký</small>
+                        <p class="mb-0">Chưa kích hoạt</p>
                     </div>
                     <div class="mb-3">
                         <small class="text-muted">Status</small>
-                        <p class="mb-0">Active customers can receive services</p>
+                        <p class="mb-0">Khách hàng đang hoạt động có thể nhận được dịch vụ</p>
                     </div>
                 </div>
             </div>
 
             <div class="card mt-3">
                 <div class="card-header">
-                    <h6 class="mb-0">Quick Actions</h6>
+                    <h6 class="mb-0">Thao tác nhanh</h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="@Url.Action("Index")" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-list"></i> View All Customers
+                            <i class="fas fa-list"></i> Xem tất cả khách hàng
                         </a>
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearForm()">
-                            <i class="fas fa-eraser"></i> Clear Form
+                            <i class="fas fa-eraser"></i> Xóa biểu mẫu
                         </button>
                     </div>
                 </div>
@@ -144,62 +145,16 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            // Generate customer code
-            $('#generateCode').on('click', function() {
-                // This would typically call an API endpoint to generate the next code
-                // For now, we'll just show a placeholder
-                const currentCode = $('#CustomerCode').val();
-                if (currentCode) {
-                    const nextNumber = parseInt(currentCode.substring(1)) + 1;
-                    $('#CustomerCode').val('C' + nextNumber.toString().padStart(6, '0'));
-                }
+        $(document).ready(function () {
+            $('#generateCode').on('click', function () {
+                $('#CustomerCode').val('C' + Math.random().toString(36).slice(2, 8).toUpperCase());
             });
-
-            // Auto-save form data to localStorage
-            $('input, textarea, select').on('change', function() {
-                saveFormData();
-            });
-
-            // Load saved form data
-            loadFormData();
         });
 
         function clearForm() {
-            if (confirm('Are you sure you want to clear all form data?')) {
+            if (confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu biểu mẫu không?')) {
                 $('form')[0].reset();
-                localStorage.removeItem('customerFormData');
             }
         }
-
-        function saveFormData() {
-            const formData = {
-                householdHeadName: $('#HouseholdHeadName').val(),
-                address: $('#Address').val(),
-                phoneNumber: $('#PhoneNumber').val(),
-                email: $('#Email').val(),
-                status: $('#Status').val(),
-                notes: $('#Notes').val()
-            };
-            localStorage.setItem('customerFormData', JSON.stringify(formData));
-        }
-
-        function loadFormData() {
-            const savedData = localStorage.getItem('customerFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
-                $('#HouseholdHeadName').val(formData.householdHeadName || '');
-                $('#Address').val(formData.address || '');
-                $('#PhoneNumber').val(formData.phoneNumber || '');
-                $('#Email').val(formData.email || '');
-                $('#Status').val(formData.status || '@WaterService.Models.CustomerStatus.Active');
-                $('#Notes').val(formData.notes || '');
-            }
-        }
-
-        // Clear saved data on successful form submission
-        $('form').on('submit', function() {
-            localStorage.removeItem('customerFormData');
-        });
     </script>
 }

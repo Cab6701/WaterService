@@ -1,45 +1,50 @@
-@{
-    ViewData["Title"] = "Home Page";
+﻿@{
+    ViewData["Title"] = "Trang chủ";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome to WaterService</h1>
-    <p class="lead">Comprehensive water service management system</p>
+    <h1 class="display-4">Chào mừng đến với WaterService</h1>
+    <p class="lead">Hệ thống quản lý dịch vụ cấp nước toàn diện</p>
 </div>
 
 <div class="row mt-5">
+    <!-- Quản lý khách hàng -->
     <div class="col-md-4">
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="fas fa-users fa-3x text-primary mb-3"></i>
-                <h5 class="card-title">Customer Management</h5>
-                <p class="card-text">Manage customer accounts, view details, and track service history.</p>
+                <h5 class="card-title">Quản lý khách hàng</h5>
+                <p class="card-text">Quản lý tài khoản khách hàng, xem chi tiết và theo dõi lịch sử sử dụng dịch vụ.</p>
                 <a href="@Url.Action("Index", "Customer")" class="btn btn-primary">
-                    <i class="fas fa-arrow-right"></i> Manage Customers
+                    <i class="fas fa-arrow-right"></i> Quản lý khách hàng
                 </a>
             </div>
         </div>
     </div>
+
+    <!-- Ghi chỉ số nước -->
     <div class="col-md-4">
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="fas fa-tachometer-alt fa-3x text-success mb-3"></i>
-                <h5 class="card-title">Meter Readings</h5>
-                <p class="card-text">Record and track water meter readings for accurate billing.</p>
+                <h5 class="card-title">Ghi chỉ số nước</h5>
+                <p class="card-text">Ghi nhận và theo dõi chỉ số đồng hồ nước để tính hóa đơn chính xác.</p>
                 <a href="#" class="btn btn-success disabled">
-                    <i class="fas fa-arrow-right"></i> Coming Soon
+                    <i class="fas fa-arrow-right"></i> Sắp ra mắt
                 </a>
             </div>
         </div>
     </div>
+
+    <!-- Hóa đơn & Thanh toán -->
     <div class="col-md-4">
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="fas fa-file-invoice fa-3x text-warning mb-3"></i>
-                <h5 class="card-title">Billing & Invoices</h5>
-                <p class="card-text">Generate invoices, track payments, and manage billing cycles.</p>
+                <h5 class="card-title">Hóa đơn & Thanh toán</h5>
+                <p class="card-text">Tạo hóa đơn, theo dõi thanh toán và quản lý chu kỳ thu tiền.</p>
                 <a href="#" class="btn btn-warning disabled">
-                    <i class="fas fa-arrow-right"></i> Coming Soon
+                    <i class="fas fa-arrow-right"></i> Sắp ra mắt
                 </a>
             </div>
         </div>
@@ -51,27 +56,30 @@
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-info-circle"></i> System Overview
+                    <i class="fas fa-info-circle"></i> Tổng quan hệ thống
                 </h5>
             </div>
             <div class="card-body">
                 <div class="row">
+                    <!-- Các tính năng hiện có -->
                     <div class="col-md-6">
-                        <h6>Features Available:</h6>
+                        <h6>Các tính năng hiện có:</h6>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-check text-success"></i> Customer Registration & Management</li>
-                            <li><i class="fas fa-check text-success"></i> Search & Filter Customers</li>
-                            <li><i class="fas fa-check text-success"></i> Bulk Operations</li>
-                            <li><i class="fas fa-check text-success"></i> Responsive Design</li>
+                            <li><i class="fas fa-check text-success"></i> Đăng ký & Quản lý khách hàng</li>
+                            <li><i class="fas fa-check text-success"></i> Tìm kiếm & Lọc khách hàng</li>
+                            <li><i class="fas fa-check text-success"></i> Thao tác hàng loạt</li>
+                            <li><i class="fas fa-check text-success"></i> Giao diện tương thích trên mọi thiết bị</li>
                         </ul>
                     </div>
+
+                    <!-- Tính năng sắp ra mắt -->
                     <div class="col-md-6">
-                        <h6>Coming Soon:</h6>
+                        <h6>Sắp ra mắt:</h6>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-clock text-warning"></i> Meter Reading Management</li>
-                            <li><i class="fas fa-clock text-warning"></i> Automated Billing</li>
-                            <li><i class="fas fa-clock text-warning"></i> Payment Tracking</li>
-                            <li><i class="fas fa-clock text-warning"></i> Reports & Analytics</li>
+                            <li><i class="fas fa-clock text-warning"></i> Quản lý chỉ số đồng hồ nước</li>
+                            <li><i class="fas fa-clock text-warning"></i> Tự động tính hóa đơn</li>
+                            <li><i class="fas fa-clock text-warning"></i> Theo dõi thanh toán</li>
+                            <li><i class="fas fa-clock text-warning"></i> Báo cáo & Phân tích</li>
                         </ul>
                     </div>
                 </div>

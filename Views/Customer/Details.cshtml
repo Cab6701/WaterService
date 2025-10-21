@@ -7,15 +7,15 @@
     <div class="page-header mb-4">
         <div class="d-flex justify-content-between align-items-start">
             <div>
-                <h1 class="h3 mb-0">Customer Details</h1>
-                <p class="text-muted mb-0">Complete information for <strong>@Model.CustomerCode</strong></p>
+                <h1 class="h3 mb-0">Chi tiết khách hàng</h1>
+                <p class="text-muted mb-0">Thông tin đầy đủ <strong>@Model.CustomerCode</strong></p>
             </div>
             <div class="btn-group">
-                <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
-                    <i class="fas fa-edit"></i> Edit Customer
+                <a href="@Url.Action("Edit", new { id=Model.Id })" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Chỉnh sửa khách hàng
                 </a>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                    <i class="fas fa-list"></i> Back to List
+                    <i class="fas fa-list"></i> Quay lại danh sách
                 </a>
             </div>
         </div>
@@ -27,13 +27,13 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-user"></i> Basic Information
+                        <i class="fas fa-user"></i> Thông tin cơ bản
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Customer ID</small>
+                            <small class="text-muted">Mã khách hàng</small>
                         </div>
                         <div class="col-sm-8">
                             <strong>@Model.CustomerCode</strong>
@@ -41,52 +41,18 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Name</small>
+                            <small class="text-muted">Tên khách hàng</small>
                         </div>
                         <div class="col-sm-8">
-                            @Model.HouseholdHeadName
+                            @Model.Name
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Phone</small>
+                            <small class="text-muted">Số điện thoại</small>
                         </div>
                         <div class="col-sm-8">
                             <a href="tel:@Model.PhoneNumber">@Model.PhoneNumber</a>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <small class="text-muted">Email</small>
-                        </div>
-                        <div class="col-sm-8">
-                            @if (!string.IsNullOrEmpty(Model.Email))
-                            {
-                                <a href="mailto:@Model.Email">@Model.Email</a>
-                            }
-                            else
-                            {
-                                <span class="text-muted">Not provided</span>
-                            }
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <small class="text-muted">Status</small>
-                        </div>
-                        <div class="col-sm-8">
-                            <span
-                                class="badge @(Model.Status == WaterService.Models.CustomerStatus.Active ? "bg-success" : "bg-secondary")">
-                                @Model.Status
-                            </span>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <small class="text-muted">Registration</small>
-                        </div>
-                        <div class="col-sm-8">
-                            @Model.RegistrationDate.ToString("MMM dd, yyyy")
                         </div>
                     </div>
                 </div>
@@ -96,7 +62,7 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-map-marker-alt"></i> Address
+                        <i class="fas fa-map-marker-alt"></i> Địa chỉ
                     </h6>
                 </div>
                 <div class="card-body">
@@ -108,13 +74,13 @@
             <div class="card">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-info-circle"></i> Account Information
+                        <i class="fas fa-info-circle"></i>Thông tin tài khoản
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Created</small>
+                            <small class="text-muted">Tạo</small>
                         </div>
                         <div class="col-sm-8">
                             @Model.CreatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")
@@ -122,7 +88,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <small class="text-muted">Last Updated</small>
+                            <small class="text-muted">Cập nhật lần cuối</small>
                         </div>
                         <div class="col-sm-8">
                             @Model.UpdatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")
@@ -132,7 +98,7 @@
                     {
                         <div class="row">
                             <div class="col-sm-4">
-                                <small class="text-muted">Notes</small>
+                                <small class="text-muted">Ghi chú</small>
                             </div>
                             <div class="col-sm-8">
                                 <p class="mb-0">@Model.Notes</p>
@@ -149,7 +115,7 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-receipt"></i> Billing Summary
+                        <i class="fas fa-receipt"></i> Tóm tắt thanh toán
                     </h6>
                 </div>
                 <div class="card-body">
@@ -157,24 +123,24 @@
                         <div class="col-md-3">
                             <div class="border-end">
                                 <h4 class="text-primary mb-1">₫0</h4>
-                                <small class="text-muted">Current Balance</small>
+                                <small class="text-muted">Số dư hiện tại</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="border-end">
                                 <h4 class="text-success mb-1">₫0</h4>
-                                <small class="text-muted">Total Paid</small>
+                                <small class="text-muted">Tổng số tiền đã trả</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="border-end">
                                 <h4 class="text-info mb-1">0</h4>
-                                <small class="text-muted">Total Invoices</small>
+                                <small class="text-muted">Tổng hóa đơn</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <h4 class="text-warning mb-1">0</h4>
-                            <small class="text-muted">Overdue Invoices</small>
+                            <small class="text-muted">Hóa đơn quá hạn</small>
                         </div>
                     </div>
                 </div>
@@ -184,19 +150,19 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
-                        <i class="fas fa-file-invoice"></i> Recent Invoices
+                        <i class="fas fa-file-invoice"></i> Hóa đơn gần đây
                     </h6>
                     <a href="#" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-plus"></i> New Invoice
+                        <i class="fas fa-plus"></i> Hóa đơn mới
                     </a>
                 </div>
                 <div class="card-body">
                     <div class="text-center py-4">
                         <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
-                        <h6 class="text-muted">No invoices found</h6>
-                        <p class="text-muted mb-0">This customer doesn't have any invoices yet.</p>
+                        <h6 class="text-muted">Không tìm thấy hóa đơn</h6>
+                        <p class="text-muted mb-0">Khách hàng này chưa có hóa đơn nào.</p>
                         <a href="#" class="btn btn-sm btn-primary mt-2">
-                            <i class="fas fa-plus"></i> Create First Invoice
+                            <i class="fas fa-plus"></i> Tạo hóa đơn đầu tiên
                         </a>
                     </div>
                 </div>
@@ -206,54 +172,10 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
-                        <i class="fas fa-tachometer-alt"></i> Meter Reading History
+                        <i class="fas fa-tachometer-alt"></i> Lịch sử đọc đồng hồ
                     </h6>
                 </div>
                 <div class="card-body">
-                    <!-- Form nhập/chỉnh sửa chỉ số nước -->
-                    <div class="mb-4">
-                        <form asp-action="AddOrEditMeterReading" method="post" class="row g-3 align-items-end">
-                            <input type="hidden" name="CustomerId" value="@Model.Id" />
-                            <input type="hidden" name="Id" value="@ViewBag.EditReading?.Id" />
-                            <div class="col-md-2">
-                                <label class="form-label">Quý</label>
-                                <select class="form-select" name="Quarter" required>
-                                    <option value="">Chọn quý</option>
-                                    @for (int q = 1; q <= 4; q++)
-                                    {
-                                        <option value="@q" selected="@(ViewBag.EditReading?.Quarter == q)">
-                                            Quý @q
-                                        </option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Năm</label>
-                                <input type="number" class="form-control" name="Year"
-                                    value="@(ViewBag.EditReading?.Year ?? DateTime.Now.Year)" required min="2000"
-                                    max="2100" />
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Chỉ số cũ</label>
-                                <input type="number" step="0.01" class="form-control" name="PreviousReading"
-                                    value="@ViewBag.EditReading?.PreviousReading" required />
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Chỉ số mới</label>
-                                <input type="number" step="0.01" class="form-control" name="CurrentReading"
-                                    value="@ViewBag.EditReading?.CurrentReading" required />
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Ghi chú</label>
-                                <input type="text" class="form-control" name="Notes"
-                                    value="@ViewBag.EditReading?.Notes" />
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100">@((ViewBag.EditReading != null) ?
-                                                                        "Cập nhật" : "Thêm mới")</button>
-                            </div>
-                        </form>
-                    </div>
                     <!-- Bảng lịch sử chỉ số nước -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover align-middle">
@@ -263,39 +185,25 @@
                                     <th>Năm</th>
                                     <th>Chỉ số cũ</th>
                                     <th>Chỉ số mới</th>
+                                    <th>Đơn giá</th>
                                     <th>Tiêu thụ</th>
-                                    <th>Ghi chú</th>
                                     <th>Ngày nhập</th>
-                                    <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (Model.WaterMeterReadings != null && Model.WaterMeterReadings.Any())
+                                @if (Model.MeterReadings != null && Model.MeterReadings.Any())
                                 {
-                                    foreach (var reading in Model.WaterMeterReadings.OrderByDescending(r =>
+                                    foreach (var reading in Model.MeterReadings.OrderByDescending(r =>
                                     r.Year).ThenByDescending(r => r.Quarter))
                                     {
                                         <tr>
-                                            <td>@reading.Quarter</td>
+                                            <td>@(reading.Quarter + 1)</td>
                                             <td>@reading.Year</td>
-                                            <td>@reading.PreviousReading</td>
-                                            <td>@reading.CurrentReading</td>
-                                            <td>@(reading.CurrentReading - reading.PreviousReading)</td>
-                                            <td>@reading.Notes</td>
+                                            <td>@reading.OldIndex</td>
+                                            <td>@reading.NewIndex</td>
+                                            <td>@reading.UnitPrice</td>
+                                            <td>@(reading.Consumption)</td>
                                             <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
-                                            <td>
-                                                <form asp-action="EditMeterReading" method="get" style="display:inline">
-                                                    <input type="hidden" name="id" value="@reading.Id" />
-                                                    <input type="hidden" name="customerId" value="@Model.Id" />
-                                                    <button type="submit" class="btn btn-sm btn-warning">Chỉnh sửa</button>
-                                                </form>
-                                                <form asp-action="DeleteMeterReading" method="post" style="display:inline"
-                                                    onsubmit="return confirm('Bạn có chắc muốn xóa?');">
-                                                    <input type="hidden" name="id" value="@reading.Id" />
-                                                    <input type="hidden" name="customerId" value="@Model.Id" />
-                                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-                                                </form>
-                                            </td>
                                         </tr>
                                     }
                                 }
@@ -315,14 +223,14 @@
             <div class="card">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-credit-card"></i> Payment History
+                        <i class="fas fa-credit-card"></i> Lịch sử thanh toán
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="text-center py-4">
                         <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
-                        <h6 class="text-muted">No payments found</h6>
-                        <p class="text-muted mb-0">This customer doesn't have any payment history yet.</p>
+                        <h6 class="text-muted">Không tìm thấy khoản thanh toán nào.</h6>
+                        <p class="text-muted mb-0">Khách hàng này chưa có bất kỳ lịch sử thanh toán nào.</p>
                     </div>
                 </div>
             </div>
@@ -332,9 +240,9 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            // Add any specific JavaScript for the details page here
-            console.log('Customer details page loaded for: @Model.CustomerCode');
-        });
+    $(document).ready(function () {
+        // Add any specific JavaScript for the details page here
+        console.log('Customer details page loaded for: @Model.CustomerCode');
+    });
     </script>
 }
