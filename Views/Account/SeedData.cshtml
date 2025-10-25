@@ -1,0 +1,281 @@
+@{
+    ViewData["Title"] = "Tạo dữ liệu mẫu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4><i class="fas fa-database"></i> Tạo dữ liệu mẫu</h4>
+                </div>
+                <div class="card-body">
+                    <p>Nhấn nút bên dưới để tạo dữ liệu mẫu cho hệ thống:</p>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Dữ liệu mẫu sẽ được tạo:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Tài khoản Admin:</strong> admin / admin123</li>
+                            <li><strong>Tài khoản User:</strong> user / user123</li>
+                            <li><strong>Khách hàng mẫu:</strong> KH001, KH002, KH003</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button id="checkBtn" class="btn btn-info">
+                            <i class="fas fa-search"></i> Kiểm tra dữ liệu hiện tại
+                        </button>
+                        <button id="seedUsersBtn" class="btn btn-warning">
+                            <i class="fas fa-users"></i> Tạo tài khoản mẫu
+                        </button>
+                        <button id="seedCustomersBtn" class="btn btn-success">
+                            <i class="fas fa-user-friends"></i> Tạo khách hàng mẫu
+                        </button>
+                        <button id="seedAllBtn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-seedling"></i> Tạo tất cả dữ liệu mẫu
+                        </button>
+                    </div>
+
+                    <div id="result" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('checkBtn').addEventListener('click', function () {
+        const btn = this;
+        const resultDiv = document.getElementById('result');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kiểm tra...';
+
+        fetch('/Account/CheckUsers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.count > 0) {
+                        resultDiv.innerHTML = `
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle"></i> Dữ liệu hiện tại:</h6>
+                                <p>Tìm thấy <strong>${data.count}</strong> tài khoản trong hệ thống:</p>
+                                <ul>
+                                    ${data.users.map(user => `<li><strong>${user.username}</strong> - ${user.displayName} (${user.role}) - ${user.isActive ? 'Hoạt động' : 'Không hoạt động'}</li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `
+                            <div class="alert alert-warning">
+                                <h6><i class="fas fa-exclamation-triangle"></i> Chưa có dữ liệu</h6>
+                                <p>Chưa có tài khoản nào trong hệ thống. Vui lòng tạo dữ liệu mẫu.</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h6><i class="fas fa-exclamation-triangle"></i> Lỗi!</h6>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Lỗi!</h6>
+                        <p>Có lỗi xảy ra: ${error.message}</p>
+                    </div>
+                `;
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-search"></i> Kiểm tra dữ liệu hiện tại';
+            });
+    });
+
+    // Tạo tài khoản mẫu
+    document.getElementById('seedUsersBtn').addEventListener('click', function () {
+        const btn = this;
+        const resultDiv = document.getElementById('result');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo...';
+
+        fetch('/Account/SeedUsers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-check-circle"></i> Thành công!</h6>
+                        <p>${data.message}</p>
+                        <hr>
+                        <h6>Tài khoản đã tạo:</h6>
+                        <ul>
+                            <li><strong>Admin:</strong> ${data.users[0].username} / ${data.users[0].password}</li>
+                            <li><strong>User:</strong> ${data.users[1].username} / ${data.users[1].password}</li>
+                        </ul>
+                    </div>
+                `;
+                } else {
+                    resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Lỗi!</h6>
+                        <p>${data.message}</p>
+                    </div>
+                `;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Lỗi!</h6>
+                    <p>Có lỗi xảy ra: ${error.message}</p>
+                </div>
+            `;
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-users"></i> Tạo tài khoản mẫu';
+            });
+    });
+
+    // Tạo khách hàng mẫu
+    document.getElementById('seedCustomersBtn').addEventListener('click', function () {
+        const btn = this;
+        const resultDiv = document.getElementById('result');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo...';
+
+        fetch('/Account/SeedCustomers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-check-circle"></i> Thành công!</h6>
+                        <p>${data.message}</p>
+                        <hr>
+                        <h6>Khách hàng đã tạo:</h6>
+                        <ul>
+                            ${data.customers.map(c => `<li><strong>${c.code}:</strong> ${c.name}</li>`).join('')}
+                        </ul>
+                        <a href="/Account/WaterInquiry" class="btn btn-info">
+                            <i class="fas fa-search"></i> Thử tra cứu ngay
+                        </a>
+                    </div>
+                `;
+                } else {
+                    resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Lỗi!</h6>
+                        <p>${data.message}</p>
+                    </div>
+                `;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Lỗi!</h6>
+                    <p>Có lỗi xảy ra: ${error.message}</p>
+                </div>
+            `;
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-friends"></i> Tạo khách hàng mẫu';
+            });
+    });
+
+    // Tạo tất cả dữ liệu mẫu
+    document.getElementById('seedAllBtn').addEventListener('click', function () {
+        const btn = this;
+        const resultDiv = document.getElementById('result');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo...';
+
+        // Tạo tài khoản trước
+        fetch('/Account/SeedUsers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Sau khi tạo tài khoản thành công, tạo khách hàng
+                    return fetch('/Account/SeedCustomers', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-check-circle"></i> Hoàn thành!</h6>
+                        <p>Đã tạo tất cả dữ liệu mẫu thành công!</p>
+                        <hr>
+                        <h6>Dữ liệu đã tạo:</h6>
+                        <ul>
+                            <li><strong>Tài khoản Admin:</strong> admin / admin123</li>
+                            <li><strong>Tài khoản User:</strong> user / user123</li>
+                            <li><strong>Khách hàng:</strong> ${data.customers.map(c => c.code).join(', ')}</li>
+                        </ul>
+                        <div class="d-grid gap-2 d-md-flex">
+                            <a href="/Account/Login" class="btn btn-success">
+                                <i class="fas fa-sign-in-alt"></i> Đăng nhập Admin
+                            </a>
+                            <a href="/Account/WaterInquiry" class="btn btn-info">
+                                <i class="fas fa-search"></i> Thử tra cứu
+                            </a>
+                        </div>
+                    </div>
+                `;
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Lỗi!</h6>
+                    <p>Có lỗi xảy ra: ${error.message}</p>
+                </div>
+            `;
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-seedling"></i> Tạo tất cả dữ liệu mẫu';
+            });
+    });
+</script>

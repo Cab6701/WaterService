@@ -5,16 +5,19 @@ using System.Net;
 using WaterService.Data;
 using WaterService.Extensions;
 using WaterService.Models;
+using WaterService.Services;
 
 namespace WaterService.Controllers
 {
     public class CustomerController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IInvoiceService _invoiceService;
 
-        public CustomerController(ApplicationDbContext context)
+        public CustomerController(ApplicationDbContext context, IInvoiceService invoiceService)
         {
             _context = context;
+            _invoiceService = invoiceService;
         }
 
         // GET: Customer
@@ -25,7 +28,7 @@ namespace WaterService.Controllers
                 .Include(c => c.Invoices)
                 .AsQueryable();
 
-            quarter ??= (DateTime.Now.Month - 1) / 3;
+            quarter ??= (DateTime.Now.Month - 1) / 3 + 1;
             year ??= DateTime.Now.Year;
 
             if (!string.IsNullOrEmpty(search))
@@ -92,14 +95,16 @@ namespace WaterService.Controllers
         // POST: Customer/EditMeterReadings
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
+        public async Task<IActionResult> EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
         {
-            var meterReading = _context.MeterReadings.FirstOrDefault(m => m.Id == Id && m.CustomerId == CustomerId);
+            var meterReading = _context.MeterReadings
+                .Include(m => m.Customer)
+                .FirstOrDefault(m => m.Id == Id && m.CustomerId == CustomerId);
             if (meterReading == null)
             {
                 return NotFound();
             }
-            meterReading.Quarter = Quarter - 1;
+            meterReading.Quarter = Quarter;
             meterReading.Year = Year;
             meterReading.OldIndex = PreviousReading;
             meterReading.NewIndex = CurrentReading;
@@ -107,14 +112,19 @@ namespace WaterService.Controllers
             meterReading.UpdatedAt = DateTime.UtcNow;
 
             _context.MeterReadings.Update(meterReading);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
+            // Tự động tạo/cập nhật Invoice
+            await _invoiceService.CreateOrUpdateInvoiceAsync(meterReading);
+
+            TempData["SuccessMessage"] = "Đã cập nhật chỉ số nước và hóa đơn.";
             return RedirectToAction(nameof(Edit), new { id = CustomerId });
         }
 
         // POST: Customer/AddMeterReadings
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddMeterReadings(int CustomerId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
+        public async Task<IActionResult> AddMeterReadings(int CustomerId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
         {
             var customer = _context.Customers.Find(CustomerId);
             if (customer == null)
@@ -134,15 +144,20 @@ namespace WaterService.Controllers
                 UpdatedAt = DateTime.UtcNow
             };
 
-            _context.MeterReadings.Update(meterReading);
-            _context.SaveChanges();
+            _context.MeterReadings.Add(meterReading);
+            await _context.SaveChangesAsync();
+
+            // Tự động tạo Invoice
+            await _invoiceService.CreateOrUpdateInvoiceAsync(meterReading);
+
+            TempData["SuccessMessage"] = "Đã thêm chỉ số nước và tạo hóa đơn.";
             return RedirectToAction(nameof(Edit), new { id = CustomerId });
         }
 
         // POST: Customer/DeleteMeterReading
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteMeterReading(int id, int customerId)
+        public async Task<IActionResult> DeleteMeterReading(int id, int customerId)
         {
             var customer = _context.Customers.Find(customerId);
             if (customer == null)
@@ -150,9 +165,13 @@ namespace WaterService.Controllers
             var reading = _context.MeterReadings.FirstOrDefault(r => r.Id == id && r.Customer.Id == customer.Id);
             if (reading == null)
                 return NotFound();
+
+            // Xóa Invoice liên kết trước
+            await _invoiceService.DeleteInvoiceAsync(id);
+
             _context.MeterReadings.Remove(reading);
-            _context.SaveChanges();
-            TempData["SuccessMessage"] = "Đã xóa chỉ số nước.";
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã xóa chỉ số nước và hóa đơn liên kết.";
             return RedirectToAction(nameof(Edit), new { id = customer.Id });
         }
 
@@ -165,7 +184,7 @@ namespace WaterService.Controllers
         // POST: Customer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Customer customer, int InitialQuarter, int InitialYear, decimal InitialOldIndex = 0, decimal InitialNewIndex = 0, decimal UnitPrice = 0)
+        public async Task<IActionResult> Create(Customer customer, int InitialQuarter, int InitialYear, decimal InitialOldIndex = 0, decimal InitialNewIndex = 0, decimal UnitPrice = 0)
         {
             if (ModelState.IsValid)
             {
@@ -191,7 +210,10 @@ namespace WaterService.Controllers
                 }
                 customer.MeterReadings.Add(initialReading);
                 _context.Customers.Add(customer);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+
+                // Tự động tạo Invoice cho chỉ số ban đầu
+                await _invoiceService.CreateOrUpdateInvoiceAsync(initialReading);
 
                 TempData["SuccessMessage"] = "Customer created successfully.";
                 return RedirectToAction(nameof(Details), new { id = customer.Id });

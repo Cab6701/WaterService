@@ -71,7 +71,7 @@ namespace WaterService.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("CustomerId")
+                    b.Property<int>("CustomerId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DueDate")
@@ -91,12 +91,18 @@ namespace WaterService.Migrations
                     b.Property<int?>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("MeterReadingId")
+                        .IsUnique();
 
                     b.ToTable("Invoices");
                 });
@@ -111,9 +117,6 @@ namespace WaterService.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("CustomerId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("InvoiceId")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("NewIndex")
@@ -138,17 +141,59 @@ namespace WaterService.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("InvoiceId")
-                        .IsUnique();
-
                     b.ToTable("MeterReadings");
+                });
+
+            modelBuilder.Entity("WaterService.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("WaterService.Models.Invoice", b =>
                 {
-                    b.HasOne("WaterService.Models.Customer", null)
+                    b.HasOne("WaterService.Models.Customer", "Customer")
                         .WithMany("Invoices")
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WaterService.Models.MeterReading", "WaterMeterReading")
+                        .WithOne("Invoice")
+                        .HasForeignKey("WaterService.Models.Invoice", "MeterReadingId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("WaterMeterReading");
                 });
 
             modelBuilder.Entity("WaterService.Models.MeterReading", b =>
@@ -159,13 +204,7 @@ namespace WaterService.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WaterService.Models.Invoice", "Invoice")
-                        .WithOne("WaterMeterReading")
-                        .HasForeignKey("WaterService.Models.MeterReading", "InvoiceId");
-
                     b.Navigation("Customer");
-
-                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("WaterService.Models.Customer", b =>
@@ -175,9 +214,9 @@ namespace WaterService.Migrations
                     b.Navigation("MeterReadings");
                 });
 
-            modelBuilder.Entity("WaterService.Models.Invoice", b =>
+            modelBuilder.Entity("WaterService.Models.MeterReading", b =>
                 {
-                    b.Navigation("WaterMeterReading");
+                    b.Navigation("Invoice");
                 });
 #pragma warning restore 612, 618
         }

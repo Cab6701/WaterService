@@ -1,0 +1,201 @@
+@model WaterService.Models.WaterInquiryViewModel
+@{
+    ViewData["Title"] = "Tra cứu hóa đơn nước";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4><i class="fas fa-search"></i> Tra cứu hóa đơn nước</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-info-circle"></i> Hướng dẫn sử dụng
+                        </h5>
+                        <p class="mb-0">
+                            <strong>Để tra cứu hóa đơn nước:</strong><br>
+                            1. Nhập <strong>mã khách hàng</strong> của bạn (ví dụ: KH001, KH002, KH003)<br>
+                            2. Chọn <strong>quý</strong> và <strong>năm</strong> muốn tra cứu<br>
+                            3. Nhấn nút <strong>"Tra cứu"</strong> để xem thông tin<br>
+                            <br>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i> 
+                                <strong>Mã khách hàng mẫu:</strong> KH001, KH002, KH003 (tạo từ trang SeedData)<br>
+                                <i class="fas fa-user-shield"></i> 
+                                <strong>Quản trị viên:</strong> Sử dụng nút "Đăng nhập Admin" ở góc phải để quản lý hệ thống
+                            </small>
+                        </p>
+                    </div>
+                    <form asp-action="WaterInquiry" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="CustomerCode" class="form-label"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                        <input asp-for="CustomerCode" class="form-control" placeholder="Nhập mã khách hàng" />
+                                    </div>
+                                    <span asp-validation-for="CustomerCode" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Quarter" class="form-label"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                        <select asp-for="Quarter" class="form-select">
+                                            <option value="1">Quý 1</option>
+                                            <option value="2">Quý 2</option>
+                                            <option value="3">Quý 3</option>
+                                            <option value="4">Quý 4</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="Quarter" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Year" class="form-label"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                        <select asp-for="Year" class="form-select">
+                                            @for (int year = DateTime.Now.Year; year >= DateTime.Now.Year - 5; year--)
+                                            {
+                                                <option value="@year">@year</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="Year" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-info btn-lg">
+                                <i class="fas fa-search"></i> Tra cứu
+                            </button>
+                        </div>
+                    </form>
+
+                    @if (ViewBag.Customer != null)
+                    {
+                        <hr class="my-4">
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="text-primary">
+                                    <i class="fas fa-user"></i> Thông tin khách hàng
+                                </h5>
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>Mã khách hàng:</strong> @ViewBag.Customer.CustomerCode</p>
+                                                <p><strong>Tên khách hàng:</strong> @ViewBag.Customer.Name</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p><strong>Địa chỉ:</strong> @ViewBag.Customer.Address</p>
+                                                <p><strong>Số điện thoại:</strong> @ViewBag.Customer.PhoneNumber</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ViewBag.QuarterlyData != null && ((List<dynamic>)ViewBag.QuarterlyData).Any())
+                        {
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h5 class="text-success">
+                                        <i class="fas fa-chart-bar"></i> Báo cáo theo quý năm @ViewBag.Year
+                                    </h5>
+                                    
+                                    @foreach (var quarter in ViewBag.QuarterlyData)
+                                    {
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-success text-white">
+                                                <h6 class="mb-0">
+                                                    <i class="fas fa-calendar-quarter"></i> Quý @quarter.Quarter
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="text-center">
+                                                            <h6 class="text-muted">Số hóa đơn</h6>
+                                                            <h4 class="text-primary">@quarter.InvoiceCount</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="text-center">
+                                                            <h6 class="text-muted">Tổng tiền</h6>
+                                                            <h4 class="text-success">@quarter.TotalAmount.ToString("N0") VNĐ</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="text-center">
+                                                            <h6 class="text-muted">Trung bình</h6>
+                                                            <h4 class="text-info">@((quarter.TotalAmount / quarter.InvoiceCount).ToString("N0")) VNĐ</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                @if (quarter.Invoices.Count > 0)
+                                                {
+                                                    <div class="mt-3">
+                                                        <h6>Chi tiết hóa đơn:</h6>
+                                                        <div class="table-responsive">
+                                                            <table class="table table-sm table-striped">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Ngày tạo</th>
+                                                                        <th>Số hóa đơn</th>
+                                                                        <th>Số nước (m³)</th>
+                                                                        <th>Thành tiền</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var invoice in quarter.Invoices)
+                                                                    {
+                                                                        <tr>
+                                                                            <td>@invoice.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                                                            <td>@invoice.InvoiceNumber</td>
+                                                                            <td>@invoice.WaterMeterReading?.Consumption m³</td>
+                                                                            <td>@invoice.TotalAmount.ToString("N0") VNĐ</td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning mt-4">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Không có dữ liệu hóa đơn cho năm @ViewBag.Year
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

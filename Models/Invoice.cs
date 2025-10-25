@@ -11,6 +11,11 @@ namespace WaterService.Models
         [Display(Name = "Customer Code")]
         public required string CustomerCode { get; set; }
 
+        public int CustomerId { get; set; }
+
+        // Navigation properties
+        public virtual Customer? Customer { get; set; }
+
         [Required]
         [StringLength(20)]
         [Display(Name = "Invoice Number")]
@@ -26,6 +31,10 @@ namespace WaterService.Models
         [Display(Name = "Paid Date")]
         [DataType(DataType.Date)]
         public DateTime? PaidDate { get; set; }
+
+        [Display(Name = "Total Amount")]
+        [DataType(DataType.Currency)]
+        public decimal TotalAmount { get; set; }
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

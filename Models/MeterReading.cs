@@ -43,19 +43,18 @@ namespace WaterService.Models
 
         public int CustomerId { get; set; }
         public required Customer Customer { get; set; }
-        public int? InvoiceId { get; set; }
-        public virtual Invoice Invoice { get; set; } = null!;
+        public virtual Invoice? Invoice { get; set; }
     }
 
     public enum QuarterInYear
     {
-        [Display(Name = "Quý 1")]
+        [Display(Name = "QuÃ½ 1")]
         Q1,
-        [Display(Name = "Quý 2")]
+        [Display(Name = "QuÃ½ 2")]
         Q2,
-        [Display(Name = "Quý 3")]
+        [Display(Name = "QuÃ½ 3")]
         Q3,
-        [Display(Name = "Quý 4")]
+        [Display(Name = "QuÃ½ 4")]
         Q4
     }
 }

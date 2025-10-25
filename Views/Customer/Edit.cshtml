@@ -26,7 +26,8 @@
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
                         <div class="mb-3">
                             <label asp-for="CustomerCode" class="form-label">Mã khách hàng</label>
-                            <input asp-for="CustomerCode" type="text" class="form-control" value="@Model.CustomerCode" />
+                            <input asp-for="CustomerCode" type="text" class="form-control"
+                                value="@Model.CustomerCode" />
                         </div>
 
                         <div class="mb-3">
@@ -38,7 +39,7 @@
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
                             <select class="form-select" id="address" name="address" asp-for="Address"
-                                    asp-items="Customer.AddressOptions">
+                                asp-items="Customer.AddressOptions">
                             </select>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
@@ -51,7 +52,8 @@
 
                         <div class="mb-3">
                             <label asp-for="Notes" class="form-label"></label>
-                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Ghi chú bổ sung hoặc yêu cầu đặc biệt"></textarea>
+                            <textarea asp-for="Notes" class="form-control" rows="2"
+                                placeholder="Ghi chú bổ sung hoặc yêu cầu đặc biệt"></textarea>
                             <span asp-validation-for="Notes" class="text-danger"></span>
                         </div>
 
@@ -59,7 +61,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Cập nhật khách hàng
                             </button>
-                            <a href="@Url.Action("Details", new { id=Model.Id })" class="btn btn-secondary">
+                            <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Thoát
                             </a>
                             <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -80,12 +82,17 @@
                         <input type="hidden" name="CustomerId" value="@Model.Id" />
                         <div class="col-md-2">
                             <label class="form-label">Quý</label>
-                            <select class="form-select" id="quarter" name="quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()">
+                            <select class="form-select" id="quarter" name="quarter">
+                                <option value="1">Quý 1</option>
+                                <option value="2">Quý 2</option>
+                                <option value="3">Quý 3</option>
+                                <option value="4">Quý 4</option>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Năm</label>
-                            <input type="number" class="form-control" name="Year" value="@DateTime.Now.Year" required min="2000" max="2100" />
+                            <input type="number" class="form-control" name="Year" value="@DateTime.Now.Year" required
+                                min="2000" max="2100" />
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Chỉ số cũ</label>
@@ -168,10 +175,11 @@
                             <tbody>
                                 @if (Model.MeterReadings != null && Model.MeterReadings.Any())
                                 {
-                                    foreach (var reading in Model.MeterReadings.OrderByDescending(r => r.Year).ThenByDescending(r => r.Quarter))
+                                    foreach (var reading in Model.MeterReadings.OrderByDescending(r =>
+                                    r.Year).ThenByDescending(r => r.Quarter))
                                     {
                                         <tr data-id="@reading.Id">
-                                            <td>@(reading.Quarter+1)</td>
+                                            <td>@(reading.Quarter)</td>
                                             <td>@reading.Year</td>
                                             <td>@reading.OldIndex</td>
                                             <td>@reading.NewIndex</td>
@@ -179,8 +187,10 @@
                                             <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
                                             <td>
                                                 <div class="d-sm-flex justify-content-between">
-                                                    <button type="button" class="btn btn-sm btn-warning btn-edit-reading" data-id="@reading.Id">Sửa</button>
-                                                    <button type="button" class="btn btn-sm btn-danger btn-delete-reading" data-id="@reading.Id">Xoá</button>
+                                                    <button type="button" class="btn btn-sm btn-warning btn-edit-reading"
+                                                        data-id="@reading.Id">Sửa</button>
+                                                    <button type="button" class="btn btn-sm btn-danger btn-delete-reading"
+                                                        data-id="@reading.Id">Xoá</button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -201,138 +211,144 @@
             </div>
         </div>
 
-    <!-- Edit Meter Reading Modal -->
-    <div class="modal fade" id="editReadingModal" tabindex="-1" aria-labelledby="editReadingModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form id="editReadingForm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editReadingModalLabel">Chỉnh sửa chỉ số đồng hồ</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        <!-- Edit Meter Reading Modal -->
+        <div class="modal fade" id="editReadingModal" tabindex="-1" aria-labelledby="editReadingModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <form id="editReadingForm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editReadingModalLabel">Chỉnh sửa chỉ số đồng hồ</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                        </div>
+                        <div class="modal-body row g-3">
+                            <input type="hidden" name="Id" id="editReadingId" />
+                            <input type="hidden" name="CustomerId" value="@Model.Id" />
+                            <div class="col-md-6">
+                                <label class="form-label">Quý</label>
+                                <input type="number" class="form-control" name="Quarter" id="editQuarter" min="1"
+                                    max="4" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Năm</label>
+                                <input type="number" class="form-control" name="Year" id="editYear" required min="2000"
+                                    max="2100" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Chỉ số cũ</label>
+                                <input type="number" class="form-control" name="PreviousReading" id="editOldIndex"
+                                    required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Chỉ số mới</label>
+                                <input type="number" class="form-control" name="CurrentReading" id="editNewIndex"
+                                    required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Đơn giá</label>
+                                <input type="number" class="form-control" name="UnitPrice" id="editUnitPrice"
+                                    required />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Thoát</button>
+                            <button type="submit" class="btn btn-primary">Lưu</button>
+                        </div>
                     </div>
-                    <div class="modal-body row g-3">
-                        <input type="hidden" name="Id" id="editReadingId" />
-                        <input type="hidden" name="CustomerId" value="@Model.Id" />
-                        <div class="col-md-6">
-                            <label class="form-label">Quý</label>
-                            <input type="number" class="form-control" name="Quarter" id="editQuarter" min="1" max="4" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Năm</label>
-                            <input type="number" class="form-control" name="Year" id="editYear" required min="2000" max="2100" />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Chỉ số cũ</label>
-                            <input type="number" class="form-control" name="PreviousReading" id="editOldIndex" required />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Chỉ số mới</label>
-                            <input type="number" class="form-control" name="CurrentReading" id="editNewIndex" required />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Đơn giá</label>
-                            <input type="number" class="form-control" name="UnitPrice" id="editUnitPrice" required />
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Thoát</button>
-                        <button type="submit" class="btn btn-primary">Lưu</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-            // Auto-save form data to localStorage
-            $('input, textarea, select').on('change', function () {
-                saveFormData();
+        <script>
+            $(document).ready(function () {
+                // Auto-save form data to localStorage
+                $('input, textarea, select').on('change', function () {
+                    saveFormData();
+                });
+
+                // Load saved form data
+                loadFormData();
             });
 
-            // Load saved form data
-            loadFormData();
-        });
-
-        function saveFormData() {
-            const formData = {
-                name: $('#Name').val(),
-                address: $('#Address').val(),
-                phoneNumber: $('#PhoneNumber').val(),
-                notes: $('#Notes').val()
-            };
-            localStorage.setItem('customerEditFormData', JSON.stringify(formData));
-        }
-
-        function loadFormData() {
-            const savedData = localStorage.getItem('customerEditFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
-                $('#Name').val(formData.name || '');
-                $('#Address').val(formData.address || '');
-                $('#PhoneNumber').val(formData.phoneNumber || '');
-                $('#Notes').val(formData.notes || '');
+            function saveFormData() {
+                const formData = {
+                    name: $('#Name').val(),
+                    address: $('#Address').val(),
+                    phoneNumber: $('#PhoneNumber').val(),
+                    notes: $('#Notes').val()
+                };
+                localStorage.setItem('customerEditFormData', JSON.stringify(formData));
             }
-        }
 
-        // Clear saved data on successful form submission
-        $('form').on('submit', function () {
-            localStorage.removeItem('customerEditFormData');
-        });
-
-        $(function () {
-    // Xoá chỉ số nước
-    $('.btn-delete-reading').on('click', function () {
-        if (!confirm('Bạn có chắc chắn muốn xoá không?')) return;
-        var id = $(this).data('id');
-        $.ajax({
-            url: '@Url.Action("DeleteMeterReading", "Customer")',
-            type: 'POST',
-            data: {
-                id: id,
-                customerId: '@Model.Id',
-                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-            },
-            success: function () {
-                $('tr[data-id="' + id + '"]').remove();
-            },
-            error: function () {
-                alert('Delete failed!');
+            function loadFormData() {
+                const savedData = localStorage.getItem('customerEditFormData');
+                if (savedData) {
+                    const formData = JSON.parse(savedData);
+                    $('#Name').val(formData.name || '');
+                    $('#Address').val(formData.address || '');
+                    $('#PhoneNumber').val(formData.phoneNumber || '');
+                    $('#Notes').val(formData.notes || '');
+                }
             }
-        });
-    });
 
-    // Hiển thị modal sửa chỉ số nước
-    $('.btn-edit-reading').on('click', function () {
-        var id = $(this).data('id');
-        var row = $('tr[data-id="' + id + '"]');
-        $('#editReadingId').val(id);
-        $('#editQuarter').val(row.find('td:eq(0)').text());
-        $('#editYear').val(row.find('td:eq(1)').text());
-        $('#editOldIndex').val(row.find('td:eq(2)').text());
-        $('#editNewIndex').val(row.find('td:eq(3)').text());
-        $('#editUnitPrice').val(row.find('td:eq(4)').text());
-        var modal = new bootstrap.Modal(document.getElementById('editReadingModal'));
-        modal.show();
-    });
+            // Clear saved data on successful form submission
+            $('form').on('submit', function () {
+                localStorage.removeItem('customerEditFormData');
+            });
 
-    // Submit sửa chỉ số nước
-    $('#editReadingForm').on('submit', function (e) {
-        e.preventDefault();
-        $.ajax({
-            url: '@Url.Action("EditMeterReadings", "Customer")',
-            type: 'POST',
-            data: $(this).serialize() + '&__RequestVerificationToken=' + $('input[name="__RequestVerificationToken"]').val(),
-            success: function () {
-                location.reload(); // Hoặc cập nhật lại dòng trong bảng bằng JS nếu muốn mượt hơn
-            },
-            error: function () {
-                alert('Update failed!');
-            }
-        });
-    });
-});
-    </script>
+            $(function () {
+                // Xoá chỉ số nước
+                $('.btn-delete-reading').on('click', function () {
+                    if (!confirm('Bạn có chắc chắn muốn xoá không?')) return;
+                    var id = $(this).data('id');
+                    $.ajax({
+                        url: '@Url.Action("DeleteMeterReading", "Customer")',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            customerId: '@Model.Id',
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function () {
+                            $('tr[data-id="' + id + '"]').remove();
+                        },
+                        error: function () {
+                            alert('Delete failed!');
+                        }
+                    });
+                });
+
+                // Hiển thị modal sửa chỉ số nước
+                $('.btn-edit-reading').on('click', function () {
+                    var id = $(this).data('id');
+                    var row = $('tr[data-id="' + id + '"]');
+                    $('#editReadingId').val(id);
+                    $('#editQuarter').val(row.find('td:eq(0)').text());
+                    $('#editYear').val(row.find('td:eq(1)').text());
+                    $('#editOldIndex').val(row.find('td:eq(2)').text());
+                    $('#editNewIndex').val(row.find('td:eq(3)').text());
+                    $('#editUnitPrice').val(row.find('td:eq(4)').text());
+                    var modal = new bootstrap.Modal(document.getElementById('editReadingModal'));
+                    modal.show();
+                });
+
+                // Submit sửa chỉ số nước
+                $('#editReadingForm').on('submit', function (e) {
+                    e.preventDefault();
+                    $.ajax({
+                        url: '@Url.Action("EditMeterReadings", "Customer")',
+                        type: 'POST',
+                        data: $(this).serialize() + '&__RequestVerificationToken=' + $('input[name="__RequestVerificationToken"]').val(),
+                        success: function () {
+                            location.reload(); // Hoặc cập nhật lại dòng trong bảng bằng JS nếu muốn mượt hơn
+                        },
+                        error: function () {
+                            alert('Update failed!');
+                        }
+                    });
+                });
+            });
+        </script>
 }

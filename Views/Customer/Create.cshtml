@@ -33,15 +33,14 @@
 
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label"></label>
-                            <input asp-for="Name" class="form-control"
-                                   placeholder="Nhập tên chủ hộ" />
+                            <input asp-for="Name" class="form-control" placeholder="Nhập tên chủ hộ" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label"></label>
                             <select class="form-select" id="address" name="address" asp-for="Address"
-                                    asp-items="Customer.AddressOptions">
+                                asp-items="Customer.AddressOptions">
                             </select>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
@@ -59,18 +58,24 @@
                         <div class="mb-3">
                             <label asp-for="Notes" class="form-label"></label>
                             <textarea id="Notes" asp-for="Notes" class="form-control" rows="2"
-                                      placeholder="Ghi chú bổ sung hoặc yêu cầu đặc biệt"></textarea>
+                                placeholder="Ghi chú bổ sung hoặc yêu cầu đặc biệt"></textarea>
                             <span asp-validation-for="Notes" class="text-danger"></span>
                         </div>
 
                         <div class="row mb-5 align-items-end">
                             <div class="col-md-2">
                                 <label class="form-label">Quý</label>
-                                <select class="form-select" id="quarter" name="quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()"></select>
+                                <select class="form-select" id="quarter" name="quarter">
+                                    <option value="1">Quý 1</option>
+                                    <option value="2">Quý 2</option>
+                                    <option value="3">Quý 3</option>
+                                    <option value="4">Quý 4</option>
+                                </select>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Năm</label>
-                                <input type="number" class="form-control" name="InitialYear" value="@DateTime.Now.Year" required min="2000" max="2100" />
+                                <input type="number" class="form-control" name="InitialYear" value="@DateTime.Now.Year"
+                                    required min="2000" max="2100" />
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Chỉ số cũ</label>
@@ -88,7 +93,7 @@
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Lưu khách hàng 
+                                <i class="fas fa-save"></i> Lưu khách hàng
                             </button>
                             <button type="submit" name="saveAndAddAnother" value="true" class="btn btn-outline-primary">
                                 <i class="fas fa-plus"></i> Lưu và thêm khách hàng khác

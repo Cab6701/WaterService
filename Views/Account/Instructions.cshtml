@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Hướng dẫn sử dụng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4><i class="fas fa-book"></i> Hướng dẫn sử dụng hệ thống</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-primary">
+                                <i class="fas fa-user-shield"></i> Dành cho Quản trị viên
+                            </h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6>Tài khoản mẫu:</h6>
+                                    <p><strong>Username:</strong> admin<br>
+                                        <strong>Password:</strong> admin123
+                                    </p>
+
+                                    <h6>Chức năng:</h6>
+                                    <ul>
+                                        <li>Quản lý thông tin khách hàng</li>
+                                        <li>Thêm, sửa, xóa khách hàng</li>
+                                        <li>Xem danh sách khách hàng</li>
+                                        <li>Tìm kiếm và lọc khách hàng</li>
+                                    </ul>
+
+                                    <a href="@Url.Action("Login", "Account")" class="btn btn-primary">
+                                        <i class="fas fa-sign-in-alt"></i> Đăng nhập Admin
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="text-info">
+                                <i class="fas fa-user"></i> Dành cho Người dùng
+                            </h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6>Tài khoản mẫu:</h6>
+                                    <p><strong>Username:</strong> user<br>
+                                        <strong>Password:</strong> user123
+                                    </p>
+
+                                    <h6>Chức năng:</h6>
+                                    <ul>
+                                        <li>Tra cứu hóa đơn nước</li>
+                                        <li>Xem thông tin theo mã khách hàng</li>
+                                        <li>Xem báo cáo theo quý</li>
+                                        <li>Xem chi tiết hóa đơn</li>
+                                    </ul>
+
+                                    <a href="@Url.Action("Login", "Account")" class="btn btn-info">
+                                        <i class="fas fa-sign-in-alt"></i> Đăng nhập User
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-success">
+                                <i class="fas fa-cogs"></i> Cài đặt ban đầu
+                            </h5>
+                            <div class="alert alert-warning">
+                                <h6><i class="fas fa-exclamation-triangle"></i> Lưu ý quan trọng:</h6>
+                                <p>Trước khi sử dụng hệ thống, bạn cần tạo dữ liệu mẫu:</p>
+                                <ol>
+                                    <li>Truy cập trang <a href="@Url.Action("SeedData", "Account")"
+                                            class="alert-link">Tạo dữ liệu mẫu</a></li>
+                                    <li>Nhấn nút "Tạo dữ liệu mẫu"</li>
+                                    <li>Sau khi tạo thành công, sử dụng tài khoản mẫu để đăng nhập</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="text-secondary">
+                                <i class="fas fa-question-circle"></i> Hỗ trợ
+                            </h5>
+                            <p>Nếu bạn gặp vấn đề trong quá trình sử dụng, vui lòng liên hệ:</p>
+                            <ul>
+                                <li><strong>Email:</strong> support@waterservice.com</li>
+                                <li><strong>Điện thoại:</strong> 0123-456-789</li>
+                                <li><strong>Địa chỉ:</strong> Xã Minh Sơn, Huyện Hưng Hà, Tỉnh Thái Bình</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary">
+                        <i class="fas fa-home"></i> Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

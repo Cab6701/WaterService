@@ -47,7 +47,11 @@
                 <!-- Quarter -->
                 <div class="col-md-2">
                     <label for="quarter" class="form-label fw-semibold">📅 Quý </label>
-                    <select class="form-select" id="quarter" name="quarter" asp-for="Quarter" asp-items="Html.GetEnumSelectList<QuarterInYear>()">
+                    <select class="form-select" id="quarter" name="quarter" asp-for="Quarter">
+                        <option value="1">Quý 1</option>
+                        <option value="2">Quý 2</option>
+                        <option value="3">Quý 3</option>
+                        <option value="4">Quý 4</option>
                     </select>
                 </div>
 
@@ -162,7 +166,7 @@
                                     </td>
                                       <td>
                                         <span class="badge px-3 py-2 text-center @(invoice?.Status == InvoiceStatus.Paid ? "bg-success" : "bg-secondary")">
-                                            @invoice?.Status.GetDisplayName()
+                                            @(invoice?.Status?.GetDisplayName() ?? "Chưa có hóa đơn")
                                         </span>
                                      </td>
                                     <td class="text-center">

@@ -15,7 +15,8 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        return View();
+        // Redirect to WaterInquiry page for direct customer access
+        return RedirectToAction("WaterInquiry", "Account");
     }
 
     public IActionResult Privacy()

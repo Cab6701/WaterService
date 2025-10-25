@@ -1,86 +1,114 @@
 ﻿@{
     ViewData["Title"] = "Trang chủ";
+    var username = Context.Session.GetString("Username");
+    var role = Context.Session.GetString("Role");
 }
 
-<div class="text-center">
-    <h1 class="display-4">Chào mừng đến với WaterService</h1>
-    <p class="lead">Hệ thống quản lý dịch vụ cấp nước toàn diện</p>
-</div>
-
-<div class="row mt-5">
-    <!-- Quản lý khách hàng -->
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-users fa-3x text-primary mb-3"></i>
-                <h5 class="card-title">Quản lý khách hàng</h5>
-                <p class="card-text">Quản lý tài khoản khách hàng, xem chi tiết và theo dõi lịch sử sử dụng dịch vụ.</p>
-                <a href="@Url.Action("Index", "Customer")" class="btn btn-primary">
-                    <i class="fas fa-arrow-right"></i> Quản lý khách hàng
-                </a>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <h1 class="display-4 text-primary">
+                    <i class="fas fa-tint"></i> Hệ thống quản lý nước sạch
+                </h1>
+                <p class="lead">Tổ dịch vụ nước sạch Bình Lãng</p>
             </div>
-        </div>
-    </div>
 
-    <!-- Ghi chỉ số nước -->
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-tachometer-alt fa-3x text-success mb-3"></i>
-                <h5 class="card-title">Ghi chỉ số nước</h5>
-                <p class="card-text">Ghi nhận và theo dõi chỉ số đồng hồ nước để tính hóa đơn chính xác.</p>
-                <a href="#" class="btn btn-success disabled">
-                    <i class="fas fa-arrow-right"></i> Sắp ra mắt
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hóa đơn & Thanh toán -->
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-file-invoice fa-3x text-warning mb-3"></i>
-                <h5 class="card-title">Hóa đơn & Thanh toán</h5>
-                <p class="card-text">Tạo hóa đơn, theo dõi thanh toán và quản lý chu kỳ thu tiền.</p>
-                <a href="#" class="btn btn-warning disabled">
-                    <i class="fas fa-arrow-right"></i> Sắp ra mắt
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-info-circle"></i> Tổng quan hệ thống
-                </h5>
-            </div>
-            <div class="card-body">
+            @if (!string.IsNullOrEmpty(username))
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="fas fa-user-check"></i> Chào mừng @Context.Session.GetString("DisplayName")!
+                    </h4>
+                    <p>Bạn đã đăng nhập với quyền <strong>@(role == "Admin" ? "Quản trị viên" : "Người dùng")</strong></p>
+                    <hr>
+                    @if (role == "Admin")
+                    {
+                        <p class="mb-0">
+                            <a href="@Url.Action("Index", "Customer")" class="btn btn-primary">
+                                <i class="fas fa-users"></i> Quản lý khách hàng
+                            </a>
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="mb-0">
+                            <a href="@Url.Action("WaterInquiry", "Account")" class="btn btn-info">
+                                <i class="fas fa-search"></i> Tra cứu hóa đơn nước
+                            </a>
+                        </p>
+                    }
+                </div>
+            }
+            else
+            {
                 <div class="row">
-                    <!-- Các tính năng hiện có -->
                     <div class="col-md-6">
-                        <h6>Các tính năng hiện có:</h6>
-                        <ul class="list-unstyled">
-                            <li><i class="fas fa-check text-success"></i> Đăng ký & Quản lý khách hàng</li>
-                            <li><i class="fas fa-check text-success"></i> Tìm kiếm & Lọc khách hàng</li>
-                            <li><i class="fas fa-check text-success"></i> Thao tác hàng loạt</li>
-                            <li><i class="fas fa-check text-success"></i> Giao diện tương thích trên mọi thiết bị</li>
-                        </ul>
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Quản trị viên</h5>
+                                <p class="card-text">Đăng nhập để quản lý khách hàng, hóa đơn và báo cáo</p>
+                                <a href="@Url.Action("Login", "Account")" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt"></i> Đăng nhập Admin
+                                </a>
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- Tính năng sắp ra mắt -->
                     <div class="col-md-6">
-                        <h6>Sắp ra mắt:</h6>
-                        <ul class="list-unstyled">
-                            <li><i class="fas fa-clock text-warning"></i> Quản lý chỉ số đồng hồ nước</li>
-                            <li><i class="fas fa-clock text-warning"></i> Tự động tính hóa đơn</li>
-                            <li><i class="fas fa-clock text-warning"></i> Theo dõi thanh toán</li>
-                            <li><i class="fas fa-clock text-warning"></i> Báo cáo & Phân tích</li>
-                        </ul>
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-search fa-3x text-info mb-3"></i>
+                                <h5 class="card-title">Người dùng</h5>
+                                <p class="card-text">Tra cứu thông tin hóa đơn nước theo mã khách hàng</p>
+                                <a href="@Url.Action("Login", "Account")" class="btn btn-info">
+                                    <i class="fas fa-sign-in-alt"></i> Đăng nhập User
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="mt-5">
+                <div class="text-center mb-4">
+                    <h3>
+                        <i class="fas fa-info-circle"></i> Thông tin hệ thống
+                    </h3>
+                    <a href="@Url.Action("Instructions", "Account")" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-book"></i> Hướng dẫn sử dụng
+                    </a>
+                    <a href="@Url.Action("SeedData", "Account")" class="btn btn-outline-warning btn-sm">
+                        <i class="fas fa-database"></i> Tạo dữ liệu mẫu
+                    </a>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-users fa-2x text-success mb-2"></i>
+                                <h6>Quản lý khách hàng</h6>
+                                <small class="text-muted">Theo dõi thông tin khách hàng</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-tachometer-alt fa-2x text-warning mb-2"></i>
+                                <h6>Đọc đồng hồ nước</h6>
+                                <small class="text-muted">Ghi nhận chỉ số đồng hồ</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-file-invoice fa-2x text-primary mb-2"></i>
+                                <h6>Hóa đơn & Thanh toán</h6>
+                                <small class="text-muted">Tạo và quản lý hóa đơn</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
