@@ -41,7 +41,7 @@
                         <dd class="col-sm-9">@Model.Consumption?.ToString("N0")</dd>
 
                         <dt class="col-sm-3">Tổng tiền:</dt>
-                        <dd class="col-sm-9">@Model.TotalAmount?.ToString("C0")</dd>
+                        <dd class="col-sm-9">@(Model.TotalAmount?.ToString("N3").Replace(",", ".") + " VNĐ")</dd>
                     </dl>
 
                     @if (Model.Invoice != null)

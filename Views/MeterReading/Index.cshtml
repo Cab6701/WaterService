@@ -85,7 +85,7 @@
                                         <td>@item.OldIndex.ToString("N0")</td>
                                         <td>@item.NewIndex.ToString("N0")</td>
                                         <td>@item.Consumption?.ToString("N0")</td>
-                                        <td>@item.TotalAmount?.ToString("C0")</td>
+                                        <td>@(item.TotalAmount?.ToString("N3").Replace(",", ".") + " VNĐ")</td>
                                         <td>
                                             @if (item.Invoice != null)
                                             {

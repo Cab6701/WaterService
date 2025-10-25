@@ -36,10 +36,10 @@
                         <dd class="col-sm-9">@Model.Consumption?.ToString("N0")</dd>
 
                         <dt class="col-sm-3">Đơn giá:</dt>
-                        <dd class="col-sm-9">@Model.UnitPrice.ToString("C0")</dd>
+                        <dd class="col-sm-9">@(Model.UnitPrice.ToString("N3").Replace(",", ".") + " VNĐ")</dd>
 
                         <dt class="col-sm-3">Tổng tiền:</dt>
-                        <dd class="col-sm-9">@Model.TotalAmount?.ToString("C0")</dd>
+                        <dd class="col-sm-9">@(Model.TotalAmount?.ToString("N3").Replace(",", ".") + " VNĐ")</dd>
 
                         <dt class="col-sm-3">Ngày tạo:</dt>
                         <dd class="col-sm-9">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
@@ -81,7 +81,7 @@
                             <dd class="col-sm-9">@(Model.Invoice.PaidDate?.ToString("dd/MM/yyyy") ?? "Chưa thanh toán")</dd>
 
                             <dt class="col-sm-3">Tổng tiền:</dt>
-                            <dd class="col-sm-9">@Model.Invoice.TotalAmount.ToString("C0")</dd>
+                            <dd class="col-sm-9">@(Model.Invoice.TotalAmount.ToString("N3").Replace(",", ".") + " VNĐ")</dd>
                         </dl>
                     </div>
                 </div>

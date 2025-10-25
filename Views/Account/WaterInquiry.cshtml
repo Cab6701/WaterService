@@ -30,6 +30,41 @@
                             </small>
                         </p>
                     </div>
+
+                    <!-- Thông tin thanh toán -->
+                    <div class="alert alert-warning" role="alert">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-credit-card"></i> Thông tin thanh toán
+                                </h6>
+                                <p class="mb-2"><strong>Vui lòng thanh toán trước hạn thanh toán theo thông tin dưới đây:</strong></p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Chủ TK:</strong> KHUONG TUNG AN</p>
+                                        <p class="mb-1"><strong>Số TK:</strong> 8888912997587</p>
+                                        <p class="mb-1"><strong>Ngân hàng:</strong> Agribank - CN Tứ Kỳ, HD</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Nội dung chuyển khoản:</strong></p>
+                                        <span>Mã khách hàng (Ví dụ: KH001, KH002, KH003)</span>
+                                    </div>
+                                </div>
+                                
+                                <p class="mb-0 mt-2 text-danger">
+                                    <i class="fas fa-phone"></i> 
+                                    <strong>Gửi ảnh xác nhận thanh toán qua Hotline/Zalo: 0912997587</strong>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <h6 class="text-danger mb-2">
+                                    <i class="fas fa-qrcode"></i> QUÉT MÃ QR
+                                </h6>
+                                <img src="~/images/qrcode.jpg" alt="Mã QR thanh toán" class="img-fluid" style="max-width: 150px;">
+                            </div>
+                        </div>
+                    </div>
                     <form asp-action="WaterInquiry" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                         
@@ -136,13 +171,22 @@
                                                     <div class="col-md-4">
                                                         <div class="text-center">
                                                             <h6 class="text-muted">Tổng tiền</h6>
-                                                            <h4 class="text-success">@quarter.TotalAmount.ToString("N0") VNĐ</h4>
+                                                            <h4 class="text-success">@(quarter.TotalAmount.ToString("N3").Replace(",", ".") + " VNĐ")</h4>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="text-center">
-                                                            <h6 class="text-muted">Trung bình</h6>
-                                                            <h4 class="text-info">@((quarter.TotalAmount / quarter.InvoiceCount).ToString("N0")) VNĐ</h4>
+                                                            <h6 class="text-muted">Hạn thanh toán</h6>
+                                                            <h4 class="text-danger fs-4">
+                                                                @if (quarter.Invoices != null && quarter.Invoices.Count > 0)
+                                                                {
+                                                                    @quarter.Invoices[0].DueDate.ToString("dd/MM/yyyy")
+                                                                }
+                                                                else
+                                                                {
+                                                                    <text>-</text>
+                                                                }
+                                                            </h4>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -157,7 +201,10 @@
                                                                     <tr>
                                                                         <th>Ngày tạo</th>
                                                                         <th>Số hóa đơn</th>
-                                                                        <th>Số nước (m³)</th>
+                                                                        <th>Chỉ số cũ</th>
+                                                                        <th>Chỉ số mới</th>
+                                                                        <th>Số khối (m³)</th>
+                                                                        <th>Đơn giá</th>
                                                                         <th>Thành tiền</th>
                                                                     </tr>
                                                                 </thead>
@@ -167,8 +214,11 @@
                                                                         <tr>
                                                                             <td>@invoice.CreatedAt.ToString("dd/MM/yyyy")</td>
                                                                             <td>@invoice.InvoiceNumber</td>
-                                                                            <td>@invoice.WaterMeterReading?.Consumption m³</td>
-                                                                            <td>@invoice.TotalAmount.ToString("N0") VNĐ</td>
+                                                                            <td>@(invoice.WaterMeterReading?.OldIndex.ToString("N0") ?? "-")</td>
+                                                                            <td>@(invoice.WaterMeterReading?.NewIndex.ToString("N0") ?? "-")</td>
+                                                                            <td>@invoice.WaterMeterReading?.Consumption.ToString("N0") m³</td>
+                                                                            <td>@(invoice.WaterMeterReading?.UnitPrice.ToString("N3").Replace(",", ".") + " VNĐ")</td>
+                                                                            <td>@(invoice.TotalAmount.ToString("N3").Replace(",", ".") + " VNĐ")</td>
                                                                         </tr>
                                                                     }
                                                                 </tbody>
