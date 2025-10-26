@@ -215,7 +215,7 @@ namespace WaterService.Controllers
                 // Tự động tạo Invoice cho chỉ số ban đầu
                 await _invoiceService.CreateOrUpdateInvoiceAsync(initialReading);
 
-                TempData["SuccessMessage"] = "Customer created successfully.";
+                TempData["SuccessMessage"] = "Đã tạo khách hàng thành công.";
                 return RedirectToAction(nameof(Details), new { id = customer.Id });
             }
 
@@ -259,7 +259,7 @@ namespace WaterService.Controllers
 
                 _context.SaveChanges();
 
-                TempData["SuccessMessage"] = "Customer updated successfully.";
+                TempData["SuccessMessage"] = "Đã cập nhật thông tin khách hàng thành công.";
                 return RedirectToAction(nameof(Details), new { id = customer.Id });
             }
 
@@ -294,14 +294,14 @@ namespace WaterService.Controllers
 
             if (customer.Invoices != null && customer.Invoices.Any())
             {
-                TempData["ErrorMessage"] = "Cannot delete customer with existing invoices.";
+                TempData["ErrorMessage"] = "Không thể xóa khách hàng đang có hóa đơn.";
                 return RedirectToAction(nameof(Index));
             }
 
             _context.Customers.Remove(customer);
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Customer deleted successfully.";
+            TempData["SuccessMessage"] = "Đã xóa khách hàng thành công.";
             return RedirectToAction(nameof(Index));
         }
 
