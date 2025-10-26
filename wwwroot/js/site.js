@@ -4,7 +4,7 @@
 // Write your JavaScript code.
 
 // Customer Management JavaScript
-$(document).ready(function() {
+$(document).ready(function () {
     // Initialize customer management functionality
     initializeCustomerManagement();
 });
@@ -12,9 +12,9 @@ $(document).ready(function() {
 function initializeCustomerManagement() {
     // Search functionality with debouncing
     let searchTimeout;
-    $('#search').on('input', function() {
+    $('#search').on('input', function () {
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(function() {
+        searchTimeout = setTimeout(function () {
             performSearch();
         }, 500);
     });
@@ -25,22 +25,22 @@ function initializeCustomerManagement() {
     //});
 
     // Select all functionality
-    $('#selectAll').on('change', function() {
+    $('#selectAll').on('change', function () {
         $('.customer-checkbox').prop('checked', this.checked);
         updateBulkActions();
     });
 
     // Individual checkbox change
-    $('.customer-checkbox').on('change', function() {
+    $('.customer-checkbox').on('change', function () {
         updateBulkActions();
         updateSelectAllState();
     });
 
     // Bulk action handlers
-    $('.dropdown-item[data-action]').on('click', function(e) {
+    $('.dropdown-item[data-action]').on('click', function (e) {
         e.preventDefault();
         const action = $(this).data('action');
-        const selectedIds = $('.customer-checkbox:checked').map(function() {
+        const selectedIds = $('.customer-checkbox:checked').map(function () {
             return $(this).val();
         }).get();
 
@@ -55,7 +55,7 @@ function initializeCustomerManagement() {
     });
 
     // Form auto-save functionality
-    $('.customer-form input, .customer-form textarea, .customer-form select').on('change', function() {
+    $('.customer-form input, .customer-form textarea, .customer-form select').on('change', function () {
         autoSaveFormData();
     });
 
@@ -119,25 +119,25 @@ function performBulkAction(action, customerIds) {
         method: 'POST',
         body: formData
     })
-    .then(response => {
-        if (response.ok) {
-            return response.text();
-        }
-        throw new Error('Network response was not ok');
-    })
-    .then(data => {
-        showLoading(false);
-        showAlert(`Bulk action completed successfully.`, 'success');
-        // Reload the page to show updated data
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000);
-    })
-    .catch(error => {
-        showLoading(false);
-        showAlert('An error occurred while performing the bulk action.', 'danger');
-        console.error('Error:', error);
-    });
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error('Network response was not ok');
+        })
+        .then(data => {
+            showLoading(false);
+            showAlert(`Bulk action completed successfully.`, 'success');
+            // Reload the page to show updated data
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        })
+        .catch(error => {
+            showLoading(false);
+            showAlert('An error occurred while performing the bulk action.', 'danger');
+            console.error('Error:', error);
+        });
 }
 
 function autoSaveFormData() {
@@ -149,36 +149,36 @@ function autoSaveFormData() {
         notes: $('#Notes').val(),
         timestamp: new Date().toISOString()
     };
-    
+
     localStorage.setItem('customerFormData', JSON.stringify(formData));
 }
 
 function loadFormData() {
-    const savedData = localStorage.getItem('customerFormData');
-    if (savedData) {
-        try {
-            const formData = JSON.parse(savedData);
-            
-            // Check if data is not too old (24 hours)
-            const savedTime = new Date(formData.timestamp);
-            const now = new Date();
-            const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
-            
-            if (hoursDiff < 24) {
-                $('#HouseholdHeadName').val(formData.householdHeadName || '');
-                $('#Address').val(formData.address || '');
-                $('#PhoneNumber').val(formData.phoneNumber || '');
-                $('#Status').val(formData.status || 'Active');
-                $('#Notes').val(formData.notes || '');
-                
-                showAlert('Form data restored from previous session.', 'info');
-            } else {
-                localStorage.removeItem('customerFormData');
-            }
-        } catch (e) {
-            localStorage.removeItem('customerFormData');
-        }
-    }
+    // const savedData = localStorage.getItem('customerFormData');
+    // if (savedData) {
+    //     try {
+    //         const formData = JSON.parse(savedData);
+
+    //         // Check if data is not too old (24 hours)
+    //         const savedTime = new Date(formData.timestamp);
+    //         const now = new Date();
+    //         const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
+
+    //         if (hoursDiff < 24) {
+    //             $('#HouseholdHeadName').val(formData.householdHeadName || '');
+    //             $('#Address').val(formData.address || '');
+    //             $('#PhoneNumber').val(formData.phoneNumber || '');
+    //             $('#Status').val(formData.status || 'Active');
+    //             $('#Notes').val(formData.notes || '');
+
+    //             showAlert('Form data restored from previous session.', 'info');
+    //         } else {
+    //             localStorage.removeItem('customerFormData');
+    //         }
+    //     } catch (e) {
+    //         localStorage.removeItem('customerFormData');
+    //     }
+    // }
 }
 
 function clearForm() {
@@ -192,7 +192,7 @@ function clearForm() {
 function showAlert(message, type) {
     // Remove existing alerts
     $('.alert-dismissible').remove();
-    
+
     // Create new alert
     const alertHtml = `
         <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -200,10 +200,10 @@ function showAlert(message, type) {
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     `;
-    
+
     // Insert at the top of the page
     $('.customer-management, .customer-form, .customer-details').prepend(alertHtml);
-    
+
     // Auto-dismiss after 5 seconds
     setTimeout(() => {
         $('.alert-dismissible').fadeOut();

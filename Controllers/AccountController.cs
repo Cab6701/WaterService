@@ -171,25 +171,14 @@ namespace WaterService.Controllers
                     IsActive = true
                 };
 
-                // Tạo user thường
-                var normalUser = new User
-                {
-                    Username = "user",
-                    Password = HashPassword("user123"),
-                    DisplayName = "Người dùng",
-                    Role = UserRole.User,
-                    IsActive = true
-                };
-
-                _context.Users.AddRange(adminUser, normalUser);
+                _context.Users.Add(adminUser);
                 await _context.SaveChangesAsync();
 
                 return Json(new { 
                     success = true, 
                     message = "Đã tạo dữ liệu mẫu thành công",
                     users = new[] {
-                        new { username = "admin", password = "admin123", role = "Admin" },
-                        new { username = "user", password = "user123", role = "User" }
+                        new { username = "admin", password = "admin123", role = "Admin" }
                     }
                 });
             }
