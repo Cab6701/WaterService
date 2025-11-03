@@ -164,8 +164,8 @@
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <div class="text-center">
-                                                            <h6 class="text-muted">Số hóa đơn</h6>
-                                                            <h4 class="text-primary">@quarter.InvoiceCount</h4>
+                                                            <h6 class="text-muted">Mã khách hàng</h6>
+                                                            <h4 class="text-primary">@quarter.CustomerCode</h4>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -200,7 +200,7 @@
                                                                 <thead>
                                                                     <tr>
                                                                         <th>Ngày tạo</th>
-                                                                        <th>Số hóa đơn</th>
+                                                                        <th>Mã khách hàng</th>
                                                                         <th>Chỉ số cũ</th>
                                                                         <th>Chỉ số mới</th>
                                                                         <th>Số khối (m³)</th>
@@ -213,7 +213,7 @@
                                                                     {
                                                                         <tr>
                                                                             <td>@invoice.CreatedAt.ToString("dd/MM/yyyy")</td>
-                                                                            <td>@invoice.InvoiceNumber</td>
+                                                                            <td>@invoice.CustomerCode</td>
                                                                             <td>@(invoice.WaterMeterReading?.OldIndex.ToString("N0") ?? "-")</td>
                                                                             <td>@(invoice.WaterMeterReading?.NewIndex.ToString("N0") ?? "-")</td>
                                                                             <td>@invoice.WaterMeterReading?.Consumption.ToString("N0") m³</td>
