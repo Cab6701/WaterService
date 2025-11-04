@@ -186,6 +186,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite
 
 // Add custom services
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<ITierPriceService, TierPriceService>();
 
 // Add session services
 builder.Services.AddDistributedMemoryCache();
@@ -273,6 +274,10 @@ using (var scope = app.Services.CreateScope())
     
     // Initialize admin user
     await InitializeAdminUserAsync(dbContext, logger);
+    
+    // Initialize default tier price
+    var tierPriceService = services.GetRequiredService<WaterService.Services.ITierPriceService>();
+    await tierPriceService.EnsureDefaultTierPriceExistsAsync();
     
     // Log database status
     try

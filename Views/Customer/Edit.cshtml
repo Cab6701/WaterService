@@ -98,13 +98,9 @@
                             <label class="form-label">Chỉ số cũ</label>
                             <input type="number" step="1" class="form-control" name="PreviousReading" required />
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label class="form-label">Chỉ số mới</label>
                             <input type="number" step="1" class="form-control" name="CurrentReading" required />
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Đơn giá</label>
-                            <input type="number" class="form-control" name="UnitPrice" required />
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">Thêm</button>
@@ -167,7 +163,8 @@
                                     <th>Năm</th>
                                     <th>Chỉ số cũ</th>
                                     <th>Chỉ số mới</th>
-                                    <th>Đơn giá</th>
+                                    <th>Lượng tiêu thụ</th>
+                                    <th>Tổng tiền</th>
                                     <th>Ngày tạo</th>
                                     <th>Hành động</th>
                                 </tr>
@@ -181,9 +178,10 @@
                                         <tr data-id="@reading.Id">
                                             <td>@(reading.Quarter)</td>
                                             <td>@reading.Year</td>
-                                            <td>@reading.OldIndex</td>
-                                            <td>@reading.NewIndex</td>
-                                            <td>@(reading.UnitPrice)</td>
+                                            <td>@reading.OldIndex.ToString("N0")</td>
+                                            <td>@reading.NewIndex.ToString("N0")</td>
+                                            <td>@(reading.Consumption?.ToString("N0") ?? "0") m³</td>
+                                            <td>@(reading.TotalAmount?.ToString("N0") ?? "0") VNĐ</td>
                                             <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
                                             <td>
                                                 <div class="d-sm-flex justify-content-between">
@@ -199,7 +197,7 @@
                                 else
                                 {
                                     <tr>
-                                        <td colspan="7" class="text-center py-3 text-muted fst-italic">
+                                        <td colspan="8" class="text-center py-3 text-muted fst-italic">
                                             <i class="fas fa-exclamation-circle me-1"></i>Không có dữ liệu đọc đồng hồ
                                         </td>
                                     </tr>
@@ -239,14 +237,9 @@
                                 <input type="number" class="form-control" name="PreviousReading" id="editOldIndex"
                                     required />
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label">Chỉ số mới</label>
                                 <input type="number" class="form-control" name="CurrentReading" id="editNewIndex"
-                                    required />
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Đơn giá</label>
-                                <input type="number" class="form-control" name="UnitPrice" id="editUnitPrice"
                                     required />
                             </div>
                         </div>
@@ -327,9 +320,8 @@
                     $('#editReadingId').val(id);
                     $('#editQuarter').val(row.find('td:eq(0)').text());
                     $('#editYear').val(row.find('td:eq(1)').text());
-                    $('#editOldIndex').val(row.find('td:eq(2)').text());
-                    $('#editNewIndex').val(row.find('td:eq(3)').text());
-                    $('#editUnitPrice').val(row.find('td:eq(4)').text());
+                    $('#editOldIndex').val(row.find('td:eq(2)').text().replace(/[,\s]/g, ''));
+                    $('#editNewIndex').val(row.find('td:eq(3)').text().replace(/[,\s]/g, ''));
                     var modal = new bootstrap.Modal(document.getElementById('editReadingModal'));
                     modal.show();
                 });

@@ -204,7 +204,6 @@
                                                                         <th>Chỉ số cũ</th>
                                                                         <th>Chỉ số mới</th>
                                                                         <th>Số khối (m³)</th>
-                                                                        <th>Đơn giá</th>
                                                                         <th>Thành tiền</th>
                                                                     </tr>
                                                                 </thead>
@@ -217,8 +216,7 @@
                                                                             <td>@(invoice.WaterMeterReading?.OldIndex.ToString("N0") ?? "-")</td>
                                                                             <td>@(invoice.WaterMeterReading?.NewIndex.ToString("N0") ?? "-")</td>
                                                                             <td>@invoice.WaterMeterReading?.Consumption.ToString("N0") m³</td>
-                                                                            <td>@(invoice.WaterMeterReading?.UnitPrice.ToString("N3").Replace(",", ".") + " VNĐ")</td>
-                                                                            <td>@(invoice.TotalAmount.ToString("N3").Replace(",", ".") + " VNĐ")</td>
+                                                                            <td>@(invoice.TotalAmount.ToString("N0") + " VNĐ")</td>
                                                                         </tr>
                                                                     }
                                                                 </tbody>

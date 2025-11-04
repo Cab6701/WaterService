@@ -13,15 +13,17 @@ namespace WaterService.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IInvoiceService _invoiceService;
+        private readonly ITierPriceService _tierPriceService;
 
-        public CustomerController(ApplicationDbContext context, IInvoiceService invoiceService)
+        public CustomerController(ApplicationDbContext context, IInvoiceService invoiceService, ITierPriceService tierPriceService)
         {
             _context = context;
             _invoiceService = invoiceService;
+            _tierPriceService = tierPriceService;
         }
 
         // GET: Customer
-        public IActionResult Index(string? search, string? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
+        public async Task<IActionResult> Index(string? search, string? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
             var query = _context.Customers
                 .Include(c => c.MeterReadings)
@@ -60,6 +62,25 @@ namespace WaterService.Controllers
                 .Take(pageSize)
                 .ToList();
 
+            // Tính TotalAmount cho mỗi MeterReading
+            var tierPrice = await _tierPriceService.GetCurrentTierPriceAsync();
+            foreach (var customer in customers)
+            {
+                if (customer.MeterReadings != null)
+                {
+                    foreach (var reading in customer.MeterReadings)
+                    {
+                        if (reading.Year == year.Value && reading.Quarter == quarter)
+                        {
+                            reading.TotalAmount = reading.CalculateTotalAmount(
+                                tierPrice.Tier1Price,
+                                tierPrice.Tier2Price,
+                                tierPrice.Tier3Price);
+                        }
+                    }
+                }
+            }
+
             var viewModel = new CustomerIndexViewModel
             {
                 Customers = customers,
@@ -78,7 +99,7 @@ namespace WaterService.Controllers
         }
 
         // GET: Customer/Details/5
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
             var customer = _context.Customers
                 .Include(c => c.MeterReadings)
@@ -89,13 +110,27 @@ namespace WaterService.Controllers
             {
                 return NotFound();
             }
+
+            // Tính TotalAmount cho mỗi MeterReading
+            var tierPrice = await _tierPriceService.GetCurrentTierPriceAsync();
+            if (customer.MeterReadings != null)
+            {
+                foreach (var reading in customer.MeterReadings)
+                {
+                    reading.TotalAmount = reading.CalculateTotalAmount(
+                        tierPrice.Tier1Price, 
+                        tierPrice.Tier2Price, 
+                        tierPrice.Tier3Price);
+                }
+            }
+
             return View(customer);
         }
 
         // POST: Customer/EditMeterReadings
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
+        public async Task<IActionResult> EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading)
         {
             var meterReading = _context.MeterReadings
                 .Include(m => m.Customer)
@@ -108,7 +143,6 @@ namespace WaterService.Controllers
             meterReading.Year = Year;
             meterReading.OldIndex = PreviousReading;
             meterReading.NewIndex = CurrentReading;
-            meterReading.UnitPrice = UnitPrice;
             meterReading.UpdatedAt = DateTime.UtcNow;
 
             _context.MeterReadings.Update(meterReading);
@@ -124,7 +158,7 @@ namespace WaterService.Controllers
         // POST: Customer/AddMeterReadings
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddMeterReadings(int CustomerId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
+        public async Task<IActionResult> AddMeterReadings(int CustomerId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading)
         {
             var customer = _context.Customers.Find(CustomerId);
             if (customer == null)
@@ -138,7 +172,6 @@ namespace WaterService.Controllers
                 Year = Year,
                 OldIndex = PreviousReading,
                 NewIndex = CurrentReading,
-                UnitPrice = UnitPrice,
                 Customer = customer,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -184,7 +217,7 @@ namespace WaterService.Controllers
         // POST: Customer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Customer customer, int InitialQuarter, int InitialYear, decimal InitialOldIndex = 0, decimal InitialNewIndex = 0, decimal UnitPrice = 0)
+        public async Task<IActionResult> Create(Customer customer, int InitialQuarter, int InitialYear, decimal InitialOldIndex = 0, decimal InitialNewIndex = 0)
         {
             if (ModelState.IsValid)
             {
@@ -198,7 +231,6 @@ namespace WaterService.Controllers
                     Year = InitialYear,
                     OldIndex = InitialOldIndex,
                     NewIndex = InitialNewIndex,
-                    UnitPrice = UnitPrice,
                     Customer = customer,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -223,7 +255,7 @@ namespace WaterService.Controllers
         }
 
         // GET: Customer/Edit/5
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
             var customer = _context.Customers
                 .Include(c => c.MeterReadings)
@@ -232,6 +264,19 @@ namespace WaterService.Controllers
             if (customer == null)
             {
                 return NotFound();
+            }
+
+            // Tính TotalAmount cho mỗi MeterReading
+            var tierPrice = await _tierPriceService.GetCurrentTierPriceAsync();
+            if (customer.MeterReadings != null)
+            {
+                foreach (var reading in customer.MeterReadings)
+                {
+                    reading.TotalAmount = reading.CalculateTotalAmount(
+                        tierPrice.Tier1Price, 
+                        tierPrice.Tier2Price, 
+                        tierPrice.Tier3Price);
+                }
             }
 
             return View(customer);

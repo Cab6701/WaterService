@@ -64,6 +64,9 @@ namespace WaterService.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("AppliedTierPriceId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -99,6 +102,8 @@ namespace WaterService.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppliedTierPriceId");
+
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("MeterReadingId")
@@ -128,9 +133,6 @@ namespace WaterService.Migrations
                     b.Property<int>("Quarter")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -142,6 +144,32 @@ namespace WaterService.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("MeterReadings");
+                });
+
+            modelBuilder.Entity("WaterService.Models.TierPrice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Tier1Price")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Tier2Price")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Tier3Price")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TierPrices");
                 });
 
             modelBuilder.Entity("WaterService.Models.User", b =>
@@ -181,6 +209,11 @@ namespace WaterService.Migrations
 
             modelBuilder.Entity("WaterService.Models.Invoice", b =>
                 {
+                    b.HasOne("WaterService.Models.TierPrice", "AppliedTierPrice")
+                        .WithMany()
+                        .HasForeignKey("AppliedTierPriceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("WaterService.Models.Customer", "Customer")
                         .WithMany("Invoices")
                         .HasForeignKey("CustomerId")
@@ -190,6 +223,8 @@ namespace WaterService.Migrations
                     b.HasOne("WaterService.Models.MeterReading", "WaterMeterReading")
                         .WithOne("Invoice")
                         .HasForeignKey("WaterService.Models.Invoice", "MeterReadingId");
+
+                    b.Navigation("AppliedTierPrice");
 
                     b.Navigation("Customer");
 
