@@ -120,7 +120,8 @@ namespace WaterService.Controllers
                         Quarter = model.Quarter,
                         TotalAmount = invoices.Sum(i => i.TotalAmount),
                         InvoiceCount = invoices.Count(),
-                        Invoices = invoices
+                        Invoices = invoices,
+                        CustomerCode = customer.CustomerCode
                     });
                 }
 
