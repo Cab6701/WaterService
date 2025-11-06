@@ -197,31 +197,60 @@
                                                         <h6>Chi tiết hóa đơn:</h6>
                                                         <div class="table-responsive">
                                                             <table class="table table-sm table-striped">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Ngày tạo</th>
-                                                                        <th>Mã khách hàng</th>
-                                                                        <th>Chỉ số cũ</th>
-                                                                        <th>Chỉ số mới</th>
-                                                                        <th>Số khối (m³)</th>
-                                                                        <th>Đơn giá</th>
-                                                                        <th>Thành tiền</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach (var invoice in quarter.Invoices)
-                                                                    {
-                                                                        <tr>
-                                                                            <td>@invoice.CreatedAt.ToString("dd/MM/yyyy")</td>
-                                                                            <td>@invoice.CustomerCode</td>
-                                                                            <td>@(invoice.WaterMeterReading?.OldIndex.ToString("N0") ?? "-")</td>
-                                                                            <td>@(invoice.WaterMeterReading?.NewIndex.ToString("N0") ?? "-")</td>
-                                                                            <td>@invoice.WaterMeterReading?.Consumption.ToString("N0") m³</td>
-                                                                            <td>@(invoice.WaterMeterReading?.UnitPrice.ToString("N3").Replace(",", ".") + " VNĐ")</td>
-                                                                            <td>@(invoice.TotalAmount.ToString("N3").Replace(",", ".") + " VNĐ")</td>
-                                                                        </tr>
-                                                                    }
-                                                                </tbody>
+                                                                @if (quarter.Invoices.Count > 0)
+                                                                {
+                                                                    <div class="mt-3">
+                                                                        <h6>Chi tiết hóa đơn:</h6>
+                                                                        <!-- Hiển thị dạng bảng cho màn hình lớn -->
+                                                                        <div class="table-responsive d-none d-md-block">
+                                                                            <table class="table table-sm table-striped align-middle">
+                                                                                <thead class="table-light">
+                                                                                    <tr>
+                                                                                        <th>Ngày tạo</th>
+                                                                                        <th>Mã khách hàng</th>
+                                                                                        <th>Chỉ số cũ</th>
+                                                                                        <th>Chỉ số mới</th>
+                                                                                        <th>Số khối (m³)</th>
+                                                                                        <th>Đơn giá</th>
+                                                                                        <th>Thành tiền</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    @foreach (var invoice in quarter.Invoices)
+                                                                                    {
+                                                                                        <tr>
+                                                                                            <td>@invoice.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                                                                            <td>@invoice.CustomerCode</td>
+                                                                                            <td>@(invoice.WaterMeterReading?.OldIndex.ToString("N0") ?? "-")</td>
+                                                                                            <td>@(invoice.WaterMeterReading?.NewIndex.ToString("N0") ?? "-")</td>
+                                                                                            <td>@invoice.WaterMeterReading?.Consumption.ToString("N0") m³</td>
+                                                                                            <td>@(invoice.WaterMeterReading?.UnitPrice.ToString("N3").Replace(",", ".") + " VNĐ")</td>
+                                                                                            <td class="text-danger fw-bold">@invoice.TotalAmount.ToString("N3").Replace(",", ".") VNĐ</td>
+                                                                                        </tr>
+                                                                                    }
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+
+                                                                        <!-- Hiển thị dạng Card cho Mobile -->
+                                                                        <div class="d-md-none">
+                                                                            @foreach (var invoice in quarter.Invoices)
+                                                                            {
+                                                                                <div class="card border shadow-sm mb-2">
+                                                                                    <div class="card-body p-2">
+                                                                                        <p class="mb-1"><strong>Ngày tạo:</strong> @invoice.CreatedAt.ToString("dd/MM/yyyy")</p>
+                                                                                        <p class="mb-1"><strong>Số hóa đơn:</strong> @invoice.CustomerCode</p>
+                                                                                        <p class="mb-1"><strong>Chỉ số:</strong> @invoice.WaterMeterReading?.OldIndex → @invoice.WaterMeterReading?.NewIndex</p>
+                                                                                        <p class="mb-1"><strong>Số khối:</strong> @invoice.WaterMeterReading?.Consumption m³</p>
+                                                                                        <p class="mb-1"><strong>Đơn giá:</strong> @invoice.WaterMeterReading?.UnitPrice.ToString("N3").Replace(",", ".") VNĐ</p>
+                                                                                        <p class="mb-1 text-danger fw-bold"><strong>Thành tiền:</strong> @invoice.TotalAmount.ToString("N3").Replace(",", ".") VNĐ</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                }
+
                                                             </table>
                                                         </div>
                                                     </div>
