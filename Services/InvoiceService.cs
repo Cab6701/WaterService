@@ -6,21 +6,29 @@ namespace WaterService.Services
 {
     public interface IInvoiceService
     {
-        Task<Invoice> CreateOrUpdateInvoiceAsync(MeterReading meterReading);
+        Task<Invoice> CreateOrUpdateInvoiceAsync(MeterReading meterReading, TierPrice? tierPrice = null);
         Task DeleteInvoiceAsync(int meterReadingId);
     }
 
     public class InvoiceService : IInvoiceService
     {
         private readonly ApplicationDbContext _context;
+        private readonly ITierPriceService _tierPriceService;
 
-        public InvoiceService(ApplicationDbContext context)
+        public InvoiceService(ApplicationDbContext context, ITierPriceService tierPriceService)
         {
             _context = context;
+            _tierPriceService = tierPriceService;
         }
 
-        public async Task<Invoice> CreateOrUpdateInvoiceAsync(MeterReading meterReading)
+        public async Task<Invoice> CreateOrUpdateInvoiceAsync(MeterReading meterReading, TierPrice? tierPrice = null)
         {
+            // Lấy giá bậc thang nếu chưa được truyền vào
+            if (tierPrice == null)
+            {
+                tierPrice = await _tierPriceService.GetCurrentTierPriceAsync();
+            }
+
             // Tìm Invoice hiện tại liên kết với MeterReading này
             var existingInvoice = await _context.Invoices
                 .FirstOrDefaultAsync(i => i.MeterReadingId == meterReading.Id);
@@ -31,7 +39,21 @@ namespace WaterService.Services
             {
                 // Cập nhật Invoice hiện tại
                 invoice = existingInvoice;
-                invoice.TotalAmount = meterReading.TotalAmount ?? 0;
+                // Dùng giá bậc thang đã áp dụng cho hóa đơn (nếu có), để không thay đổi khi giá mới cập nhật
+                TierPrice? appliedTier = null;
+                if (invoice.AppliedTierPriceId.HasValue)
+                {
+                    appliedTier = await _context.TierPrices.FindAsync(invoice.AppliedTierPriceId.Value);
+                }
+                appliedTier ??= tierPrice; // fallback an toàn
+
+                var recalculated = meterReading.CalculateTotalAmount(
+                    appliedTier!.Tier1Price,
+                    appliedTier.Tier2Price,
+                    appliedTier.Tier3Price);
+
+                meterReading.TotalAmount = recalculated;
+                invoice.TotalAmount = recalculated;
                 invoice.UpdatedAt = DateTime.UtcNow;
                 
                 // Nếu Invoice đã được thanh toán, không thay đổi trạng thái
@@ -52,11 +74,18 @@ namespace WaterService.Services
                     InvoiceNumber = GenerateInvoiceNumber(meterReading),
                     Status = InvoiceStatus.Pending,
                     DueDate = CalculateDueDate(meterReading.Year, meterReading.Quarter),
-                    TotalAmount = meterReading.TotalAmount ?? 0,
+                    // Áp dụng giá hiện tại tại thời điểm tạo hóa đơn
+                    TotalAmount = meterReading.CalculateTotalAmount(
+                        tierPrice.Tier1Price,
+                        tierPrice.Tier2Price,
+                        tierPrice.Tier3Price),
+                    AppliedTierPriceId = tierPrice.Id,
                     MeterReadingId = meterReading.Id,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
+
+                meterReading.TotalAmount = invoice.TotalAmount;
 
                 _context.Invoices.Add(invoice);
             }

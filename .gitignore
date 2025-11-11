@@ -30,7 +30,9 @@ artifacts/
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
-
+*.mdc
+*.md
+*.vsidx
 # NuGet Packages
 *.nupkg
 # NuGet Symbol Packages
@@ -56,3 +58,5 @@ nunit-*.xml
 *.pubxml.user
 *profile.arm.json
 *.csproj.user
+*.vs
+*.sln

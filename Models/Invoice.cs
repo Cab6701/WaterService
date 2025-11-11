@@ -36,6 +36,10 @@ namespace WaterService.Models
         [DataType(DataType.Currency)]
         public decimal TotalAmount { get; set; }
 
+        // Giá bậc thang áp dụng cho hóa đơn này (để giữ nguyên giá lịch sử)
+        public int? AppliedTierPriceId { get; set; }
+        public virtual TierPrice? AppliedTierPrice { get; set; }
+
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         [Display(Name = "Updated At")]

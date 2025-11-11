@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Threading.Tasks;
 using WaterService.Data;
 using WaterService.Extensions;
 using WaterService.Models;
@@ -13,18 +14,22 @@ namespace WaterService.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IInvoiceService _invoiceService;
+        private readonly ITierPriceService _tierPriceService;
 
-        public CustomerController(ApplicationDbContext context, IInvoiceService invoiceService)
+        public CustomerController(ApplicationDbContext context, IInvoiceService invoiceService, ITierPriceService tierPriceService)
         {
             _context = context;
             _invoiceService = invoiceService;
+            _tierPriceService = tierPriceService;
         }
 
         // GET: Customer
-        public IActionResult Index(string? search, string? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
+        public async Task<IActionResult> Index(string? search, string? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
+            await Task.Yield();
             var query = _context.Customers
                 .Include(c => c.MeterReadings)
+                .ThenInclude(m => m.Invoice)
                 .Include(c => c.Invoices)
                 .AsQueryable();
 
@@ -50,15 +55,18 @@ namespace WaterService.Controllers
                 query = query.Where(c => c.Invoices.Any(i => i.Status == (InvoiceStatus)status));
             }
 
-            query = query.Where(c => c.MeterReadings.Any(i => i.Year == year.Value && i.Quarter == quarter));
+            query = query.Where(c => c.MeterReadings.Any(i => i.Year == year.Value && i.Quarter == quarter.Value));
 
-            var totalCount = query.Count();
+            var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-            var customers = query
+            var customers = await query
                 .OrderBy(c => c.CustomerCode)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToList();
+                .ToListAsync();
+
+            var tierPrice = await _tierPriceService.GetCurrentTierPriceAsync();
+            tierPrice ??= new TierPrice();
 
             var viewModel = new CustomerIndexViewModel
             {
@@ -71,31 +79,34 @@ namespace WaterService.Controllers
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalCount = totalCount,
-                PageSize = pageSize
+                PageSize = pageSize,
+                TierPriceForm = tierPrice
             };
 
             return View(viewModel);
         }
 
         // GET: Customer/Details/5
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var customer = _context.Customers
+            var customer = await _context.Customers
                 .Include(c => c.MeterReadings)
+                    .ThenInclude(m => m.Invoice)
                 .Include(c => c.Invoices)
-                .FirstOrDefault(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (customer == null)
             {
                 return NotFound();
             }
+
             return View(customer);
         }
 
         // POST: Customer/EditMeterReadings
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
+        public async Task<IActionResult> EditMeterReadings(int CustomerId, int? Id, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading)
         {
             var meterReading = _context.MeterReadings
                 .Include(m => m.Customer)
@@ -108,7 +119,6 @@ namespace WaterService.Controllers
             meterReading.Year = Year;
             meterReading.OldIndex = PreviousReading;
             meterReading.NewIndex = CurrentReading;
-            meterReading.UnitPrice = UnitPrice;
             meterReading.UpdatedAt = DateTime.UtcNow;
 
             _context.MeterReadings.Update(meterReading);
@@ -124,7 +134,7 @@ namespace WaterService.Controllers
         // POST: Customer/AddMeterReadings
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddMeterReadings(int CustomerId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading, decimal UnitPrice)
+        public async Task<IActionResult> AddMeterReadings(int CustomerId, int Quarter, int Year, decimal PreviousReading, decimal CurrentReading)
         {
             var customer = _context.Customers.Find(CustomerId);
             if (customer == null)
@@ -138,7 +148,6 @@ namespace WaterService.Controllers
                 Year = Year,
                 OldIndex = PreviousReading,
                 NewIndex = CurrentReading,
-                UnitPrice = UnitPrice,
                 Customer = customer,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -175,6 +184,27 @@ namespace WaterService.Controllers
             return RedirectToAction(nameof(Edit), new { id = customer.Id });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateTierPrice(TierPrice tierPrice)
+        {
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("Username")) || HttpContext.Session.GetString("Role") != "Admin")
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền cập nhật giá bậc thang.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Dữ liệu giá bậc thang không hợp lệ. Vui lòng kiểm tra lại.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await _tierPriceService.UpdateTierPriceAsync(tierPrice);
+            TempData["SuccessMessage"] = "Đã cập nhật giá bậc thang thành công.";
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: Customer/Create
         public IActionResult Create()
         {
@@ -184,7 +214,7 @@ namespace WaterService.Controllers
         // POST: Customer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Customer customer, int InitialQuarter, int InitialYear, decimal InitialOldIndex = 0, decimal InitialNewIndex = 0, decimal UnitPrice = 0)
+        public async Task<IActionResult> Create(Customer customer, int InitialQuarter, int InitialYear, decimal InitialOldIndex = 0, decimal InitialNewIndex = 0)
         {
             if (ModelState.IsValid)
             {
@@ -198,7 +228,6 @@ namespace WaterService.Controllers
                     Year = InitialYear,
                     OldIndex = InitialOldIndex,
                     NewIndex = InitialNewIndex,
-                    UnitPrice = UnitPrice,
                     Customer = customer,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -223,11 +252,12 @@ namespace WaterService.Controllers
         }
 
         // GET: Customer/Edit/5
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var customer = _context.Customers
+            var customer = await _context.Customers
                 .Include(c => c.MeterReadings)
-                .FirstOrDefault(c => c.Id == id);
+                    .ThenInclude(m => m.Invoice)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (customer == null)
             {
@@ -371,6 +401,7 @@ namespace WaterService.Controllers
         public int TotalPages { get; set; }
         public int TotalCount { get; set; }
         public int PageSize { get; set; }
+        public TierPrice TierPriceForm { get; set; } = new TierPrice();
     }
 }
 
