@@ -110,10 +110,6 @@
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
-    @if (!string.IsNullOrEmpty(Context.Session.GetString("Username")) && Context.Session.GetString("Role") == "Admin")
-    {
-        @await Html.PartialAsync("~/Views/TierPrice/Edit.cshtml", new WaterService.Models.TierPrice())
-    }
 </body>
 
 </html>

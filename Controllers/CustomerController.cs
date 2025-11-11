@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Threading.Tasks;
 using WaterService.Data;
 using WaterService.Extensions;
 using WaterService.Models;
@@ -25,8 +26,10 @@ namespace WaterService.Controllers
         // GET: Customer
         public async Task<IActionResult> Index(string? search, string? address, int? status, int? quarter, int? year, int page = 1, int pageSize = 20)
         {
+            await Task.Yield();
             var query = _context.Customers
                 .Include(c => c.MeterReadings)
+                .ThenInclude(m => m.Invoice)
                 .Include(c => c.Invoices)
                 .AsQueryable();
 
@@ -52,34 +55,18 @@ namespace WaterService.Controllers
                 query = query.Where(c => c.Invoices.Any(i => i.Status == (InvoiceStatus)status));
             }
 
-            query = query.Where(c => c.MeterReadings.Any(i => i.Year == year.Value && i.Quarter == quarter));
+            query = query.Where(c => c.MeterReadings.Any(i => i.Year == year.Value && i.Quarter == quarter.Value));
 
-            var totalCount = query.Count();
+            var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-            var customers = query
+            var customers = await query
                 .OrderBy(c => c.CustomerCode)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToList();
+                .ToListAsync();
 
-            // Tính TotalAmount cho mỗi MeterReading
             var tierPrice = await _tierPriceService.GetCurrentTierPriceAsync();
-            foreach (var customer in customers)
-            {
-                if (customer.MeterReadings != null)
-                {
-                    foreach (var reading in customer.MeterReadings)
-                    {
-                        if (reading.Year == year.Value && reading.Quarter == quarter)
-                        {
-                            reading.TotalAmount = reading.CalculateTotalAmount(
-                                tierPrice.Tier1Price,
-                                tierPrice.Tier2Price,
-                                tierPrice.Tier3Price);
-                        }
-                    }
-                }
-            }
+            tierPrice ??= new TierPrice();
 
             var viewModel = new CustomerIndexViewModel
             {
@@ -92,7 +79,8 @@ namespace WaterService.Controllers
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalCount = totalCount,
-                PageSize = pageSize
+                PageSize = pageSize,
+                TierPriceForm = tierPrice
             };
 
             return View(viewModel);
@@ -101,27 +89,15 @@ namespace WaterService.Controllers
         // GET: Customer/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var customer = _context.Customers
+            var customer = await _context.Customers
                 .Include(c => c.MeterReadings)
+                    .ThenInclude(m => m.Invoice)
                 .Include(c => c.Invoices)
-                .FirstOrDefault(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (customer == null)
             {
                 return NotFound();
-            }
-
-            // Tính TotalAmount cho mỗi MeterReading
-            var tierPrice = await _tierPriceService.GetCurrentTierPriceAsync();
-            if (customer.MeterReadings != null)
-            {
-                foreach (var reading in customer.MeterReadings)
-                {
-                    reading.TotalAmount = reading.CalculateTotalAmount(
-                        tierPrice.Tier1Price, 
-                        tierPrice.Tier2Price, 
-                        tierPrice.Tier3Price);
-                }
             }
 
             return View(customer);
@@ -208,6 +184,27 @@ namespace WaterService.Controllers
             return RedirectToAction(nameof(Edit), new { id = customer.Id });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateTierPrice(TierPrice tierPrice)
+        {
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("Username")) || HttpContext.Session.GetString("Role") != "Admin")
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền cập nhật giá bậc thang.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Dữ liệu giá bậc thang không hợp lệ. Vui lòng kiểm tra lại.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await _tierPriceService.UpdateTierPriceAsync(tierPrice);
+            TempData["SuccessMessage"] = "Đã cập nhật giá bậc thang thành công.";
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: Customer/Create
         public IActionResult Create()
         {
@@ -257,26 +254,14 @@ namespace WaterService.Controllers
         // GET: Customer/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var customer = _context.Customers
+            var customer = await _context.Customers
                 .Include(c => c.MeterReadings)
-                .FirstOrDefault(c => c.Id == id);
+                    .ThenInclude(m => m.Invoice)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (customer == null)
             {
                 return NotFound();
-            }
-
-            // Tính TotalAmount cho mỗi MeterReading
-            var tierPrice = await _tierPriceService.GetCurrentTierPriceAsync();
-            if (customer.MeterReadings != null)
-            {
-                foreach (var reading in customer.MeterReadings)
-                {
-                    reading.TotalAmount = reading.CalculateTotalAmount(
-                        tierPrice.Tier1Price, 
-                        tierPrice.Tier2Price, 
-                        tierPrice.Tier3Price);
-                }
             }
 
             return View(customer);
@@ -416,6 +401,7 @@ namespace WaterService.Controllers
         public int TotalPages { get; set; }
         public int TotalCount { get; set; }
         public int PageSize { get; set; }
+        public TierPrice TierPriceForm { get; set; } = new TierPrice();
     }
 }
 

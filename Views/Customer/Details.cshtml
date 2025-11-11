@@ -202,7 +202,8 @@
                                             <td>@reading.OldIndex.ToString("N0")</td>
                                             <td>@reading.NewIndex.ToString("N0")</td>
                                             <td>@(reading.Consumption?.ToString("N0") ?? "0") m³</td>
-                                            <td>@(reading.TotalAmount?.ToString("N0") ?? "0") VNĐ</td>
+                                            <td>@(reading.Invoice != null ? reading.Invoice.TotalAmount.ToString("N0") : "0")
+                                                VNĐ</td>
                                             <td>@reading.CreatedAt.ToString("dd/MM/yyyy")</td>
                                         </tr>
                                     }

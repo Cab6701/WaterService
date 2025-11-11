@@ -41,7 +41,7 @@ namespace WaterService.Services
         public async Task<TierPrice> UpdateTierPriceAsync(TierPrice tierPrice)
         {
             tierPrice.UpdatedAt = DateTime.UtcNow;
-            
+
             // Thêm bản ghi mới thay vì cập nhật (để giữ lịch sử)
             _context.TierPrices.Add(tierPrice);
             await _context.SaveChangesAsync();
@@ -62,7 +62,7 @@ namespace WaterService.Services
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
-                
+
                 _context.TierPrices.Add(defaultTierPrice);
                 await _context.SaveChangesAsync();
             }

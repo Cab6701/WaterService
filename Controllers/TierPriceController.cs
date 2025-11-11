@@ -14,10 +14,10 @@ namespace WaterService.Controllers
         }
 
         // GET: TierPrice/Edit
-        public async Task<IActionResult> Edit()
+        public IActionResult Edit()
         {
-            var tierPrice = await _tierPriceService.GetCurrentTierPriceAsync();
-            return View(tierPrice);
+            TempData["InfoMessage"] = "Chức năng chỉnh sửa giá bậc thang hiện có trong trang Quản Lý Người Dùng.";
+            return RedirectToAction("Index", "Customer");
         }
 
         // POST: TierPrice/Edit
