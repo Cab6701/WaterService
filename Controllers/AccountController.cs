@@ -93,47 +93,98 @@ namespace WaterService.Controllers
             {
                 var customer = await _context.Customers
                     .Include(c => c.Invoices)
-                        .ThenInclude(i => i.WaterMeterReading)
-                    .FirstOrDefaultAsync(c => c.CustomerCode.ToUpper() == model.CustomerCode.ToUpper());
+                    .ThenInclude(i => i.WaterMeterReading)
+                    .FirstOrDefaultAsync(c => c.PhoneNumber == model.PhoneNumber);
 
                 if (customer == null)
                 {
-                    _logger.LogWarning("Customer not found with code: {CustomerCode}", model.CustomerCode);
-                    ModelState.AddModelError(string.Empty, $"Không tìm thấy khách hàng với mã số '{model.CustomerCode}'. Vui lòng kiểm tra lại mã khách hàng.");
+                    _logger.LogWarning("Customer not found with phone number: {PhoneNumber}", model.PhoneNumber);
+                    ModelState.AddModelError(string.Empty, $"Không tìm thấy khách hàng với số điện thoại '{model.PhoneNumber}'. Vui lòng kiểm tra lại số điện thoại.");
                     return View(model);
                 }
 
-                // Lấy dữ liệu hóa đơn theo năm và quý của MeterReading
-                var invoices = customer.Invoices
-                    .Where(i => i.WaterMeterReading != null && 
-                               i.WaterMeterReading.Year == model.Year && 
+                // Lấy dữ liệu hóa đơn theo năm và quý của MeterReading, bao gồm AppliedTierPrice
+                var invoices = await _context.Invoices
+                    .Include(i => i.WaterMeterReading)
+                    .Include(i => i.AppliedTierPrice)
+                    .Where(i => i.CustomerId == customer.Id &&
+                               i.WaterMeterReading != null &&
+                               i.WaterMeterReading.Year == model.Year &&
                                i.WaterMeterReading.Quarter == model.Quarter)
-                    .OrderBy(i => i.WaterMeterReading?.UpdatedAt)
-                    .ToList();
+                    .OrderBy(i => i.WaterMeterReading!.UpdatedAt)
+                    .ToListAsync();
 
-                // Tạo dữ liệu cho quý được chọn
-                var quarterlyData = new List<dynamic>();
-                if (invoices.Any())
+                // Lấy invoice đầu tiên để hiển thị thông tin (nếu có)
+                var firstInvoice = invoices.FirstOrDefault();
+                var meterReading = firstInvoice?.WaterMeterReading;
+                var tierPrice = firstInvoice?.AppliedTierPrice;
+
+                // Tính breakdown theo bậc giá
+                var tierBreakdown = new List<dynamic>();
+                if (meterReading != null && tierPrice != null)
                 {
-                    quarterlyData.Add(new
+                    var consumption = meterReading.Consumption ?? 0;
+                    decimal tier1Consumption = 0, tier2Consumption = 0, tier3Consumption = 0;
+                    decimal tier1Amount = 0, tier2Amount = 0, tier3Amount = 0;
+
+                    if (consumption <= 30)
                     {
-                        Quarter = model.Quarter,
-                        TotalAmount = invoices.Sum(i => i.TotalAmount),
-                        InvoiceCount = invoices.Count(),
-                        Invoices = invoices,
-                        CustomerCode = customer.CustomerCode
+                        tier1Consumption = consumption;
+                        tier1Amount = tier1Consumption * tierPrice.Tier1Price;
+                    }
+                    else if (consumption <= 60)
+                    {
+                        tier1Consumption = 30;
+                        tier1Amount = tier1Consumption * tierPrice.Tier1Price;
+                        tier2Consumption = consumption - 30;
+                        tier2Amount = tier2Consumption * tierPrice.Tier2Price;
+                    }
+                    else
+                    {
+                        tier1Consumption = 30;
+                        tier1Amount = tier1Consumption * tierPrice.Tier1Price;
+                        tier2Consumption = 30;
+                        tier2Amount = tier2Consumption * tierPrice.Tier2Price;
+                        tier3Consumption = consumption - 60;
+                        tier3Amount = tier3Consumption * tierPrice.Tier3Price;
+                    }
+
+                    tierBreakdown.Add(new
+                    {
+                        Tier = 1,
+                        UnitPrice = tierPrice.Tier1Price,
+                        Consumption = tier1Consumption,
+                        Amount = tier1Amount
+                    });
+                    tierBreakdown.Add(new
+                    {
+                        Tier = 2,
+                        UnitPrice = tierPrice.Tier2Price,
+                        Consumption = tier2Consumption,
+                        Amount = tier2Amount
+                    });
+                    tierBreakdown.Add(new
+                    {
+                        Tier = 3,
+                        UnitPrice = tierPrice.Tier3Price,
+                        Consumption = tier3Consumption,
+                        Amount = tier3Amount
                     });
                 }
 
                 ViewBag.Customer = customer;
-                ViewBag.QuarterlyData = quarterlyData;
+                ViewBag.Invoices = invoices;
+                ViewBag.MeterReading = meterReading;
+                ViewBag.TierPrice = tierPrice;
+                ViewBag.TierBreakdown = tierBreakdown;
                 ViewBag.Year = model.Year;
+                ViewBag.Quarter = model.Quarter;
 
                 return View(model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during water inquiry for customer {CustomerCode}", model.CustomerCode);
+                _logger.LogError(ex, "Error during water inquiry for phone number {PhoneNumber}", model.PhoneNumber);
                 ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi trong quá trình tra cứu. Vui lòng thử lại.");
                 return View(model);
             }
@@ -175,8 +226,9 @@ namespace WaterService.Controllers
                 _context.Users.Add(adminUser);
                 await _context.SaveChangesAsync();
 
-                return Json(new { 
-                    success = true, 
+                return Json(new
+                {
+                    success = true,
                     message = "Đã tạo dữ liệu mẫu thành công",
                     users = new[] {
                         new { username = "admin", password = "admin123", role = "Admin" }
@@ -195,12 +247,14 @@ namespace WaterService.Controllers
             try
             {
                 var users = await _context.Users.ToListAsync();
-                return Json(new { 
-                    success = true, 
+                return Json(new
+                {
+                    success = true,
                     count = users.Count,
-                    users = users.Select(u => new { 
-                        username = u.Username, 
-                        displayName = u.DisplayName, 
+                    users = users.Select(u => new
+                    {
+                        username = u.Username,
+                        displayName = u.DisplayName,
                         role = u.Role.ToString(),
                         isActive = u.IsActive
                     }).ToList()
@@ -238,7 +292,7 @@ namespace WaterService.Controllers
                     },
                     new Customer
                     {
-                        CustomerCode = "KH002", 
+                        CustomerCode = "KH002",
                         Name = "Trần Thị Bình",
                         Address = "Thôn 2, Xã Minh Sơn",
                         PhoneNumber = "0987654321",
@@ -250,7 +304,7 @@ namespace WaterService.Controllers
                     {
                         CustomerCode = "KH003",
                         Name = "Lê Văn Cường",
-                        Address = "Thôn 3, Xã Minh Sơn", 
+                        Address = "Thôn 3, Xã Minh Sơn",
                         PhoneNumber = "0369258147",
                         Notes = "Khách hàng mẫu 3",
                         CreatedAt = DateTime.UtcNow,
@@ -261,12 +315,14 @@ namespace WaterService.Controllers
                 _context.Customers.AddRange(customers);
                 await _context.SaveChangesAsync();
 
-                return Json(new { 
-                    success = true, 
+                return Json(new
+                {
+                    success = true,
                     message = "Đã tạo dữ liệu khách hàng mẫu thành công",
-                    customers = customers.Select(c => new { 
-                        code = c.CustomerCode, 
-                        name = c.Name 
+                    customers = customers.Select(c => new
+                    {
+                        code = c.CustomerCode,
+                        name = c.Name
                     }).ToList()
                 });
             }

@@ -19,9 +19,10 @@ namespace WaterService.Models
 
     public class WaterInquiryViewModel
     {
-        [Required(ErrorMessage = "Vui lòng nhập mã khách hàng")]
-        [Display(Name = "Mã khách hàng")]
-        public string CustomerCode { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
+        [Display(Name = "Số điện thoại")]
+        [RegularExpression(@"^[0-9]{10,11}$", ErrorMessage = "Số điện thoại phải bao gồm từ 10 - 11 ký tự số")]
+        public string PhoneNumber { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng chọn quý")]
         [Display(Name = "Quý")]
