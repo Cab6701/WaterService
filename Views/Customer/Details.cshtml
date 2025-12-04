@@ -1,6 +1,14 @@
 @model WaterService.Models.Customer
+@using WaterService.Models
+@using WaterService.Extensions
 @{
     ViewData["Title"] = "Customer Details";
+    var totalDue = ViewBag.TotalDue as decimal? ?? 0m;
+    var totalPaid = ViewBag.TotalPaid as decimal? ?? 0m;
+    var totalInvoices = ViewBag.TotalInvoices as int? ?? 0;
+    var overdueCount = ViewBag.OverdueCount as int? ?? 0;
+    var isAdmin = !string.IsNullOrEmpty(Context.Session.GetString("Username")) && Context.Session.GetString("Role") ==
+    "Admin";
 }
 
 <div class="customer-details">
@@ -122,24 +130,24 @@
                     <div class="row text-center">
                         <div class="col-md-3">
                             <div class="border-end">
-                                <h4 class="text-primary mb-1">₫0</h4>
-                                <small class="text-muted">Số dư hiện tại</small>
+                                <h4 class="text-primary mb-1">@totalDue.ToString("N0") ₫</h4>
+                                <small class="text-muted">Số dư chưa thanh toán</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="border-end">
-                                <h4 class="text-success mb-1">₫0</h4>
+                                <h4 class="text-success mb-1">@totalPaid.ToString("N0") ₫</h4>
                                 <small class="text-muted">Tổng số tiền đã trả</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="border-end">
-                                <h4 class="text-info mb-1">0</h4>
+                                <h4 class="text-info mb-1">@totalInvoices</h4>
                                 <small class="text-muted">Tổng hóa đơn</small>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <h4 class="text-warning mb-1">0</h4>
+                            <h4 class="text-warning mb-1">@overdueCount</h4>
                             <small class="text-muted">Hóa đơn quá hạn</small>
                         </div>
                     </div>
@@ -150,21 +158,87 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
-                        <i class="fas fa-file-invoice"></i> Hóa đơn gần đây
+                        <i class="fas fa-file-invoice"></i> Hóa đơn
                     </h6>
-                    <a href="#" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-plus"></i> Hóa đơn mới
-                    </a>
                 </div>
                 <div class="card-body">
-                    <div class="text-center py-4">
-                        <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
-                        <h6 class="text-muted">Không tìm thấy hóa đơn</h6>
-                        <p class="text-muted mb-0">Khách hàng này chưa có hóa đơn nào.</p>
-                        <a href="#" class="btn btn-sm btn-primary mt-2">
-                            <i class="fas fa-plus"></i> Tạo hóa đơn đầu tiên
-                        </a>
-                    </div>
+                    @if (Model.Invoices != null && Model.Invoices.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover align-middle">
+                                <thead class="table-light text-center align-middle">
+                                    <tr>
+                                        <th class="text-center align-middle">Mã hóa đơn</th>
+                                        <th class="text-center align-middle">Quý/Năm</th>
+                                        <th class="text-center align-middle">Ngày đến hạn</th>
+                                        <th class="text-center align-middle">Trạng thái</th>
+                                        <th class="text-center align-middle">Tổng tiền</th>
+                                        <th class="text-center align-middle">Ngày thanh toán</th>
+                                        @if (isAdmin)
+                                        {
+                                            <th class="text-center align-middle">Thao tác</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var invoice in Model.Invoices.OrderByDescending(i => i.DueDate))
+                                    {
+                                        var reading = invoice.WaterMeterReading;
+                                        <tr>
+                                            <td>@invoice.InvoiceNumber</td>
+                                            <td>
+                                                @(reading != null ? $"Q{reading.Quarter}/{reading.Year}" : "-")
+                                            </td>
+                                            <td>@invoice.DueDate.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <span
+                                                    class="badge px-3 py-2
+                                                                                                    @(invoice.Status == InvoiceStatus.Paid ? "bg-success" :
+                                                                                                                                                                                                                                                                                                                                                                                invoice.Status == InvoiceStatus.Overdue ? "bg-danger" :
+                                                                                                                                                                                                                                                                                                                                                                                invoice.Status == InvoiceStatus.Pending ? "bg-warning text-dark" :
+                                                                                                                                                                                                                                                                                                                                                                                "bg-secondary")">
+                                                    @(invoice.Status?.GetDisplayName() ?? "Chưa xác định")
+                                                </span>
+                                            </td>
+                                            <td>@invoice.TotalAmount.ToString("N0") ₫</td>
+                                            <td>@(invoice.PaidDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                            @if (isAdmin)
+                                            {
+                                                <td>
+                                                    <form asp-action="UpdateInvoiceStatus" asp-controller="Customer" method="post"
+                                                        class="d-flex gap-2 align-items-center">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="invoiceId" value="@invoice.Id" />
+                                                        <select name="status" class="form-select form-select-sm"
+                                                            style="max-width: 150px;">
+                                                            @foreach (InvoiceStatus status in Enum.GetValues(typeof(InvoiceStatus)))
+                                                            {
+                                                                <option value="@( (int)status )"
+                                                                    selected="@(invoice.Status == status ? "selected" : null)">
+                                                                    @status.GetDisplayName()
+                                                                </option>
+                                                            }
+                                                        </select>
+                                                        <button type="submit" class="btn btn-sm btn-primary">
+                                                            <i class="fas fa-save"></i> Cập nhật
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">Không tìm thấy hóa đơn</h6>
+                            <p class="text-muted mb-0">Khách hàng này chưa có hóa đơn nào.</p>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -179,15 +253,15 @@
                     <!-- Bảng lịch sử chỉ số nước -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover align-middle">
-                            <thead class="table-light">
+                            <thead class="table-light text-center align-middle">
                                 <tr>
-                                    <th>Quý</th>
-                                    <th>Năm</th>
-                                    <th>Chỉ số cũ</th>
-                                    <th>Chỉ số mới</th>
-                                    <th>Lượng tiêu thụ</th>
-                                    <th>Tổng tiền</th>
-                                    <th>Ngày nhập</th>
+                                    <th class="text-center align-middle">Quý</th>
+                                    <th class="text-center align-middle">Năm</th>
+                                    <th class="text-center align-middle">Chỉ số cũ</th>
+                                    <th class="text-center align-middle">Chỉ số mới</th>
+                                    <th class="text-center align-middle">Lượng tiêu thụ</th>
+                                    <th class="text-center align-middle">Tổng tiền</th>
+                                    <th class="text-center align-middle">Ngày nhập</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -228,11 +302,39 @@
                     </h6>
                 </div>
                 <div class="card-body">
-                    <div class="text-center py-4">
-                        <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
-                        <h6 class="text-muted">Không tìm thấy khoản thanh toán nào.</h6>
-                        <p class="text-muted mb-0">Khách hàng này chưa có bất kỳ lịch sử thanh toán nào.</p>
-                    </div>
+                    @if (Model.Invoices != null && Model.Invoices.Any(i => i.Status == InvoiceStatus.Paid))
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle">
+                                <thead class="table-light text-center align-middle">
+                                    <tr>
+                                        <th class="text-center align-middle">Mã hóa đơn</th>
+                                        <th class="text-center align-middle">Ngày thanh toán</th>
+                                        <th class="text-center align-middle">Số tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var invoice in Model.Invoices.Where(i => i.Status ==
+                                                                    InvoiceStatus.Paid).OrderByDescending(i => i.PaidDate))
+                                    {
+                                        <tr>
+                                            <td>@invoice.InvoiceNumber</td>
+                                            <td>@(invoice.PaidDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                            <td>@invoice.TotalAmount.ToString("N0") ₫</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">Không tìm thấy khoản thanh toán nào.</h6>
+                            <p class="text-muted mb-0">Khách hàng này chưa có bất kỳ lịch sử thanh toán nào.</p>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

@@ -1,4 +1,6 @@
 @model WaterService.Models.WaterInquiryViewModel
+@using WaterService.Models
+@using WaterService.Extensions
 @{
     ViewData["Title"] = "Tra cứu hóa đơn nước";
     Layout = "~/Views/Shared/_LayoutPublic.cshtml";
@@ -30,41 +32,6 @@
                             </small>
                         </p>
                     </div>
-
-                    <!-- Thông tin thanh toán -->
-                    @*<div class="alert alert-warning" role="alert">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h6 class="alert-heading">
-                                    <i class="fas fa-credit-card"></i> Thông tin thanh toán
-                                </h6>
-                                <p class="mb-2"><strong>Vui lòng thanh toán trước hạn thanh toán theo thông tin dưới đây:</strong></p>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p class="mb-1"><strong>Chủ TK:</strong> KHUONG TUNG AN</p>
-                                        <p class="mb-1"><strong>Số TK:</strong> 8888912997587</p>
-                                        <p class="mb-1"><strong>Ngân hàng:</strong> Agribank - CN Tứ Kỳ, HD</p>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <p class="mb-1"><strong>Nội dung chuyển khoản:</strong></p>
-                                        <span>Số điện thoại đã đăng ký</span>
-                                    </div>
-                                </div>
-
-                                <p class="mb-0 mt-2 text-danger">
-                                    <i class="fas fa-phone"></i>
-                                    <strong>Gửi ảnh xác nhận thanh toán qua Hotline/Zalo: 0912997587</strong>
-                                </p>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <h6 class="text-danger mb-2">
-                                    <i class="fas fa-qrcode"></i> QUÉT MÃ QR
-                                </h6>
-                                <img src="~/images/qrcode.jpg" alt="Mã QR thanh toán" class="img-fluid" style="max-width: 150px;">
-                            </div>
-                        </div>
-                    </div>*@
                     <form asp-action="WaterInquiry" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -118,18 +85,96 @@
                         </div>
                     </form>
 
+                    @* Tóm tắt nhanh trạng thái hóa đơn ngay dưới nút Tra cứu *@
+                    @if (ViewBag.Customer != null && ViewBag.MeterReading != null && ViewBag.Invoices != null)
+                    {
+                        var quickInvoices = (ViewBag.Invoices as List<Invoice>) ?? new List<Invoice>();
+                        var quickFirstInvoice = quickInvoices.FirstOrDefault();
+                        if (quickFirstInvoice != null)
+                        {
+                            var quickStatus = quickFirstInvoice.Status;
+                            var quickDueDate = quickFirstInvoice.DueDate;
+                            var quickPaidDate = quickFirstInvoice.PaidDate;
+
+                            if (quickStatus != null)
+                            {
+                                <div class="mt-3 mb-0">
+                                    @switch (quickStatus)
+                                    {
+                                        case InvoiceStatus.Paid:
+                                            <div class="alert alert-success border-0 shadow-sm mb-0">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                    <div>
+                                                        <strong>Trạng thái hóa đơn Quý @ViewBag.Quarter/@ViewBag.Year:</strong>
+                                                        <span class="badge bg-success ms-1">@quickStatus.GetDisplayName()</span>
+                                                    </div>
+                                                    <div class="small">
+                                                        @if (quickPaidDate != null)
+                                                        {
+                                                            <span>Đã thanh toán ngày @quickPaidDate.Value.ToString("dd/MM/yyyy")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            break;
+                                        case InvoiceStatus.Overdue:
+                                            <div class="alert alert-danger border-0 shadow-sm mb-0">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                    <div>
+                                                        <strong>Hóa đơn đang QUÁ HẠN.</strong>
+                                                        <span class="badge bg-danger ms-1">@quickStatus.GetDisplayName()</span>
+                                                    </div>
+                                                    <div class="small">
+                                                        Hạn thanh toán: @quickDueDate.ToString("dd/MM/yyyy")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            break;
+                                        case InvoiceStatus.Pending:
+                                            <div class="alert alert-warning border-0 shadow-sm mb-0">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                    <div>
+                                                        <strong>Hóa đơn đang chờ thanh toán.</strong>
+                                                        <span class="badge bg-warning text-dark ms-1">@quickStatus.GetDisplayName()</span>
+                                                    </div>
+                                                    <div class="small">
+                                                        Vui lòng thanh toán trước ngày @quickDueDate.ToString("dd/MM/yyyy").
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            break;
+                                        case InvoiceStatus.Cancelled:
+                                            <div class="alert alert-secondary border-0 shadow-sm mb-0">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                    <div>
+                                                        <strong>Hóa đơn đã bị hủy.</strong>
+                                                        <span class="badge bg-secondary ms-1">@quickStatus.GetDisplayName()</span>
+                                                    </div>
+                                                    <div class="small">
+                                                        Vui lòng liên hệ quản trị viên để biết thêm chi tiết.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            break;
+                                    }
+                                </div>
+                            }
+                        }
+                    }
+
                     @if (ViewBag.Customer != null && ViewBag.MeterReading != null)
                     {
                         <hr class="my-4">
 
-                        var customer = ViewBag.Customer as WaterService.Models.Customer;
+                        var customer = (ViewBag.Customer as Customer) ?? new Customer();
                         var meterReading = ViewBag.MeterReading as WaterService.Models.MeterReading;
-                        var invoices = ViewBag.Invoices as List<WaterService.Models.Invoice>;
+                        var invoices = (ViewBag.Invoices as List<Invoice>) ?? new List<Invoice>();
                         var firstInvoice = invoices?.FirstOrDefault();
                         var tierBreakdown = ViewBag.TierBreakdown as List<dynamic>;
                         var totalAmount = firstInvoice?.TotalAmount ?? 0;
                         var dueDate = firstInvoice?.DueDate ?? DateTime.Now;
-                        var consumption = meterReading.Consumption ?? 0;
+                        var consumption = meterReading?.Consumption ?? 0;
+                        var status = firstInvoice?.Status;
 
                         <div class="row">
                             <!-- Cột trái: THÔNG BÁO -->
@@ -157,11 +202,11 @@
                                             <div class="row">
                                                 <div class="col-6">
                                                     <p class="mb-2"><strong class="text-muted">Chỉ số đầu:</strong></p>
-                                                    <p class="mb-0 fw-bold text-dark fs-5">@meterReading.OldIndex.ToString("N0")</p>
+                                                    <p class="mb-0 fw-bold text-dark fs-5">@((meterReading?.OldIndex ?? 0).ToString("N0"))</p>
                                                 </div>
                                                 <div class="col-6">
                                                     <p class="mb-2"><strong class="text-muted">Chỉ số cuối:</strong></p>
-                                                    <p class="mb-0 fw-bold text-dark fs-5">@meterReading.NewIndex.ToString("N0")</p>
+                                                    <p class="mb-0 fw-bold text-dark fs-5">@((meterReading?.NewIndex ?? 0).ToString("N0"))</p>
                                                 </div>
                                             </div>
                                             <hr class="my-2">

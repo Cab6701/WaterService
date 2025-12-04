@@ -100,6 +100,22 @@ namespace WaterService.Controllers
                 return NotFound();
             }
 
+            // Tính toán tóm tắt thanh toán dựa trên hóa đơn thực tế
+            var invoices = customer.Invoices ?? new List<Invoice>();
+            var totalPaid = invoices
+                .Where(i => i.Status == InvoiceStatus.Paid)
+                .Sum(i => i.TotalAmount);
+            var totalDue = invoices
+                .Where(i => i.Status == InvoiceStatus.Pending || i.Status == InvoiceStatus.Overdue)
+                .Sum(i => i.TotalAmount);
+            var totalInvoices = invoices.Count;
+            var overdueCount = invoices.Count(i => i.Status == InvoiceStatus.Overdue);
+
+            ViewBag.TotalPaid = totalPaid;
+            ViewBag.TotalDue = totalDue;
+            ViewBag.TotalInvoices = totalInvoices;
+            ViewBag.OverdueCount = overdueCount;
+
             return View(customer);
         }
 
@@ -182,6 +198,37 @@ namespace WaterService.Controllers
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "Đã xóa chỉ số nước và hóa đơn liên kết.";
             return RedirectToAction(nameof(Edit), new { id = customer.Id });
+        }
+
+        // POST: Customer/UpdateInvoiceStatus
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateInvoiceStatus(int invoiceId, InvoiceStatus status)
+        {
+            // Chỉ Admin mới được phép cập nhật trạng thái thanh toán
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("Username")) || HttpContext.Session.GetString("Role") != "Admin")
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền cập nhật trạng thái thanh toán.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == invoiceId);
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            invoice.Status = status;
+            invoice.UpdatedAt = DateTime.UtcNow;
+
+            // Cập nhật ngày thanh toán nếu trạng thái là Đã thanh toán, ngược lại xóa ngày thanh toán
+            invoice.PaidDate = status == InvoiceStatus.Paid ? DateTime.UtcNow : null;
+
+            _context.Invoices.Update(invoice);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đã cập nhật trạng thái thanh toán hóa đơn.";
+            return RedirectToAction(nameof(Details), new { id = invoice.CustomerId });
         }
 
         [HttpPost]
